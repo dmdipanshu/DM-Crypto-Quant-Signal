@@ -1,0 +1,17 @@
+# SignalForge default configuration (Phase 1).
+# Non-secret settings only. Secrets (API keys) live in environment / .env, NEVER here.
+
+[exchange]
+name = "binance"        # ccxt exchange id for public market data
+timeout_ms = 10000      # per-request timeout
+max_retries = 3         # bounded retries with backoff (see tenacity policy in engine)
+rate_limit = true       # honor ccxt rate limiting
+
+[data]
+symbols = ["BTC/USDT", "ETH/USDT", "SOL/USDT"]
+timeframes = ["1h", "4h"]
+storage_path = "data"   # relative to repo root; raw/ and processed/ subdirs
+format = "parquet"      # canonical on-disk format (pyarrow)
+
+[logging]
+level = "INFO"          # DEBUG | INFO | WARNING | ERROR
