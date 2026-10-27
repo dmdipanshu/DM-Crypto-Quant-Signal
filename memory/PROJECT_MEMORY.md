@@ -4,11 +4,12 @@
 
 - Standalone engine `SignalForge`; pipeline: exchange → market data → features →
   models → signals → risk gates → results; dashboard/API consume canonical results.
-- 20 components (see `docs/ARCHITECTURE.md`); Phase 1 implements 1–7 only.
+- 20 components (see `docs/ARCHITECTURE.md`); Phases 1–2 implement data→models;
+  Phase 3 adds calibration + walk-forward/holdout validation (no production signals).
 
 ## Invariants
 
-- Phase 1 only unless a new phase is explicitly approved.
+- Phase 3 only unless a new phase is explicitly approved.
 - UTC-normalized market data with provenance; no silent fills; `NO_TRADE` valid.
 - Deterministic risk gates independent of models/AI; no live orders.
 - Secrets in env/`.env` only; never TOML/code/git. Accuracy ≠ win rate ≠ profitability.
@@ -39,3 +40,12 @@
 - [x] `uv run ruff check .` — clean (after 1 unused-var fix in test_models.py)
 - [x] `uv run ruff format --check .` — clean (5 files reformatted by lead)
 - [x] `uv run sf health` / `sf config-show` — model/registry sections present
+
+## Verified commands (Phase 3 lead-run 2026-10-27, all EXIT 0)
+
+- [x] `uv sync` — clean (no dep changes; sklearn 1.9.1 retained)
+- [x] `uv run pytest` — 165 passed, 1 skipped (lightgbm optional) in ~14–16 s
+- [x] `uv run pytest -rs` — skip reason: lightgbm not installed (legitimate)
+- [x] `uv run ruff check .` — clean
+- [x] `uv run ruff format --check .` — 98 files clean
+- [x] `uv run sf health` / `sf config-show` — calibration/validation sections present

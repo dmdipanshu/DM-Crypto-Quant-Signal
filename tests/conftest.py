@@ -121,3 +121,69 @@ def registry_meta():
         "train_start": "2024-01-01T00:00:00+00:00",
         "train_end": "2024-01-05T00:00:00+00:00",
     }
+
+
+# --- Track A calibration additions (append-only): synthetic score fixtures --
+# NOTE: appended 2026-10-27 by Track A (calibration); existing fixtures above untouched.
+
+
+@pytest.fixture
+def calibration_synthetic_300():
+    """Deterministic miscalibrated-score splits: 200 cal + 100 test rows (seed 0)."""
+    import numpy as np
+    from scipy.special import expit
+
+    rng = np.random.default_rng(0)
+    z_cal = rng.normal(size=200)
+    z_test = rng.normal(size=100)
+    p_cal, p_test = expit(z_cal), expit(z_test)
+    s_cal = np.clip(p_cal + 0.25, 0.0, 1.0)
+    s_test = np.clip(p_test + 0.25, 0.0, 1.0)
+    y_cal = (rng.uniform(size=200) < p_cal).astype(int)
+    y_test = (rng.uniform(size=100) < p_test).astype(int)
+    y_cal[0], y_cal[1] = 0, 1
+    y_test[0], y_test[1] = 0, 1
+    return {"scores_cal": s_cal, "y_cal": y_cal, "scores_test": s_test, "y_test": y_test}
+
+
+@pytest.fixture
+def fitted_logistic_base():
+    """Tiny fitted binary SklearnLogistic base (60 rows, seed 0) for calibrator tests."""
+    import numpy as np
+    import pandas as pd
+
+    from crypto_engine.models.sklearn_wrappers import SklearnLogistic
+
+    rng = np.random.default_rng(0)
+    x = rng.normal(size=(60, 2))
+    X = pd.DataFrame(x, columns=["a", "b"])
+    y = (x[:, 0] > 0).astype(int)
+    return SklearnLogistic(feature_names=["a", "b"]).fit(X, y)
+
+
+# --- Track B validation additions (append-only): hand-computed proxy case --
+# NOTE: appended 2026-10-27 by Track B; existing fixtures above untouched.
+
+
+@pytest.fixture
+def proxy_labels_5():
+    """Hand-computed 5-trade proxy case for exact cost-math tests.
+
+    labels=[+1,-1,0,+1,-1], pt_ret=0.02, sl_ret=0.01, fee_bp=10,
+    slippage_bp=5 -> cost=0.0015/trade; expected returns
+    [0.0185,-0.0115,-0.0015,0.0185,-0.0115], mean 0.0025, win rate 2/5
+    (the timeout row pays costs, so it is a nonzero outcome).
+    """
+    import numpy as np
+
+    labels = np.asarray([1, -1, 0, 1, -1], dtype=np.int64)
+    expected = np.asarray([0.0185, -0.0115, -0.0015, 0.0185, -0.0115])
+    return {
+        "labels": labels,
+        "pt_ret": 0.02,
+        "sl_ret": 0.01,
+        "fee_bp": 10.0,
+        "slippage_bp": 5.0,
+        "expected": expected,
+        "expected_mean": 0.0025,
+    }

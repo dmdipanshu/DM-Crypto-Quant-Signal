@@ -49,6 +49,39 @@ class RegistryConfig(BaseModel):
     allow_overwrite: bool = False
 
 
+class CalibrationConfig(BaseModel):
+    """Phase 3 probability-calibration configuration (Track A owns semantics).
+
+    Calibrated output estimates ``P(y == positive_class)`` on a
+    chronologically-later split; see ``calibration/calibrators.py``.
+    """
+
+    method: Literal["sigmoid", "isotonic"] = "sigmoid"
+    min_cal_samples: int = Field(default=20, ge=2)
+    positive_class: int | None = None
+
+
+class ValidationConfig(BaseModel):
+    """Phase 3 walk-forward / holdout / cost validation configuration.
+
+    Schema defined here so Track B never edits ``settings.py``; Track B
+    owns the validation engine semantics in ``validation/``.
+    """
+
+    n_folds: int = Field(default=3, ge=1, le=10)
+    train_window: int = Field(default=200, ge=1)
+    val_window: int = Field(default=50, ge=1)
+    embargo_bars: int = Field(default=24, ge=0)
+    purge_overlaps: bool = True
+    holdout_frac: float = Field(default=0.15, ge=0.0, le=0.4)
+    min_fold_samples: int = Field(default=30, ge=1)
+    max_bootstrap: int = Field(default=200, ge=1, le=1000)
+    block_bootstrap_len: int = Field(default=20, ge=1)
+    fee_bp: float = Field(default=10.0, ge=0.0)
+    slippage_bp: float = Field(default=5.0, ge=0.0)
+    random_state: int = 42
+
+
 class Settings(BaseModel):
     """Root validated settings object."""
 
@@ -57,6 +90,8 @@ class Settings(BaseModel):
     logging: LoggingConfig = Field(default_factory=LoggingConfig)
     model: ModelConfig = Field(default_factory=ModelConfig)
     registry: RegistryConfig = Field(default_factory=RegistryConfig)
+    calibration: CalibrationConfig = Field(default_factory=CalibrationConfig)
+    validation: ValidationConfig = Field(default_factory=ValidationConfig)
 
     @classmethod
     def from_toml_dict(cls, data: dict[str, Any]) -> Settings:
@@ -110,12 +145,14 @@ def load_settings(toml_path: Path | None = None) -> Settings:
 
 
 __all__ = [
+    "CalibrationConfig",
     "DataConfig",
     "ExchangeConfig",
     "LoggingConfig",
     "ModelConfig",
     "RegistryConfig",
     "Settings",
+    "ValidationConfig",
     "default_config_path",
     "load_settings",
 ]

@@ -1,21 +1,23 @@
-# AGENTS.md — SignalForge Operating Rules (Phase 2 authorized)
+# AGENTS.md — SignalForge Operating Rules (Phase 3 authorized)
 
 Read this file and `memory/` before any work. It overrides any conflicting assumption.
 
-## 1. Scope: Phase 2 Only
+## 1. Scope: Phase 3 Only
 
-SignalForge Phase 2 = causal features, triple-barrier labels, lightweight ML
-baselines, model interfaces, local registry, anti-leakage tests.
-Phase 1 foundation (config, market-data, snapshots, CLI) is done — extend, do not duplicate.
-**Not implemented in Phase 2:** AI providers, production signals, risk execution,
-full backtesting engine, paper trading, API/dashboard, large hyperparameter searches,
-walk-forward reports, locked-holdout evaluation. Stop before Phase 3 unless explicitly authorized.
+SignalForge Phase 3 = probability calibration, reliability reporting,
+purged walk-forward validation, embargo, locked final-holdout protocol,
+experiment/trial registry, multiple-testing discipline, cost/robustness analysis.
+Phases 1–2 (config, market data, snapshots, CLI, features, triple-barrier labels,
+baselines, model registry) are done — extend, do not duplicate or rewrite.
+**Not implemented in Phase 3:** AI providers, production signals, risk execution,
+full event-driven backtester, paper trading, live orders, API/dashboard, large
+hyperparameter searches. Stop before Phase 4 unless explicitly authorized.
 
 ## 2. Resource Constraint: 4 GB Laptop (mandatory)
 
 - One training job / one process by default; `n_jobs=1` everywhere.
 - Bounded chunks, column/row-group Parquet reads, no full-matrix copies.
-- No PyTorch/TF/Transformers/LLMs, no GPU, no pretrained downloads in Phase 2.
+- No PyTorch/TF/Transformers/LLMs, no GPU, no pretrained downloads in Phase 3.
 - Small deterministic fixtures for unit tests; larger data explicitly configurable.
 - Actionable errors on memory pressure; never silently drop rows; record sample limits.
 
@@ -23,10 +25,10 @@ walk-forward reports, locked-holdout evaluation. Stop before Phase 3 unless expl
 
 - Bounded ownership: each agent owns only its assigned paths. Never edit `src/` or `tests/`
   unless they are your assigned paths.
-- Parallel subagents only for genuinely independent tasks with non-overlapping files.
+- Sequential subagents on this 4 GB machine (no parallel agents); one job at a time.
 - Integration lead resolves conflicts; agent suggestions are not verification.
 
-## 3. Architecture and Module Boundaries
+## 4. Architecture and Module Boundaries
 
 Canonical pipeline (see `docs/ARCHITECTURE.md`):
 
@@ -39,7 +41,7 @@ exchange (ccxt, public) → market data → features → models → signals → 
 - Risk gates are deterministic and independent of models/AI. `NO_TRADE` is a valid,
   expected output on invalid or insufficient evidence.
 
-## 4. Coding Conventions
+## 5. Coding Conventions
 
 - Python 3.12, `uv`-managed isolated venv (`.venv/`, never system Python).
 - Typed, modular code; Windows-safe paths (`pathlib`, no POSIX-only assumptions);
@@ -48,7 +50,7 @@ exchange (ccxt, public) → market data → features → models → signals → 
 - No secrets in code, TOML, or git. Secrets only via environment / `.env` (see `.env.example`).
 - No empty placeholder modules in `src/` — every module must have a real interface or not exist.
 
-## 5. Install / Run / Test (Windows)
+## 6. Install / Run / Test (Windows)
 
 ```powershell
 py -3.12 -m pip install uv            # once, if uv missing
@@ -59,7 +61,7 @@ uv run pytest                         # full test suite
 uv run ruff check .                   # lint
 ```
 
-## 6. Agent / Skill Responsibilities
+## 7. Agent / Skill Responsibilities
 
 | Agent | Owns |
 |---|---|
@@ -77,7 +79,7 @@ uv run ruff check .                   # lint
 Skills in `.opencode/skills/*/SKILL.md` are the normative procedures for each domain.
 Load the matching skill before doing domain work.
 
-## 7. Memory Procedures
+## 8. Memory Procedures
 
 1. Read `AGENTS.md` + all four `memory/` files before meaningful work.
 2. Compare memory claims against current files and actual command output.
@@ -88,11 +90,11 @@ Load the matching skill before doing domain work.
 
 ## 9. Phase Authorization
 
-- Approved: Phase 2 (causal features, triple-barrier labels, lightweight baselines,
-  model interfaces, local registry, anti-leakage tests).
-- Anything beyond Phase 2 (calibration/ensembles Phase 3, AI Phase 4, signals/risk
-  Phase 5, backtests/paper Phase 6, API/dashboard Phase 7) requires explicit
-  user approval. Default answer to out-of-phase requests: stop and ask.
+- Approved: Phase 3 (calibration, reliability, purged walk-forward + embargo,
+  locked holdout, experiment registry, multiple-testing, cost/robustness).
+- Anything beyond Phase 3 (AI Phase 4, signals/risk Phase 5, backtests/paper
+  Phase 6, API/dashboard Phase 7) requires explicit user approval. Default
+  answer to out-of-phase requests: stop and ask.
 
 ## 10. Risk / Security Rules
 

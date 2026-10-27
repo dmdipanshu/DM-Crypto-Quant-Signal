@@ -30,3 +30,12 @@
 - Resource probe (300 rows, tracemalloc, cold import): ~12.2s, ~55 MiB Python-alloc peak; not a process-RSS guarantee.
 - No 90% or profitability claim. Phase 3 NOT started; awaiting user review.
 
+## 2026-10-27 - Phase 3 authorized and implemented (lead integration)
+
+- Auth: Phase 3 only (calibration, reliability, purged walk-forward + embargo, locked holdout, experiment registry, DSR, cost/robustness). AGENTS.md scope updated to Phase 3; fixed duplicated section numbers (two ##3); sequential-subagent rule for 4GB.
+- Hygiene: normalized trailing blank lines in DECISIONS.md + SESSION_LOG.md; rewrote NEXT_STEPS.md to Phase 3 state (old Phase 2 gate retired, history preserved in git).
+- Track A (calibration/reliability/config): CalibratedClassifier (event P(y==positive_class), sigmoid/isotonic, t_bounds, min 20, 1e-12 reload), reliability module, CalibrationConfig + ValidationConfig in settings + default.toml; 26 tests.
+- Track B (validation): folds (tail-anchored, purge+embargo, disjoint counts), holdout ledger v1, metrics (tagged raw|calibrated, proxy Sharpe/drawdown warned), robustness (fee/slip grid, block bootstrap, MC, LOOFO), experiments (JSONL registry, DSR, Holm/Bonferroni, pbo_note refuses fabrication); 41 tests.
+- Lead verification: uv sync EXIT 0; pytest 165 passed/1 skipped (lightgbm optional); ruff check + format (98 files) clean; sf health/config-show EXIT 0 with new sections.
+- Resource probe (300-row OHLCV -> 181 feats, 2 folds, 50 bootstraps): ~0.19s, ~475 KiB tracemalloc peak (not RSS).
+- No 90% or profitability claim. Phase 4 NOT started; awaiting user review.

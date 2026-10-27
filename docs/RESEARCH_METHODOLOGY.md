@@ -1,4 +1,4 @@
-# RESEARCH_METHODOLOGY.md — SignalForge (Phase 2)
+# RESEARCH_METHODOLOGY.md — SignalForge (Phase 3)
 
 ## Principles
 
@@ -29,6 +29,9 @@ procedure (walk-forward, purges/embargoes where observations overlap).
 Locked final holdouts, purge/embargo overlapping windows, deterministic accounting
 fixtures. Investigate suspicious performance instead of optimizing around it.
 
-> Phase 2 implements causal features, triple-barrier labels, lightweight baselines,
-> and anti-leakage tests. Full walk-forward reports, calibration, and locked-holdout
-> evaluation remain Phase 3 (planned, not implemented).
+> Phase 3 implements calibration (sigmoid/isotonic, event `P(y == positive_class)`),
+> reliability reporting (bins, Brier, log-loss, ECE, coverage), purged walk-forward
+> with embargo, a locked-holdout protocol with access ledger, an experiment registry
+> (DSR, Holm/Bonferroni, no fabricated PBO), and research-level cost/robustness
+> analysis (fee/slippage stress, block bootstrap, MC). The cost proxy is a
+> research approximation, NOT a fill-level backtest; full execution remains Phase 6.

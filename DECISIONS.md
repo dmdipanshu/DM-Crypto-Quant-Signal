@@ -49,3 +49,10 @@ Append-only. Never rewrite history; supersede with new dated entries.
 - Representative probe: 300-row OHLCV -> 181 feature rows x4 cols + logistic fit ~12.2s cold / ~55 MiB Python-alloc peak (tracemalloc, not RSS guarantee).
 - No 90% or profitability claim; randomized-label control within chance bands only.
 
+## 2026-10-27 - Phase 3 validation and calibration design
+
+- Calibration event fixed as P(y == positive_class), binary-only; sigmoid default, isotonic gated by sample; never fit on holdout; reload fidelity 1e-12.
+- Folds tail-anchored with purge of label-information overlap + embargo in bars (documented vs horizons); exclusions disjoint and recorded; holdout = chronological tail with JSON ledger v1 (audit-based lock, adequacy verdicts).
+- Experiment registry JSONL with deterministic ids; failures kept, never counted; DSR per Bailey-Lopez de Prado with 1/(T-1) fallback disclosed; no PBO number fabricated (pbo_note).
+- Cost proxy is a research approximation (fixed fractional outcomes, per-row costs, 2x stress); NOT a fill-level backtest; proxy Sharpe/drawdown carry warnings. Full execution stays Phase 6.
+- Metrics separated by type (directional vs proxy-trade vs portfolio-proxy); ECE binning-dependent; block bootstrap for serial dependence; counts configurable for 4GB (folds<=10, boot<=200).

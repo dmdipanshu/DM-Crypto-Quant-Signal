@@ -28,3 +28,27 @@ n_jobs = 1                   # always 1 on 4GB laptop; do not raise
 [registry]
 path = "models/artifacts"  # relative to repo root; git-ignored
 allow_overwrite = false    # never overwrite an existing model_id dir
+
+# Phase 3 probability calibration (Track A). 4GB: calibration splits are
+# small (default floor 20 rows); isotonic needs materially more samples
+# than sigmoid to avoid overfitting the calibration split.
+[calibration]
+method = "sigmoid"      # sigmoid (Platt) | isotonic
+min_cal_samples = 20    # floor on chronologically-later calibration rows
+# positive_class = <int>  # unset: defaults to base model classes[1]
+
+# Phase 3 walk-forward / holdout / cost validation (Track B engine).
+# 4GB: keep windows small, n_jobs = 1, bounded bootstraps.
+[validation]
+n_folds = 3             # 1..10 purged walk-forward folds
+train_window = 200      # bars per training window
+val_window = 50         # bars per validation window
+embargo_bars = 24       # gap between train end and val start
+purge_overlaps = true   # drop overlapping train/val rows
+holdout_frac = 0.15     # 0..0.4 locked final-holdout fraction
+min_fold_samples = 30   # floor on rows per fold
+max_bootstrap = 200     # 1..1000 bounded bootstrap draws
+block_bootstrap_len = 20  # block length for time-series bootstrap
+fee_bp = 10.0           # explicit cost model (basis points)
+slippage_bp = 5.0       # explicit cost model (basis points)
+random_state = 42       # fixed seed for deterministic validation
