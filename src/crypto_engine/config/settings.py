@@ -82,6 +82,39 @@ class ValidationConfig(BaseModel):
     random_state: int = 42
 
 
+class AiProviderConfig(BaseModel):
+    """Single AI provider instance (Phase 4 Track A; all disabled by default)."""
+
+    provider_id: str = "openai"
+    model_id: str = "gpt-4o-mini"
+    enabled: bool = False
+    timeout_s: float = Field(default=30.0, gt=0)
+    max_retries: int = Field(default=2, ge=0, le=3)
+    max_response_chars: int = Field(default=4000, gt=0)
+    concurrency: int = Field(default=1, ge=1, le=1)
+    base_url: str | None = None
+    api_key_env: str | None = None
+    capabilities: dict[str, bool] = Field(default_factory=dict)
+
+
+class AiBudgetConfig(BaseModel):
+    """In-memory spend caps for AI calls (None disables that cap)."""
+
+    max_requests: int | None = Field(default=10, ge=1)
+    max_chars: int | None = Field(default=200000, ge=1)
+
+
+class AiConfig(BaseModel):
+    """Phase 4 AI interface configuration (Track A owns semantics)."""
+
+    default_provider: str = "none"
+    fallback_order: list[str] = Field(default_factory=list)
+    providers: list[AiProviderConfig] = Field(default_factory=list)
+    budgets: AiBudgetConfig = Field(default_factory=AiBudgetConfig)
+    cache_ttl_s: int = Field(default=0, ge=0)
+    log_prompts: bool = False
+
+
 class Settings(BaseModel):
     """Root validated settings object."""
 
@@ -92,6 +125,7 @@ class Settings(BaseModel):
     registry: RegistryConfig = Field(default_factory=RegistryConfig)
     calibration: CalibrationConfig = Field(default_factory=CalibrationConfig)
     validation: ValidationConfig = Field(default_factory=ValidationConfig)
+    ai: AiConfig = Field(default_factory=AiConfig)
 
     @classmethod
     def from_toml_dict(cls, data: dict[str, Any]) -> Settings:
@@ -145,6 +179,9 @@ def load_settings(toml_path: Path | None = None) -> Settings:
 
 
 __all__ = [
+    "AiBudgetConfig",
+    "AiConfig",
+    "AiProviderConfig",
     "CalibrationConfig",
     "DataConfig",
     "ExchangeConfig",

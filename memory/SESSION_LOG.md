@@ -39,3 +39,13 @@
 - Lead verification: uv sync EXIT 0; pytest 165 passed/1 skipped (lightgbm optional); ruff check + format (98 files) clean; sf health/config-show EXIT 0 with new sections.
 - Resource probe (300-row OHLCV -> 181 feats, 2 folds, 50 bootstraps): ~0.19s, ~475 KiB tracemalloc peak (not RSS).
 - No 90% or profitability claim. Phase 4 NOT started; awaiting user review.
+
+## 2026-10-27 - Phase 4 authorized and implemented (lead integration)
+
+- Auth: Phase 4 only (AI interface, 8 adapters, retry/fallback/budgets, validation, 8 analysts, context scores, ablation). AGENTS.md scope updated to Phase 4.
+- Track A (providers) survived abort with 1 failing test (ollama actionable message); lead fixed base.py to include redacted exception detail. Env has NO package network: reverted ai-* extras from pyproject (BYO SDKs via pip, adapters stdlib-urllib) so uv.lock stays valid; documented in default.toml + AI_PROVIDERS.md.
+- Track B (analysts/ablation/docs): 8 analysts, sequential orchestrator, 4-arm AblationStudy (temporal cutoff, registry-recorded, folds-only + ledger guard), AI_PROVIDERS.md rewritten; 31 tests.
+- Lead fixes: 9x RUF012 ClassVar + B027 noqa + 11 ruff auto-fixes in provider files; formatted 11 files; fixed stale ai-extras doc refs. Final: pytest 254 passed/1 skipped (lightgbm optional), ruff check + format (122 files) clean, sf health/config-show EXIT 0 with [ai] disabled-default.
+- Resource probe (6 analysts, mocked provider): ~0.03s, ~44 KiB tracemalloc peak (not RSS).
+- Risk review (lead): no secrets in repo; no live-order paths; AI cannot mutate quant artifacts/registry/holdout; ablation refuses non-pristine holdout; injection treated as data.
+- Ablation verdict: inconclusive (mocked zero-value context, delta 0.0; no timestamped news dataset). No AI predictive-value, profitability, or 90% claim. Phase 5 NOT started; awaiting user review.

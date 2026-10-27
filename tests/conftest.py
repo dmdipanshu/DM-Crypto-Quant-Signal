@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -159,6 +159,56 @@ def fitted_logistic_base():
     X = pd.DataFrame(x, columns=["a", "b"])
     y = (x[:, 0] > 0).astype(int)
     return SklearnLogistic(feature_names=["a", "b"]).fit(X, y)
+
+
+# --- Track A AI additions (append-only): provider fixtures ------------------
+# NOTE: appended 2026-10-27 by Track A; existing fixtures above untouched.
+
+
+@pytest.fixture
+def ai_request():
+    """Minimal valid AiRequest for provider tests."""
+    from crypto_engine.ai_providers.types import AiRequest
+
+    return AiRequest(
+        provider_id="openai",
+        model_id="gpt-4o-mini",
+        task="Assess trend.",
+        evidence={"rsi": 55.0},
+        schema_name="analysis",
+        timeout_s=30.0,
+        max_retries=2,
+        correlation_id="corr-1",
+    )
+
+
+# --- Track B analyst/ablation additions (append-only) -----------------------
+# NOTE: appended 2026-10-27 by Track B; existing fixtures above untouched.
+
+
+@pytest.fixture
+def analyst_evidence():
+    """Deterministic analyst evidence set (quant + news + regime + model)."""
+    from tests.fixtures.ai_fixtures import make_evidence
+
+    return make_evidence()
+
+
+@pytest.fixture
+def ablation_frame_120():
+    """Deterministic 120-row binary-label frame + timestamps for ablations."""
+    import numpy as np
+
+    from crypto_engine.validation.folds import make_folds
+
+    rng = np.random.default_rng(7)
+    n = 120
+    y = (rng.uniform(size=n) > 0.45).astype(int)
+    p = np.clip(0.5 + 0.2 * (y - 0.5) + rng.normal(0, 0.1, size=n), 0.01, 0.99)
+    base = datetime(2024, 1, 1, tzinfo=UTC)
+    ts = [(base + timedelta(hours=i)).isoformat() for i in range(n)]
+    folds = make_folds(n, train_window=40, val_window=10, n_folds=3, min_samples=5)
+    return {"y": y, "p": p, "ts": ts, "folds": folds}
 
 
 # --- Track B validation additions (append-only): hand-computed proxy case --

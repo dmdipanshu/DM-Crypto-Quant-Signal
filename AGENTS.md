@@ -1,23 +1,26 @@
-# AGENTS.md — SignalForge Operating Rules (Phase 3 authorized)
+# AGENTS.md — SignalForge Operating Rules (Phase 4 authorized)
 
 Read this file and `memory/` before any work. It overrides any conflicting assumption.
 
-## 1. Scope: Phase 3 Only
+## 1. Scope: Phase 4 Only
 
-SignalForge Phase 3 = probability calibration, reliability reporting,
-purged walk-forward validation, embargo, locked final-holdout protocol,
-experiment/trial registry, multiple-testing discipline, cost/robustness analysis.
-Phases 1–2 (config, market data, snapshots, CLI, features, triple-barrier labels,
-baselines, model registry) are done — extend, do not duplicate or rewrite.
-**Not implemented in Phase 3:** AI providers, production signals, risk execution,
-full event-driven backtester, paper trading, live orders, API/dashboard, large
-hyperparameter searches. Stop before Phase 4 unless explicitly authorized.
+SignalForge Phase 4 = provider-independent AI interface, optional provider
+adapters (OpenAI, Anthropic, Gemini, DeepSeek, OpenRouter, Groq, Ollama/local,
+generic OpenAI-compatible), retry/fallback/budgets, structured-output validation,
+specialist analyst agents, context-score contract, and ablation framework reusing
+the Phase 3 experiment registry. Phases 1–3 (data, features, labels, models,
+calibration, walk-forward/holdout validation) are done — extend, do not rewrite.
+**Not implemented in Phase 4:** production signal generation, AI-made trading
+decisions, execution/orders, full backtester, paper trading, live trading,
+API/dashboard, large local model downloads, large hyperparameter searches.
+Stop before Phase 5 unless explicitly authorized.
 
 ## 2. Resource Constraint: 4 GB Laptop (mandatory)
 
 - One training job / one process by default; `n_jobs=1` everywhere.
 - Bounded chunks, column/row-group Parquet reads, no full-matrix copies.
-- No PyTorch/TF/Transformers/LLMs, no GPU, no pretrained downloads in Phase 3.
+- No PyTorch/TF/Transformers/LLMs, no GPU, no pretrained downloads in Phase 4.
+- AI concurrency default 1; all provider SDKs optional; ordinary tests offline.
 - Small deterministic fixtures for unit tests; larger data explicitly configurable.
 - Actionable errors on memory pressure; never silently drop rows; record sample limits.
 
@@ -90,10 +93,11 @@ Load the matching skill before doing domain work.
 
 ## 9. Phase Authorization
 
-- Approved: Phase 3 (calibration, reliability, purged walk-forward + embargo,
-  locked holdout, experiment registry, multiple-testing, cost/robustness).
-- Anything beyond Phase 3 (AI Phase 4, signals/risk Phase 5, backtests/paper
-  Phase 6, API/dashboard Phase 7) requires explicit user approval. Default
+- Approved: Phase 4 (provider-independent AI interface, optional adapters,
+  retry/fallback/budgets, structured validation, analyst agents, context scores,
+  ablation vs Phase 3 registry).
+- Anything beyond Phase 4 (signals/risk Phase 5, backtests/paper Phase 6,
+  API/dashboard Phase 7) requires explicit user approval. Default
   answer to out-of-phase requests: stop and ask.
 
 ## 10. Risk / Security Rules

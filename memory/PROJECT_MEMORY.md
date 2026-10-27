@@ -6,10 +6,11 @@
   models → signals → risk gates → results; dashboard/API consume canonical results.
 - 20 components (see `docs/ARCHITECTURE.md`); Phases 1–2 implement data→models;
   Phase 3 adds calibration + walk-forward/holdout validation (no production signals).
+- Phase 4: AI interface + analysts + ablation (quant works with AI disabled).
 
 ## Invariants
 
-- Phase 3 only unless a new phase is explicitly approved.
+- Phase 4 only unless a new phase is explicitly approved.
 - UTC-normalized market data with provenance; no silent fills; `NO_TRADE` valid.
 - Deterministic risk gates independent of models/AI; no live orders.
 - Secrets in env/`.env` only; never TOML/code/git. Accuracy ≠ win rate ≠ profitability.
@@ -49,3 +50,12 @@
 - [x] `uv run ruff check .` — clean
 - [x] `uv run ruff format --check .` — 98 files clean
 - [x] `uv run sf health` / `sf config-show` — calibration/validation sections present
+
+## Verified commands (Phase 4 lead-run 2026-10-27, all EXIT 0)
+
+- [x] `uv sync --offline` — clean, 73 packages (no network for re-lock; no new deps)
+- [x] `uv run pytest` — 254 passed, 1 skipped (lightgbm optional) in ~16 s
+- [x] `uv run pytest -rs` — skip reason: lightgbm not installed (legitimate)
+- [x] `uv run ruff check .` — clean (lead fixed 9x RUF012 ClassVar + B027 noqa + 11 auto-fixes)
+- [x] `uv run ruff format --check .` — 122 files clean (lead formatted 11 files)
+- [x] `uv run sf health` / `sf config-show` — `[ai]` section present, providers empty/disabled

@@ -34,6 +34,10 @@ dependencies = [
 ml = ["lightgbm>=4.0", "optuna>=3.0"]
 api = ["fastapi>=0.104", "uvicorn>=0.24"]
 dev = ["pytest>=8.0", "ruff>=0.4"]
+# Phase 4: NO registry-based ai-* extras — the sandbox has no package network,
+# so any new requirement would invalidate uv.lock. Provider SDKs are
+# bring-your-own (see docs/AI_PROVIDERS.md): adapters use stdlib urllib by
+# default and import SDKs lazily only if the user installed them.
 all = ["dm-crypto-quant-signal[ml,api,dev]"]
 
 [project.scripts]

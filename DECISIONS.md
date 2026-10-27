@@ -56,3 +56,11 @@ Append-only. Never rewrite history; supersede with new dated entries.
 - Experiment registry JSONL with deterministic ids; failures kept, never counted; DSR per Bailey-Lopez de Prado with 1/(T-1) fallback disclosed; no PBO number fabricated (pbo_note).
 - Cost proxy is a research approximation (fixed fractional outcomes, per-row costs, 2x stress); NOT a fill-level backtest; proxy Sharpe/drawdown carry warnings. Full execution stays Phase 6.
 - Metrics separated by type (directional vs proxy-trade vs portfolio-proxy); ECE binning-dependent; block bootstrap for serial dependence; counts configurable for 4GB (folds<=10, boot<=200).
+
+## 2026-10-27 - Phase 4 AI integration design
+
+- Provider interface: AiRequest/AiResponse with 9 statuses; NON_RETRYABLE (auth/invalid/unsupported/disabled/budget) never retried; retries bounded (<=3); fallback sequential, stops before paid escalation on budget exhaustion.
+- Adapters (docs verified 2026-10-27, drift possible): openai Responses API, anthropic messages, gemini generateContent (key-in-query limitation), deepseek/openrouter/groq OpenAI-compatible, ollama local no-auth, compatible generic with capability flags. Transport = stdlib urllib + injection for fakes; SDKs lazy/BYO.
+- No ai-* registry extras: sandbox lacks package network, so new requirements would invalidate uv.lock. SDKs are user-installed (pip install openai ...); base stays SDK-free; ordinary tests offline with mocked transports.
+- Analysts advisory-only with closed schemas; judge lean-only, never trade direction; context scores bounded/expiring, never returns/probabilities/edges; orchestrator template-merge, sequential default.
+- Ablation: 4 arms on identical folds, train-end evidence cutoff, registry-recorded (n_trials=4), margin verdict (+0.02 acc default); result inconclusive on mocked data — AI stays explanation/context-only until real timestamped evidence + validated path exist.

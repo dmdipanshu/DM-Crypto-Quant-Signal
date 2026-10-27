@@ -52,3 +52,64 @@ block_bootstrap_len = 20  # block length for time-series bootstrap
 fee_bp = 10.0           # explicit cost model (basis points)
 slippage_bp = 5.0       # explicit cost model (basis points)
 random_state = 42       # fixed seed for deterministic validation
+
+# Phase 4 AI provider interface (Track A). All providers DISABLED by default;
+# secrets live in env/.env only, never here. Adapters use stdlib urllib;
+# provider SDKs are bring-your-own (pip install openai/anthropic/etc.) —
+# there are no registry-based ai-* extras (no package network in this env).
+[ai]
+default_provider = "none"  # provider_id or "none"
+fallback_order = []        # ordered provider_ids for fallback routing
+cache_ttl_s = 0            # response cache TTL (0 = disabled)
+log_prompts = false        # never log secrets regardless of this flag
+
+[ai.budgets]
+max_requests = 10          # in-memory cap on AI calls per tracker lifetime
+max_chars = 200000         # in-memory cap on prompt+excerpt chars per tracker
+
+# [[ai.providers]] examples (ALL disabled; uncomment + enable one at a time).
+# [ai.providers.openai] -- NOTE: use array-of-tables below, one per provider.
+# [[ai.providers]]
+# provider_id = "openai"
+# model_id = "gpt-4o-mini"
+# enabled = false
+# timeout_s = 30.0
+# max_retries = 2
+# max_response_chars = 4000
+# concurrency = 1
+#
+# [[ai.providers]]
+# provider_id = "anthropic"
+# model_id = "claude-3-5-haiku-latest"
+# enabled = false
+#
+# [[ai.providers]]
+# provider_id = "gemini"
+# model_id = "gemini-2.0-flash"
+# enabled = false
+#
+# [[ai.providers]]
+# provider_id = "deepseek"
+# model_id = "deepseek-chat"
+# enabled = false
+#
+# [[ai.providers]]
+# provider_id = "openrouter"
+# model_id = "openai/gpt-4o-mini"
+# enabled = false
+#
+# [[ai.providers]]
+# provider_id = "groq"
+# model_id = "llama-3.1-8b-instant"
+# enabled = false
+#
+# [[ai.providers]]
+# provider_id = "ollama"
+# model_id = "llama3.1:8b"
+# enabled = false
+#
+# [[ai.providers]]
+# provider_id = "compatible"
+# model_id = "custom-model"
+# enabled = false
+# base_url = "http://localhost:11434/v1"
