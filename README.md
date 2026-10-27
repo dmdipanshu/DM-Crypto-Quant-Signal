@@ -20,9 +20,6 @@ and the API never mutates, trains, fetches, or trades.
 portfolio accounting beyond the paper sandbox, and public exposure are
 **not implemented and not planned in this design**.
 
-> Phase 6 only. Portfolio accounting beyond the paper sandbox, live trading,
-> and API/dashboard are **planned, not implemented in Phase 6**.
-
 ## Quickstart (Windows)
 
 ```powershell
@@ -63,7 +60,7 @@ there are no ai-* extras. API extras install via `uv sync --extra api`.
 
 ## Status
 
-Phase 7 in progress — read-only API + server-rendered dashboard + `sf serve`
+Phase 7 complete (final) — read-only API + server-rendered dashboard + `sf serve`
 (all verified; empty states explicit; no predictions, no mutations, no orders).
 See `memory/CURRENT_STATE.md` and `memory/NEXT_STEPS.md` for verified state.
 No 90% target claimed; no out-of-sample profitability claimed; no AI

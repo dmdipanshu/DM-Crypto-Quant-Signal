@@ -79,7 +79,28 @@
 - Implemented directly by lead (integration surface too coupled to split safely): `src/crypto_engine/api/` (security/schemas/repos/routes/app), `src/crypto_engine/dashboard/` (pages/routes sharing repo readers), `sf serve` (loopback enforced, extra-aware), `[api]` config, 35 new tests + 2 fixture helpers (stdlib ASGI harness, populated tmp stores).
 - API design: 32 GET routes, versioned envelopes (`api_version`/`request_id`/`data_ts`), pagination caps (50/500), `unavailable` payloads (never fabricated rows), `SignalHistory` read path without mkdir side effects (lead fix).
 - FastAPI 0.162 note: `include_router` defers merging (`_IncludedRouter`); `assert_get_only`/`list_data_routes` traverse lazy routers — build assertion still holds, tests prove it.
-- Lead verification: full suite 466 passed/1 skipped (extra on) and green-with-skips (extra off); ruff clean (206 files); live uvicorn proof 4x200 + clean shutdown; resource probe (overview+signals pages: ~0.09s, ~58 KiB tracemalloc peak, not RSS).
+- Lead verification: full suite 466 passed/1 skipped (extra on) and green-with-skips (extra off); ruff clean (171 files); live uvicorn proof 4x200 + clean shutdown; resource probe (overview+signals pages: ~0.09s, ~58 KiB tracemalloc peak, not RSS).
 - Risk review (lead): route table GET-only (asserted at build + tested incl. 405s); path confinement tested; secrets scanned (env-secret test); CORS deny-default; errors sanitized (no tracebacks); dashboard escapes all dynamic content; no trading buttons/forms; no order/trade API imports added.
 - Final audit: git state clean, history linear, no uncommitted user changes found; docs distinguish implemented/verified vs unavailable integrations; no profitability/accuracy/live/cloud claim.
 - No Phase 8. Standing by for user review, not new work.
+
+## 2026-10-28 - Final documentation cleanup (docs-only, no code changes)
+
+- Auth: documentation-only maintenance; `src/`, `tests/`, `pyproject.toml`,
+  `uv.lock`, `config/default.toml`, `.env.example`, `.opencode/` untouched.
+- Fixed: README stale Phase 6 blockquote removed (contradicted the Phase 7
+  blockquote above it); README status "in progress" -> "complete (final)";
+  duplicated `## Configuration` section merged into one; SESSION_LOG Phase 7
+  probe count corrected (206 -> 171 files, matching `ruff format --check`).
+- Verified consistent, left intact: ARCHITECTURE.md component table (all 20
+  implemented as designed), RESEARCH_METHODOLOGY.md phase summary,
+  AI_PROVIDERS.md (Phase 4 origin label = implementation phase, correct),
+  PAPER_TRADING.md (Phase 6 origin label, correct), phase-labeled doc titles
+  (denote origin phase, not current status — consistent with DECISIONS log).
+- Checks (lead-run, this session): `ruff check .` clean;
+  `ruff format --check .` 171 files clean; `uv run pytest` 466 passed,
+  1 skipped (lightgbm optional); `uv run --extra api --offline pytest`
+  466 passed, 1 skipped (same lightgbm skip); skip reason confirmed via `-rs`.
+  Markdown fence audit: no unclosed fences in root/docs/memory/opencode docs.
+  Referenced local paths (config, docs, memory, src modules) verified present.
+- No Phase 8. No new work started.
