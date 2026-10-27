@@ -1,10 +1,11 @@
-# DM Crypto Quant Signal — SignalForge (Phase 1)
+# DM Crypto Quant Signal — SignalForge (Phase 2 authorized)
 
-Standalone crypto quant signal engine. Phase 1 builds the foundation:
-validated config, market-data layer, dataset snapshots, CLI, tests, and docs.
+Standalone crypto quant signal engine. Phase 2 implements causal features,
+triple-barrier labels, lightweight ML baselines, and a local model registry
+on top of the Phase 1 foundation (config, market data, snapshots, CLI, tests).
 
-> Phase 1 only. Models, AI providers, signal generation, backtests, paper trading,
-> and API/dashboard implementation are **planned, not implemented in Phase 1**.
+> Phase 2 only. AI providers, production signals, risk execution, full backtesting,
+> paper trading, and API/dashboard are **planned, not implemented in Phase 2**.
 
 ## Quickstart (Windows)
 
@@ -35,8 +36,9 @@ Secrets go in `.env` (copy `.env.example`); TOML never holds secrets.
 
 ## Status
 
-Phase 1 in progress — foundation only. See `memory/CURRENT_STATE.md` and
-`memory/NEXT_STEPS.md` for verified state and handoff.
+Phase 2 in progress — causal features, triple-barrier labels, baselines, registry.
+See `memory/CURRENT_STATE.md` and `memory/NEXT_STEPS.md` for verified state.
+No 90% target claimed; no out-of-sample profitability claimed.
 
 ## License
 

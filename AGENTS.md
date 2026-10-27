@@ -1,16 +1,25 @@
-# AGENTS.md — SignalForge Operating Rules (Phase 1)
+# AGENTS.md — SignalForge Operating Rules (Phase 2 authorized)
 
 Read this file and `memory/` before any work. It overrides any conflicting assumption.
 
-## 1. Scope: Phase 1 Only
+## 1. Scope: Phase 2 Only
 
-SignalForge Phase 1 = foundation: repo scaffolding, config, market-data interfaces/adapters,
-dataset snapshots, CLI health/config commands, tests, docs, memory.
-**Not implemented in Phase 1:** models, training, calibration, AI providers, signal generation,
-backtests, paper trading, API/dashboard implementation. Docs for those phases must state
-"planned, not implemented in Phase 1". Stop before Phase 2 unless explicitly authorized.
+SignalForge Phase 2 = causal features, triple-barrier labels, lightweight ML
+baselines, model interfaces, local registry, anti-leakage tests.
+Phase 1 foundation (config, market-data, snapshots, CLI) is done — extend, do not duplicate.
+**Not implemented in Phase 2:** AI providers, production signals, risk execution,
+full backtesting engine, paper trading, API/dashboard, large hyperparameter searches,
+walk-forward reports, locked-holdout evaluation. Stop before Phase 3 unless explicitly authorized.
 
-## 2. Independence and File Ownership
+## 2. Resource Constraint: 4 GB Laptop (mandatory)
+
+- One training job / one process by default; `n_jobs=1` everywhere.
+- Bounded chunks, column/row-group Parquet reads, no full-matrix copies.
+- No PyTorch/TF/Transformers/LLMs, no GPU, no pretrained downloads in Phase 2.
+- Small deterministic fixtures for unit tests; larger data explicitly configurable.
+- Actionable errors on memory pressure; never silently drop rows; record sample limits.
+
+## 3. Independence and File Ownership
 
 - Bounded ownership: each agent owns only its assigned paths. Never edit `src/` or `tests/`
   unless they are your assigned paths.
@@ -77,20 +86,22 @@ Load the matching skill before doing domain work.
 4. Preserve superseded decisions in `DECISIONS.md`; never rewrite history.
 5. Never record credentials, unsupported assumptions, or unrun tests.
 
-## 8. Phase Authorization
+## 9. Phase Authorization
 
-- Approved: Phase 1 foundation only.
-- Anything beyond Phase 1 (models, backtests, AI, paper trading, live) requires explicit
-  user approval of a new phase. Default answer to out-of-phase requests: stop and ask.
+- Approved: Phase 2 (causal features, triple-barrier labels, lightweight baselines,
+  model interfaces, local registry, anti-leakage tests).
+- Anything beyond Phase 2 (calibration/ensembles Phase 3, AI Phase 4, signals/risk
+  Phase 5, backtests/paper Phase 6, API/dashboard Phase 7) requires explicit
+  user approval. Default answer to out-of-phase requests: stop and ask.
 
-## 9. Risk / Security Rules
+## 10. Risk / Security Rules
 
 - Public read-only data in Phase 1; no live orders anywhere in the codebase.
 - Validate all external inputs; treat exchange responses and AI outputs as untrusted.
 - Deterministic risk gates cannot be overridden by models or AI.
 - Report severity + evidence + remediation; never hide unresolved risk.
 
-## 10. Research Integrity
+## 11. Research Integrity
 
 - No fabrication: only information available at each decision timestamp.
 - Never force a target (e.g., "90% accuracy"). Report inconclusive/negative evidence honestly.
@@ -98,7 +109,7 @@ Load the matching skill before doing domain work.
   vs **profitability** (net P&L after costs). Never claim profitability without valid
   out-of-sample support net of fees, spread, slippage, and funding.
 
-## 11. Verification Requirements
+## 12. Verification Requirements
 
 - Every handoff reports: findings, changed files, tests actually run (exact commands +
   pass/fail/skip counts), risks, next gate.

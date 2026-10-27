@@ -1,0 +1,51 @@
+"""Causal feature engineering (Phase 2, Track A)."""
+
+from crypto_engine.features.engineering import (
+    CHUNK_OVERLAP_BARS,
+    MAX_LOOKBACK_BARS,
+    OHLCV_COLS,
+    FeatureConfig,
+    add_candle_anatomy,
+    add_funding,
+    add_lagged_returns,
+    add_momentum_trend,
+    add_regime,
+    add_rsi_bollinger,
+    add_volatility,
+    add_volume_features,
+    align_btc_eth,
+    compute_features,
+    validate_causal,
+)
+from crypto_engine.features.registry import (
+    ALL_SPECS,
+    CANDLE_CLOSE_NEXT_OPEN,
+    FEATURE_REGISTRY,
+    FeatureSpec,
+    max_warmup,
+    register,
+)
+
+__all__ = [
+    "ALL_SPECS",
+    "CANDLE_CLOSE_NEXT_OPEN",
+    "CHUNK_OVERLAP_BARS",
+    "FEATURE_REGISTRY",
+    "MAX_LOOKBACK_BARS",
+    "OHLCV_COLS",
+    "FeatureConfig",
+    "FeatureSpec",
+    "add_candle_anatomy",
+    "add_funding",
+    "add_lagged_returns",
+    "add_momentum_trend",
+    "add_regime",
+    "add_rsi_bollinger",
+    "add_volatility",
+    "add_volume_features",
+    "align_btc_eth",
+    "compute_features",
+    "max_warmup",
+    "register",
+    "validate_causal",
+]

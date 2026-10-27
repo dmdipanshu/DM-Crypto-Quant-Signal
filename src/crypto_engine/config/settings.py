@@ -32,12 +32,31 @@ class LoggingConfig(BaseModel):
     level: str = "INFO"
 
 
+class ModelConfig(BaseModel):
+    """Phase 2 model training bounds (4 GB laptop: single-process)."""
+
+    default_family: str = "logistic"
+    random_state: int = 42
+    max_rows_train: int | None = Field(default=2000, ge=1)
+    chunk_rows: int = Field(default=5000, gt=0)
+    n_jobs: int = Field(default=1, ge=1, le=1)
+
+
+class RegistryConfig(BaseModel):
+    """Local model registry storage configuration."""
+
+    path: str = "models/artifacts"
+    allow_overwrite: bool = False
+
+
 class Settings(BaseModel):
     """Root validated settings object."""
 
     exchange: ExchangeConfig = Field(default_factory=ExchangeConfig)
     data: DataConfig = Field(default_factory=DataConfig)
     logging: LoggingConfig = Field(default_factory=LoggingConfig)
+    model: ModelConfig = Field(default_factory=ModelConfig)
+    registry: RegistryConfig = Field(default_factory=RegistryConfig)
 
     @classmethod
     def from_toml_dict(cls, data: dict[str, Any]) -> Settings:
@@ -94,6 +113,8 @@ __all__ = [
     "DataConfig",
     "ExchangeConfig",
     "LoggingConfig",
+    "ModelConfig",
+    "RegistryConfig",
     "Settings",
     "default_config_path",
     "load_settings",

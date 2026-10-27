@@ -39,3 +39,13 @@ Append-only. Never rewrite history; supersede with new dated entries.
 
 - `config/default.toml` holds non-secret defaults only; `.env.example` documents
   placeholder keys; `.env` is ignored and never committed.
+
+## 2026-10-27 - Phase 2 stack and resource bounds
+
+- scikit-learn>=1.3 promoted to main dependencies (Windows wheels for 3.12/3.13, lightweight, no GPU); lightgbm/optuna stay in [ml] optional, lazy-guarded, never required for core tests.
+- ModelConfig enforces n_jobs=1 (le=1), max_rows_train=2000 default with explicit logging when capped, chunk_rows=5000; RegistryConfig path models/artifacts (git-ignored), allow_overwrite=false.
+- Model scores documented UNCALIBRATED; no calibration claim until Phase 3 evidence.
+- Pickle artifacts trusted-local-only with sha256 verification; JSON for rule-based models; corruption/tampering rejected.
+- Representative probe: 300-row OHLCV -> 181 feature rows x4 cols + logistic fit ~12.2s cold / ~55 MiB Python-alloc peak (tracemalloc, not RSS guarantee).
+- No 90% or profitability claim; randomized-label control within chance bands only.
+

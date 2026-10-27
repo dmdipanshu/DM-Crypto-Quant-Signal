@@ -1,16 +1,32 @@
 # CURRENT_STATE.md — SignalForge verified state
 
-- **Phase**: 1 complete (pending user review) — foundation only. Stop before Phase 2.
-- **Implemented**: `pyproject.toml` (+ `uv.lock` tracked), `.gitignore`, `.env.example`,
-  `config/default.toml`, root docs (`AGENTS.md`, `README.md`, `CONTRIBUTING.md`,
-  `DECISIONS.md`), `docs/*` (6 files), `memory/*` (4 files),
-  `.opencode/agents/*` (10) and `.opencode/skills/*/SKILL.md` (12) expanded,
-  `src/crypto_engine/` (config/settings, data/types+validation+adapter+errors,
-  datasets/snapshots, cli with `health`, `config-show`, `data status`, `data fetch`),
-  `tests/` (37 tests: unit config/validation/adapter/snapshots + integration cli/agents-skills).
-- **Verification (lead-run 2026-10-27, Windows, repo root)**: `uv sync` EXIT 0,
-  `uv run sf health` EXIT 0 (status ok), `uv run sf config-show` EXIT 0,
-  `uv run sf data --help` / `data status` EXIT 0 (0 snapshots),
-  `uv run pytest` 37 passed in ~5s, `uv run ruff check .` all checks passed,
-  `uv run ruff format --check .` 63 files formatted-clean.
-- **Limitations**: runtime Python 3.13.12 (pyproject allows >=3.12,<3.14; 3.12.10 present but uv resolved 3.13); `data fetch` live-network path untested by design; no models/AI/signals/backtests/paper/API (correctly out of Phase 1).
+- **Phase**: 2 in progress (authorized 2026-10-27) — causal features, triple-barrier
+  labels, lightweight baselines, local registry. Stop before Phase 3.
+- **Implemented (Phase 2, verified 2026-10-27)**:
+  - `src/crypto_engine/features/` (registry 31 specs, causal engineering: lagged
+    returns, SMA/EMA/MACD, ATR-14, realized vol, RSI-14, Bollinger, volume,
+    candle anatomy, vol/trend regime, BTC/ETH merge_asof, funding hook, chunked
+    `compute_features`).
+  - `src/crypto_engine/labels/triple_barrier.py` (pt/sl volatility-scaled,
+    max-horizon, long/short/both, cost-aware, ambiguity policies, incomplete
+    handling, `valid_mask`, `assert_no_leakage`, save/load with config hash).
+  - `src/crypto_engine/models/` (TrendBaseline, MajorityBaseline, SklearnLogistic
+    n_jobs=1/scaler-fit-on-train-only, optional LightGBM lazy-guarded) +
+    `src/crypto_engine/registry/store.py` (ModelRecord, atomic saves, sha256,
+    no-overwrite, corruption rejection, pickle warning).
+  - `config/default.toml` [model]+[registry], `Settings` extended (ModelConfig
+    n_jobs=1/max_rows_train=2000, RegistryConfig).
+  - Tests: `test_features` 13, `test_labels` 12, `test_causality` 9,
+    `test_models`, `test_registry`, `test_training_leakage` (scaler discipline,
+    randomized-label control, save/load fidelity, corruption, reproducibility).
+- **Verification (lead-run 2026-10-27)**: `uv sync` EXIT 0 (sklearn 1.9.1),
+  `uv run pytest` **98 passed, 1 skipped** (skip = lightgbm optional, legitimate),
+  `uv run ruff check .` clean, `ruff format` clean after 5-file reformat,
+  `sf health` + `sf config-show` EXIT 0 (model/registry sections present).
+- **Resource probe (representative, tracemalloc, cold import)**: 300-row OHLCV →
+  181 feature rows × 4 cols + logistic fit: ~12.2 s wall (incl. sklearn import),
+  ~55 MiB Python-alloc peak. Method: `tracemalloc` in-process; NOT a process-RSS
+  guarantee; 4 GB guidance (chunk_rows, max_rows_train=2000, n_jobs=1) retained.
+- **Limitations**: no calibration claim (scores uncalibrated); no walk-forward/
+  holdout evaluation (Phase 3); LightGBM untested (not installed); pickle loads
+  trusted-local-only; no profitability claim.

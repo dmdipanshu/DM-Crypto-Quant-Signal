@@ -1,4 +1,4 @@
-# RESEARCH_METHODOLOGY.md — SignalForge (Phase 1)
+# RESEARCH_METHODOLOGY.md — SignalForge (Phase 2)
 
 ## Principles
 
@@ -29,4 +29,6 @@ procedure (walk-forward, purges/embargoes where observations overlap).
 Locked final holdouts, purge/embargo overlapping windows, deterministic accounting
 fixtures. Investigate suspicious performance instead of optimizing around it.
 
-> Backtests, models, and live validation are planned, not implemented in Phase 1.
+> Phase 2 implements causal features, triple-barrier labels, lightweight baselines,
+> and anti-leakage tests. Full walk-forward reports, calibration, and locked-holdout
+> evaluation remain Phase 3 (planned, not implemented).

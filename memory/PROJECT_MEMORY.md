@@ -17,6 +17,9 @@
 
 - Python 3.12, uv isolated `.venv/`; typed modular code; Windows-safe `pathlib`.
 - `uv sync` → `uv run sf health` → `uv run sf config-show` → `uv run pytest` → `uv run ruff check .`
+- Phase 2: causal features + triple-barrier labels + baselines + registry; 4 GB
+  bounds (`n_jobs=1`, `chunk_rows`, `max_rows_train=2000`); scores uncalibrated;
+  pickle trusted-local-only.
 
 ## Verified commands (lead-run 2026-10-27, all EXIT 0)
 
@@ -27,3 +30,12 @@
 - [x] `uv run pytest` — 37 passed in ~5s, no network
 - [x] `uv run ruff check .` — all checks passed
 - [x] `uv run ruff format --check .` — 63 files formatted-clean
+
+## Verified commands (Phase 2 lead-run 2026-10-27, all EXIT 0)
+
+- [x] `uv sync` — clean, scikit-learn 1.9.1 installed (Windows wheels)
+- [x] `uv run pytest` — 98 passed, 1 skipped (lightgbm optional) in ~13–28 s
+- [x] `uv run pytest -rs` — skip reason: lightgbm not installed (legitimate)
+- [x] `uv run ruff check .` — clean (after 1 unused-var fix in test_models.py)
+- [x] `uv run ruff format --check .` — clean (5 files reformatted by lead)
+- [x] `uv run sf health` / `sf config-show` — model/registry sections present

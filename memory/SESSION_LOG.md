@@ -20,3 +20,13 @@
   `sf config-show`; `sf data --help`/`data status`; `pytest` 37 passed;
   `ruff check` clean; `ruff format --check` 63 files clean.
 - State updated: Phase 1 complete pending user review; Phase 2 NOT started.
+
+## 2026-10-27 - Phase 2 authorized and implemented (lead integration)
+
+- Auth: Phase 2 only (features, triple-barrier labels, baselines, registry, anti-leakage). AGENTS.md scope updated with 4GB bounds (n_jobs=1, chunked, max_rows_train=2000).
+- Track A (features/labels) verified: 34 new tests, full suite 71 passed at handoff.
+- Track B (models/registry) partially survived abort; lead verified and completed: sklearn 1.9.1 to main deps (lightgbm stays optional), ModelConfig/RegistryConfig in settings + default.toml.
+- Lead fixes: 1 ruff unused-var (test_models.py), ruff format 5 files. Final: pytest 98 passed/1 skipped (lightgbm optional), ruff check + format clean, sf health/config-show EXIT 0.
+- Resource probe (300 rows, tracemalloc, cold import): ~12.2s, ~55 MiB Python-alloc peak; not a process-RSS guarantee.
+- No 90% or profitability claim. Phase 3 NOT started; awaiting user review.
+

@@ -15,3 +15,16 @@ format = "parquet"      # canonical on-disk format (pyarrow)
 
 [logging]
 level = "INFO"          # DEBUG | INFO | WARNING | ERROR
+
+# Phase 2 model training bounds (4 GB laptop: single process, bounded rows).
+[model]
+default_family = "logistic"  # logistic | trend | majority (lightgbm optional)
+random_state = 42            # fixed seed for deterministic training
+max_rows_train = 2000        # explicit sample cap; log whenever applied, never silently drop
+chunk_rows = 5000            # row-chunk bound for feature/label prep before training
+n_jobs = 1                   # always 1 on 4GB laptop; do not raise
+
+# Local model registry (atomic writes, no overwrite, checksum-verified).
+[registry]
+path = "models/artifacts"  # relative to repo root; git-ignored
+allow_overwrite = false    # never overwrite an existing model_id dir
