@@ -1,4 +1,4 @@
-# DM Crypto Quant Signal — SignalForge (Phase 5 authorized)
+# DM Crypto Quant Signal — SignalForge (Phase 6 authorized)
 
 Standalone crypto quant signal engine. Phase 5 adds the canonical signal
 decision pipeline — schema-validated `SignalRecord` v1.0, deterministic
@@ -7,11 +7,14 @@ gating, deterministic risk gates (fail-closed), advisory-only AI context,
 proposed level validation, a hash-chained audit history, and `sf signal`
 CLI with offline replay — on top of the Phase 1–4 foundation. The engine
 abstains (`NO_TRADE`) whenever mandatory evidence is missing, and it places
-no orders, holds no positions, and tracks no live P&L.
+no orders, holds no positions, and tracks no live P&L. Phase 6 adds the
+event-safe backtester (`sf backtest`: next-bar fills, full costs, conservative
+ties, reproducible ledger) and the advisory-only paper sandbox (`sf paper`:
+persistent state, duplicate protection, halt/flatten, divergence comparison).
+Both are offline simulations — neither places orders nor trades real money.
 
-> Phase 5 only. The full event-driven backtester, paper trading, live trading,
-> portfolio accounting, and API/dashboard are
-> **planned, not implemented in Phase 5**.
+> Phase 6 only. Portfolio accounting beyond the paper sandbox, live trading,
+> and API/dashboard are **planned, not implemented in Phase 6**.
 
 ## Quickstart (Windows)
 
@@ -49,12 +52,12 @@ network, so there are no ai-* extras.
 
 ## Status
 
-Phase 5 in progress — canonical signal engine, deterministic risk gates,
-audit history, `sf signal` CLI (all verified; engine abstains safely by
-default). See `memory/CURRENT_STATE.md` and `memory/NEXT_STEPS.md` for
-verified state.
+Phase 6 in progress — event-safe backtester, advisory-only paper sandbox,
+`sf backtest` / `sf paper` CLI (all verified; zero-trade runs are valid).
+See `memory/CURRENT_STATE.md` and `memory/NEXT_STEPS.md` for verified state.
 No 90% target claimed; no out-of-sample profitability claimed; no AI
-predictive-value claim; no order placement or live readiness claimed.
+predictive-value claim; no order placement, live readiness, or real-money
+trading — paper fills are hypothetical.
 
 ## License
 

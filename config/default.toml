@@ -140,3 +140,23 @@ max_position_pct = 10.0   # max position size (% of equity)
 max_drawdown_pct = 5.0     # kill-switch drawdown (%)
 fail_closed = true        # gate errors -> reject (deterministic, model/AI cannot override)
 enabled = true            # master switch for risk gates
+
+# Phase 6 event-safe backtesting (Track A). 4GB: single-process, one
+# symbol/timeframe, bounded bars. Costs come from a Phase 5 CostEstimate
+# passed to the engine (never duplicated here). No live orders.
+[backtest]
+symbol = "BTC/USDT"       # single backtest symbol
+timeframe = "1h"          # single backtest timeframe
+starting_equity = 10000.0 # starting cash (quote currency, > 0)
+position_pct = 10.0       # % of equity per position (> 0)
+max_holding_bars = 24     # timeout: exit at next open when bars_held exceeds this
+require_levels = false    # true -> LONG/SHORT without valid stop+take skipped
+max_bars = 5000           # 4GB cap: explicit error over this many bars
+
+# Phase 6 advisory-only paper trading (Track B engine). No live orders
+# anywhere; paper state is advisory only.
+[paper]
+account_path = "data/paper"  # persistent paper state root (relative to repo)
+poll_bars = 1                # bars per paper poll step
+max_pending_signals = 100    # cap on queued advisory signals
+fail_closed = true           # state/ledger errors -> halt (never fail-open)

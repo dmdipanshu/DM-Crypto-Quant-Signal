@@ -1,47 +1,52 @@
 # CURRENT_STATE.md — SignalForge verified state
 
-- **Phase**: 5 in progress (authorized 2026-10-27) — canonical signal schema,
-  model-to-decision policy, edge/cost gating, deterministic risk gates,
-  advisory-only AI, level validation, audit history, `sf signal` CLI.
-  Stop before Phase 6.
-- **Implemented (Phase 5, verified 2026-10-27)**:
-  - `src/crypto_engine/signals/` — `schema.py` (closed `SignalRecord` v1.0,
-    16-hex deterministic ids, LONG/SHORT/NEUTRAL/NO_TRADE first-class,
-    NO_TRADE+approved rejected, reason vocabulary), `policy.py` (pure
-    `decide()` fixed veto order, calibrator MATCH check, rule-based→
-    RULE_NO_PROBABILITY, multiclass argmax, SHORT needs −1 class,
-    `apply_gate_veto`), `costs.py` (bp units, decimal-mixup guard),
-    `levels.py` (conservative tick rounding, estimate-only suggest),
-    `history.py` (JSONL, per-record sha256 chain, idempotent append,
-    tamper-detecting verify, no secrets).
-  - `src/crypto_engine/risk/gates.py` — fixed order A→B→C→D; freshness/
-    completeness/consistency; artifact/schema/output/calibration;
-    directions/disagreement/edge/age/horizon/regime/AI-veto; exposure only
-    from caller-supplied snapshots, EXPOSURE_UNKNOWN + fail-closed default,
-    never invented zero; AI never overrides.
-  - `sf signal` CLI (`generate`/`history`/`verify`): offline default (no live
-    fetch unless `--fetch`), missing/corrupt model → error exit, no fallback;
-    v1 has no calibrator (unavailable → usually NO_TRADE with reasons, exit 0);
-    replay deterministic (same inputs → same signal_id).
-  - Config: `[signal]` (horizon 24, t_long 0.6/t_short 0.4, v1, calibration
-    required, edge required, all directions, 60/90 min limits,
-    `data/signals`, cap 500) + `[risk]` (1.0/10.0/5.0 %, fail_closed).
-  - Tests: +46 policy/schema/costs (Track A), +46 risk/history/CLI/replay
-    (Track B) = 92 new; pre-existing intent unchanged.
-- **Verification (lead-run 2026-10-27)**: `uv sync` EXIT 0,
-  `uv run pytest` **346 passed, 1 skipped** (skip = lightgbm optional, legitimate),
-  `uv run ruff check .` clean (lead fixed 8x B904 from-exc, SIM102, F841,
-  RUF059 in new files), `uv run ruff format --check .` 138 files clean
-  (lead formatted 9 files), `sf signal --help`/`generate`/`history`/`verify`,
-  `sf health`, `sf config-show` ([signal]/[risk] present) all EXIT 0.
-- **Resource probe (representative, tracemalloc)**: decide()+run_gates on
-  40-row fixture (policy LONG/approved → gates fail-closed on missing edge
-  evidence): ~0.04 s wall, ~26 KiB Python-alloc peak. Method: in-process
-  `tracemalloc`; NOT process-RSS; 4 GB guidance (single-process, one
-  symbol/timeframe, ≤50-row fixtures, history cap 500) retained.
-- **Limitations**: CLI v1 uncalibrated by default (usually abstains); no
-  calibrator wiring in CLI yet; exposure/drawdown evaluated only from
-  caller-supplied state (no live portfolio, no persistent P&L); edge must come
-  from validated evidence (never confidence); levels are references, not fills;
-  history is an audit log, not a trading ledger; LightGBM untested;
-  no profitability/90%/live-readiness claim.
+- **Phase**: 6 in progress (authorized 2026-10-27/28) — event-safe backtesting,
+  advisory-only paper trading, `sf backtest` / `sf paper` CLI.
+  Stop before Phase 7.
+- **Implemented (Phase 6, verified 2026-10-28)**:
+  - `src/crypto_engine/backtesting/` — `types.py` (Fill/Position/Trade,
+    `validate_bars`, skip-reason vocabulary incl. `NOT_APPROVED`),
+    `costs.py` (`ExecutionCostModel` from Phase 5 `CostEstimate`, bp units,
+    decimal-mixup guard), `engine.py` (`run_backtest`: entry = first bar open
+    strictly after `generated_at`; BUY pays ref*(1+(spread/2+slip)/1e4);
+    same-bar SL+TP → STOP_LOSS; timeout exits at bar open; END_OF_DATA = last
+    close mark; funding per-bar side-agnostic; single position; only
+    `approved` records trade), `metrics.py` (drawdown/Sharpe/profit-factor/
+    win-rate/expectancy, `(value, warning)`, never NaN).
+  - `src/crypto_engine/paper_trading/` — `state.py` (checksummed atomic JSON
+    `PaperAccount`, `CorruptStateError`, duplicates consumed on accept+reject,
+    halt≠liquidation, explicit flatten), `loop.py` (one bar + one pending
+    signal per step, same next-bar/SL+TP/timeout/funding semantics as engine,
+    `STALE_FUTURE`/`DUPLICATE`/`HALTED` rejections, gate-checked, pure-ish),
+    `compare.py` (trade-count/entry/side/qty/pnl/equity-end match with
+    tolerances, `match`/`diverged` verdict).
+  - CLI: `sf backtest run` (offline, bounded `max_bars`, exit 0 with valid
+    zero-trade ledger, exit 1 on missing model/snapshot/errors, never
+    downsamples) + `sf paper init/status/step/flatten/verify/compare`
+    (offline; step exit 0 for accepts and clean rejections; verify exit 1 on
+    tamper; compare exit 0/2/1 match/diverged/error). End-to-end proof:
+    backtest → identical paper stepping → flatten → `compare` = match.
+  - Config: `[backtest]` (equity 10000, position 10%, holding 24, levels
+    optional, cap 5000 bars) + `[paper]` (account path, poll bars, pending
+    cap 100, fail-closed) in `Settings` + `default.toml`.
+  - Tests: +30 backtest engine/costs/timing (Track A), +54 paper/CLI
+    (Track B), +1 lead NOT_APPROVED test = 85 new; pre-existing intent intact.
+- **Verification (lead-run 2026-10-28)**: `uv sync` EXIT 0 (73 packages, no
+  new deps), `uv run pytest` **431 passed, 1 skipped** (lightgbm optional,
+  legitimate), `uv run pytest -rs` confirms skip, `uv run ruff check .`
+  clean, `uv run ruff format --check .` 156 files clean,
+  `sf backtest --help` / `sf paper --help` / `generate`-path CLIs + `sf
+  health` + `sf config-show` ([backtest]/[paper] present) all EXIT 0.
+- **Resource probe (representative, tracemalloc)**: 200-bar backtest, 1
+  approved LONG (aligned levels) → TP exit, net +46.38 on 10000 (~+0.46%
+  after 20 bp round-trip costs): ~0.05 s wall, ~168 KiB Python-alloc peak.
+  Stale-level probe (entry_ref far from fill) correctly exited at the touched
+  absolute TP level for a net loss — engine follows levels as specified, a
+  reminder that levels must be fresh. Method: in-process `tracemalloc`;
+  NOT process-RSS; 4 GB guidance (single-process, one symbol/timeframe,
+  ≤5000-bar cap, ≤60-row fixtures) retained.
+- **Limitations**: single position (no pyramiding/partials); funding
+  side-agnostic per-bar assumption; END_OF_DATA is a marking convention;
+  SL/TP are absolute signal levels (stale levels bite); paper steps must
+  arrive in order; halt≠liquidation; LightGBM untested; no profitability,
+  accuracy, or live-readiness claim. Paper fills are hypothetical.

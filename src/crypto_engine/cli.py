@@ -19,6 +19,10 @@ data_app: typer.Typer = typer.Typer(help="Dataset snapshot commands.")
 app.add_typer(data_app, name="data")
 signal_app: typer.Typer = typer.Typer(help="Phase 5 signal generation + audit history.")
 app.add_typer(signal_app, name="signal")
+backtest_app: typer.Typer = typer.Typer(help="Phase 6 event-safe historical backtesting.")
+app.add_typer(backtest_app, name="backtest")
+paper_app: typer.Typer = typer.Typer(help="Phase 6 advisory-only paper trading (no live orders).")
+app.add_typer(paper_app, name="paper")
 
 console = Console()
 
@@ -615,4 +619,672 @@ def signal_verify(
 if __name__ == "__main__":  # pragma: no cover
     _main()
 
-__all__ = ["app", "data_app", "require_single_row_inputs", "select_decision_row", "signal_app"]
+__all__ = [
+    "app",
+    "backtest_app",
+    "data_app",
+    "paper_app",
+    "require_single_row_inputs",
+    "select_decision_row",
+    "signal_app",
+    "signals_for_backtest",
+]
+
+
+# --- Phase 6 Track B: `sf backtest` + `sf paper` sub-apps --------------------
+# BACKTEST semantics (offline, deterministic, single symbol/timeframe):
+# - `sf backtest run --snapshot <dir> --model <dir>`: loads a snapshot +
+#   registry model, replays a per-bar decide() loop over the bar closes
+#   (features on the tail slice only, EXACTLY ONE decision row per bar via
+#   select_decision_row/require_single_row_inputs -- never future rows), runs
+#   run_gates with a flat caller-supplied portfolio (exposure 0 at starting
+#   equity), collects approved non-NO_TRADE signals, then run_backtest with
+#   costs from validation fee/slippage legs.
+# - CLI v1 has NO calibrator support: calibration_status is "unavailable",
+#   so with calibration_required=true (default) policy usually abstains and
+#   the result is ZERO TRADES -- valid output, exit 0 (degenerate metrics
+#   documented in the summary warnings). Pass a config with
+#   signal.calibration_required=false + require_edge=false to exercise fills.
+# - Bars over the effective cap (config backtest.max_bars unless --max-bars
+#   overrides) are an explicit error, never a silent downsample. Missing
+#   model/snapshot/data problems exit 1 with no output file (no fabrication).
+# PAPER semantics (advisory-only, offline, no live orders -- by construction
+# no order/trade API imports; state in paper_trading/state.py, stepping in
+# paper_trading/loop.py, divergence in paper_trading/compare.py):
+# - `sf paper init/status/step/flatten/verify/compare`. A step consumes ONE
+#   bar JSON {ts,open,high,low,close} + ONE signal JSON file; fills happen at
+#   the stepped bar open with signal.generated_at < bar.ts enforced.
+# - Compare exit codes: 0 match, 2 diverged (valid analytical outcome),
+#   1 errors. Step exit codes: 0 processed (accepted OR clean rejection with
+#   machine-readable reason in the printed JSON), 1 errors.
+
+
+def signals_for_backtest(
+    bars: object,
+    manifest: object,
+    model: object,
+    record_meta: object,
+    settings: object,
+    horizon_bars: int,
+    cost: object,
+) -> list:
+    """Replay per-bar decide()+gates over ``bars``; return approved signals.
+
+    One decision row per bar (tail slice only, never future rows). Signals
+    vetoed by gates or with direction NO_TRADE are skipped (not fabricated).
+    ``generated_at`` is the bar open ts, so the engine fills at the next bar.
+    Raises ValueError when the model record has no feature names.
+    """
+    import pandas as pd
+
+    from crypto_engine.features.engineering import compute_features
+    from crypto_engine.risk.gates import GateContext, run_gates
+    from crypto_engine.signals.costs import CostModel as _CostModel
+    from crypto_engine.signals.policy import PolicyInputs, decide
+    from crypto_engine.signals.schema import AiContextSummary, CostEstimate
+
+    _ = _CostModel
+    if not isinstance(bars, pd.DataFrame) or len(bars) == 0:
+        raise ValueError("signals_for_backtest: bars must be a non-empty DataFrame.")
+    feature_names = list(getattr(record_meta, "feature_names", None) or [])
+    if not feature_names:
+        raise ValueError("signals_for_backtest: model record has empty feature_names.")
+    max_rows = int(settings.signal.max_rows_signal)
+    starting = float(settings.backtest.starting_equity)
+    tf_min = TIMEFRAME_MINUTES.get(str(settings.backtest.timeframe), 60)
+    cost_est = cost if isinstance(cost, CostEstimate) else CostEstimate(source="configured")
+    signals: list = []
+    for i in range(len(bars)):
+        gen_dt = bars.index[i].to_pydatetime()
+        if gen_dt.tzinfo is None:
+            gen_dt = gen_dt.replace(tzinfo=UTC)
+        val_dt = gen_dt + timedelta(hours=0, minutes=tf_min * int(horizon_bars))
+        tail = bars.iloc[max(0, i + 1 - max_rows) : i + 1]
+        try:
+            feats = compute_features(tail)
+        except Exception:
+            continue
+        if len(feats) == 0:
+            continue
+        try:
+            last_row_all = select_decision_row(feats)
+            feature_row = require_single_row_inputs(
+                {name: float(last_row_all.get(name, float("nan"))) for name in feature_names}
+            )
+        except (TypeError, ValueError):
+            continue
+        import math as _math
+
+        if any(not _math.isfinite(v) for v in feature_row.values()):
+            continue
+        try:
+            label_set = [int(c) for c in (model.to_dict().get("classes", []) or [])]
+        except Exception:
+            label_set = []
+        inputs = PolicyInputs(
+            feature_row=feature_row,
+            feature_names=feature_names,
+            model=model,
+            model_id=str(getattr(record_meta, "model_id", "")),
+            model_version=str(getattr(record_meta, "version", "")),
+            model_artifact_hash=str(getattr(record_meta, "artifact_sha256", "")),
+            calibrator=None,
+            calibration_required=bool(settings.signal.calibration_required),
+            threshold_version=str(settings.signal.threshold_version),
+            t_long=float(settings.signal.t_long),
+            t_short=float(settings.signal.t_short),
+            require_edge=bool(settings.signal.require_edge),
+            expected_edge_bp=None,
+            cost=cost_est,
+            enabled_directions=set(settings.signal.enabled_directions),
+            data_quality="validated",
+            generated_at=gen_dt.isoformat(),
+            valid_until=val_dt.isoformat(),
+            symbol=str(settings.backtest.symbol),
+            exchange=str(settings.exchange.name),
+            timeframe=str(settings.backtest.timeframe),
+            horizon_bars=int(horizon_bars),
+            regime="",
+            blocked_regimes=set(),
+            ai=AiContextSummary(status="disabled", note=""),
+            ai_required=bool(settings.signal.require_ai_veto),
+            dataset_snapshot_id=str(getattr(manifest, "snapshot_id", "")),
+            levels=None,
+        )
+        record, _trace = decide(inputs)
+        portfolio = {
+            "exposure_pct": 0.0,
+            "symbol_exposure_pct": 0.0,
+            "day_start_equity": starting,
+            "current_equity": starting,
+            "strategy_enabled": True,
+            "circuit_open": False,
+        }
+        ctx = GateContext(
+            now_utc=gen_dt,
+            risk=settings.risk,
+            max_age_min=float(settings.signal.max_signal_age_min),
+            staleness_limit_min=float(settings.signal.staleness_limit_min),
+            feature_timestamp=gen_dt,
+            enabled_directions=set(settings.signal.enabled_directions),
+            blocked_regimes=set(),
+            require_edge=bool(settings.signal.require_edge),
+            edge_margin_bp=float(settings.signal.edge_margin_bp),
+            ai_required=bool(settings.signal.require_ai_veto),
+            label_set=label_set or None,
+            threshold_version=str(settings.signal.threshold_version),
+            feature_names=feature_names,
+            portfolio=portfolio,
+        )
+        gated, _gate_trace = run_gates(
+            record, ctx, artifact_hash=str(getattr(record_meta, "artifact_sha256", ""))
+        )
+        if gated.decision.status == "rejected":
+            continue
+        if gated.direction == "NO_TRADE":
+            continue
+        signals.append(gated)
+    return signals
+
+
+def _backtest_bars_from_snapshot(snapshot_dir: Path) -> tuple:
+    """Load snapshot -> (UTC-indexed OHLC frame, manifest); raises on problems."""
+    import pandas as pd
+
+    from crypto_engine.datasets.snapshots import load_snapshot
+
+    frame, manifest = load_snapshot(snapshot_dir)
+    try:
+        ts = pd.to_datetime(frame["timestamp"], utc=True)
+    except Exception as exc:
+        raise ValueError(f"snapshot has no usable timestamp column: {exc}") from exc
+    ohlcv = frame.set_index(ts).sort_index()
+    for col in ("open", "high", "low", "close"):
+        if col not in ohlcv.columns:
+            raise ValueError(f"snapshot missing OHLC column {col!r}.")
+        ohlcv[col] = pd.to_numeric(ohlcv[col], errors="coerce")
+    if ohlcv[["open", "high", "low", "close"]].isna().any().any():
+        raise ValueError("snapshot OHLC contains non-numeric values (no silent fills).")
+    cols = ["open", "high", "low", "close"] + (["volume"] if "volume" in ohlcv.columns else [])
+    return ohlcv[cols], manifest
+
+
+def _resolve_account_file(settings: object, root: Path, account: Path | None) -> Path:
+    from crypto_engine.paper_trading.state import ACCOUNT_FILENAME
+
+    if account is not None:
+        raw = Path(account)
+        if raw.exists() and raw.is_dir():
+            raw = raw / ACCOUNT_FILENAME
+        return raw if raw.is_absolute() else root / raw
+    base = Path(settings.paper.account_path)
+    base = base if base.is_absolute() else root / base
+    return base / ACCOUNT_FILENAME
+
+
+def _paper_cost_from_account(account: object) -> object:
+    from crypto_engine.backtesting.costs import ExecutionCostModel
+    from crypto_engine.signals.schema import CostEstimate
+
+    legs = dict(account.cost)
+    return ExecutionCostModel(
+        CostEstimate(
+            fee_bp=float(legs.get("fee_bp", 0.0)),
+            spread_bp=float(legs.get("spread_bp", 0.0)),
+            slippage_bp=float(legs.get("slippage_bp", 0.0)),
+            funding_bp=float(legs.get("funding_bp", 0.0)),
+            source="configured",
+        )
+    )
+
+
+def _paper_gates_fn(settings: object) -> object:
+    from crypto_engine.paper_trading.loop import make_gates_ctx_fn
+
+    return make_gates_ctx_fn(
+        settings.risk,
+        max_age_min=float(settings.signal.max_signal_age_min),
+        staleness_limit_min=float(settings.signal.staleness_limit_min),
+        require_edge=bool(settings.signal.require_edge),
+        edge_margin_bp=float(settings.signal.edge_margin_bp),
+    )
+
+
+@backtest_app.command("run")
+def backtest_run(
+    snapshot: Annotated[Path | None, typer.Option(help="Snapshot directory.")] = None,
+    model: Annotated[Path | None, typer.Option(help="Registry model directory.")] = None,
+    config: Annotated[
+        Path | None, typer.Option("--config", help="Path to a TOML config file.")
+    ] = None,
+    max_bars: Annotated[
+        int | None, typer.Option(help="Row-cap override (errors when exceeded).")
+    ] = None,
+    out: Annotated[Path | None, typer.Option(help="Output directory for result.json.")] = None,
+    horizon: Annotated[int | None, typer.Option(help="Prediction horizon in bars.")] = None,
+) -> None:
+    """Run an event-safe backtest; write result.json + print the summary."""
+    import hashlib as _hashlib
+    import os as _os
+    import tempfile as _tempfile
+
+    from crypto_engine.config.settings import load_settings
+
+    if snapshot is None:
+        console.print("[red]error: --snapshot <snapshot_dir> is required.[/red]")
+        raise typer.Exit(code=1)
+    if model is None:
+        console.print("[red]error: --model <model_dir> is required.[/red]")
+        raise typer.Exit(code=1)
+    try:
+        settings = load_settings(config)
+    except (FileNotFoundError, ValueError) as exc:
+        console.print(f"[red]error: cannot load config: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+
+    try:
+        bars, manifest = _backtest_bars_from_snapshot(Path(snapshot))
+    except Exception as exc:
+        console.print(f"[red]error: cannot load snapshot {snapshot}: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    if (
+        manifest.symbol != settings.backtest.symbol
+        or manifest.timeframe != settings.backtest.timeframe
+    ):
+        console.print(
+            f"[red]error: snapshot is {manifest.symbol} {manifest.timeframe}, "
+            f"config backtest is {settings.backtest.symbol} "
+            f"{settings.backtest.timeframe} (no silent mix).[/red]"
+        )
+        raise typer.Exit(code=1)
+    cap = int(max_bars) if max_bars is not None else int(settings.backtest.max_bars)
+    if cap < 2:
+        console.print("[red]error: bar cap must be >= 2.[/red]")
+        raise typer.Exit(code=1)
+    if len(bars) > cap:
+        console.print(
+            f"[red]error: snapshot has {len(bars)} bars, exceeds cap {cap} "
+            "(4GB bound; not downsampled — pass a smaller snapshot or raise "
+            "--max-bars explicitly).[/red]"
+        )
+        raise typer.Exit(code=1)
+
+    from crypto_engine.registry.store import load_model
+
+    try:
+        fitted, record_meta = load_model(Path(model))
+    except Exception as exc:
+        console.print(f"[red]error: cannot load model from {model}: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+
+    from crypto_engine.signals.costs import CostModel
+    from crypto_engine.signals.schema import CostEstimate
+
+    cost_model = CostModel.from_config(
+        fee_bp=float(settings.validation.fee_bp),
+        slippage_bp=float(settings.validation.slippage_bp),
+    )
+    cost = CostEstimate(
+        fee_bp=cost_model.fee_bp,
+        spread_bp=cost_model.spread_bp,
+        slippage_bp=cost_model.slippage_bp,
+        funding_bp=cost_model.funding_bp,
+        source="configured",
+        expected_edge_bp=None,
+        edge_margin_bp=float(settings.signal.edge_margin_bp),
+    )
+    horizon_bars = int(horizon) if horizon is not None else int(settings.signal.horizon_bars)
+    if horizon_bars < 1:
+        console.print("[red]error: --horizon must be >= 1.[/red]")
+        raise typer.Exit(code=1)
+    try:
+        signals = signals_for_backtest(
+            bars, manifest, fitted, record_meta, settings, horizon_bars, cost
+        )
+    except ValueError as exc:
+        console.print(f"[red]error: signal replay failed: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+
+    from crypto_engine.backtesting.engine import run_backtest
+
+    cfg = settings.backtest.model_copy(update={"max_bars": cap})
+    try:
+        result = run_backtest(bars, signals, cfg, cost)
+    except Exception as exc:
+        console.print(f"[red]error: backtest failed: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+
+    root = _repo_root()
+    out_dir = Path(out) if out is not None else (root / "data" / "backtests" / manifest.snapshot_id)
+    out_dir = out_dir if out_dir.is_absolute() else root / out_dir
+    payload = result.model_dump_json(indent=2).encode("utf-8")
+    try:
+        out_dir.mkdir(parents=True, exist_ok=True)
+        fd, tmp_name = _tempfile.mkstemp(prefix="result.", suffix=".tmp", dir=str(out_dir))
+        try:
+            with _os.fdopen(fd, "wb") as fh:
+                fh.write(payload)
+            _os.replace(Path(tmp_name), out_dir / "result.json")
+        except BaseException:
+            try:
+                if Path(tmp_name).exists():
+                    Path(tmp_name).unlink()
+            except OSError:
+                pass
+            raise
+    except OSError as exc:
+        console.print(f"[red]error: cannot write {out_dir}/result.json: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    _ = _hashlib
+    typer.echo(
+        json.dumps(
+            {
+                "out": str(out_dir / "result.json"),
+                "n_bars": result.n_bars,
+                "n_signals": len(signals),
+                "n_trades": int(result.summary.get("n_trades", 0)),
+                "net_pnl": float(result.summary.get("net_pnl", 0.0)),
+                "final_equity": float(result.summary.get("final_equity", 0.0)),
+                "n_skipped": len(result.skipped_signals),
+                "warnings": list(result.warnings),
+                "config_hash": result.config_hash,
+            },
+            indent=2,
+        )
+    )
+
+
+@paper_app.command("init")
+def paper_init(
+    symbol: Annotated[str, typer.Option(help="Market symbol, e.g. BTC/USDT.")] = "BTC/USDT",
+    timeframe: Annotated[str, typer.Option(help="Candle timeframe, e.g. 1h.")] = "1h",
+    equity_: Annotated[float, typer.Option("--equity", help="Starting equity.")] = 10000.0,
+    position_pct: Annotated[float | None, typer.Option(help="Position size pct.")] = None,
+    max_holding_bars: Annotated[int | None, typer.Option(help="Timeout in bars.")] = None,
+    require_levels: Annotated[bool, typer.Option(help="Require SL/TP levels.")] = False,
+    model: Annotated[str, typer.Option(help="Model id for provenance.")] = "",
+    account: Annotated[Path | None, typer.Option(help="Account file path.")] = None,
+    config: Annotated[
+        Path | None, typer.Option("--config", help="Path to a TOML config file.")
+    ] = None,
+) -> None:
+    """Create a paper account file (advisory-only; never places orders)."""
+    import hashlib as _hashlib
+
+    from crypto_engine.config.settings import load_settings
+    from crypto_engine.paper_trading.state import init_account
+    from crypto_engine.signals.costs import CostModel
+
+    try:
+        settings = load_settings(config)
+    except (FileNotFoundError, ValueError) as exc:
+        console.print(f"[red]error: cannot load config: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    cost_model = CostModel.from_config(
+        fee_bp=float(settings.validation.fee_bp),
+        slippage_bp=float(settings.validation.slippage_bp),
+    )
+    cfg_hash = _hashlib.sha256(
+        json.dumps(
+            {
+                "backtest": settings.backtest.model_dump(mode="json"),
+                "paper": settings.paper.model_dump(mode="json"),
+            },
+            sort_keys=True,
+            default=str,
+        ).encode()
+    ).hexdigest()
+    target = _resolve_account_file(settings, _repo_root(), account)
+    try:
+        acct = init_account(
+            target,
+            symbol=symbol,
+            timeframe=timeframe,
+            starting_equity=float(equity_),
+            position_pct=float(position_pct)
+            if position_pct is not None
+            else float(settings.backtest.position_pct),
+            max_holding_bars=int(max_holding_bars)
+            if max_holding_bars is not None
+            else int(settings.backtest.max_holding_bars),
+            require_levels=bool(require_levels),
+            cost={
+                "fee_bp": cost_model.fee_bp,
+                "spread_bp": cost_model.spread_bp,
+                "slippage_bp": cost_model.slippage_bp,
+                "funding_bp": cost_model.funding_bp,
+            },
+            model_id=model,
+            config_hash=cfg_hash,
+            account_id=f"{symbol}-{timeframe}",
+        )
+    except (FileExistsError, ValueError) as exc:
+        console.print(f"[red]error: cannot init account at {target}: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    typer.echo(json.dumps({"account": str(target), "account_id": acct.account_id}, indent=2))
+
+
+@paper_app.command("status")
+def paper_status(
+    account: Annotated[Path | None, typer.Option(help="Account file path.")] = None,
+    config: Annotated[
+        Path | None, typer.Option("--config", help="Path to a TOML config file.")
+    ] = None,
+) -> None:
+    """Print a paper account summary (offline read)."""
+    from crypto_engine.config.settings import load_settings
+    from crypto_engine.paper_trading.state import load_account
+
+    try:
+        settings = load_settings(config)
+    except (FileNotFoundError, ValueError) as exc:
+        console.print(f"[red]error: cannot load config: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    target = _resolve_account_file(settings, _repo_root(), account)
+    try:
+        acct = load_account(target)
+    except (FileNotFoundError, ValueError) as exc:
+        console.print(f"[red]error: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    typer.echo(
+        json.dumps(
+            {
+                "account_id": acct.account_id,
+                "symbol": acct.symbol,
+                "timeframe": acct.timeframe,
+                "status": acct.status,
+                "halt_reason": acct.halt_reason,
+                "cash": acct.cash,
+                "starting_equity": acct.starting_equity,
+                "equity_mark": acct.equity_mark,
+                "equity_mark_ts": acct.equity_mark_ts,
+                "position": acct.position,
+                "n_trades_closed": len(acct.trades_closed),
+                "n_processed": len(acct.processed_signal_ids),
+                "n_rejections": len(acct.rejections),
+                "bars_seen": acct.bars_seen,
+                "model_id": acct.model_id,
+                "config_hash": acct.config_hash,
+            },
+            indent=2,
+            default=str,
+        )
+    )
+
+
+@paper_app.command("step")
+def paper_step(
+    signal: Annotated[Path | None, typer.Option(help="SignalRecord JSON file.")] = None,
+    bar: Annotated[
+        Path | None, typer.Option(help="Bar JSON file {ts,open,high,low,close}.")
+    ] = None,
+    account: Annotated[Path | None, typer.Option(help="Account file path.")] = None,
+    config: Annotated[
+        Path | None, typer.Option("--config", help="Path to a TOML config file.")
+    ] = None,
+) -> None:
+    """Consume ONE bar + ONE signal; fills at the bar open (offline)."""
+    from crypto_engine.config.settings import load_settings
+    from crypto_engine.paper_trading.loop import step
+    from crypto_engine.paper_trading.state import load_account, save_account
+    from crypto_engine.signals.schema import SignalRecord
+
+    if signal is None or bar is None:
+        console.print("[red]error: --signal <signal.json> and --bar <bar.json> are required.[/red]")
+        raise typer.Exit(code=1)
+    try:
+        settings = load_settings(config)
+    except (FileNotFoundError, ValueError) as exc:
+        console.print(f"[red]error: cannot load config: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    target = _resolve_account_file(settings, _repo_root(), account)
+    try:
+        acct = load_account(target)
+    except (FileNotFoundError, ValueError) as exc:
+        console.print(f"[red]error: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    try:
+        sig = SignalRecord.model_validate_json(Path(signal).read_text(encoding="utf-8"))
+    except Exception as exc:
+        console.print(f"[red]error: cannot parse signal {signal}: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    try:
+        bar_payload = json.loads(Path(bar).read_text(encoding="utf-8"))
+    except Exception as exc:
+        console.print(f"[red]error: cannot parse bar {bar}: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    try:
+        new_acct, result = step(
+            acct, sig, bar_payload, _paper_gates_fn(settings), _paper_cost_from_account(acct)
+        )
+    except (TypeError, ValueError) as exc:
+        console.print(f"[red]error: step failed: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    try:
+        save_account(new_acct, target)
+    except OSError as exc:
+        console.print(f"[red]error: cannot save {target}: {exc} (step NOT persisted).[/red]")
+        raise typer.Exit(code=1) from exc
+    typer.echo(result.model_dump_json(indent=2))
+
+
+@paper_app.command("flatten")
+def paper_flatten(
+    mark: Annotated[float, typer.Option(help="Mark price to close at.")] = 0.0,
+    account: Annotated[Path | None, typer.Option(help="Account file path.")] = None,
+    config: Annotated[
+        Path | None, typer.Option("--config", help="Path to a TOML config file.")
+    ] = None,
+) -> None:
+    """Explicitly close the open position at --mark (costed, MANUAL_FLATTEN)."""
+    from datetime import UTC as _UTC
+    from datetime import datetime as _datetime
+
+    from crypto_engine.config.settings import load_settings
+    from crypto_engine.paper_trading.state import flatten, load_account, save_account
+
+    if not mark or mark <= 0:
+        console.print("[red]error: --mark <positive price> is required.[/red]")
+        raise typer.Exit(code=1)
+    try:
+        settings = load_settings(config)
+    except (FileNotFoundError, ValueError) as exc:
+        console.print(f"[red]error: cannot load config: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    target = _resolve_account_file(settings, _repo_root(), account)
+    try:
+        acct = load_account(target)
+    except (FileNotFoundError, ValueError) as exc:
+        console.print(f"[red]error: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    try:
+        fill = flatten(acct, float(mark), _datetime.now(_UTC).isoformat())
+    except ValueError as exc:
+        console.print(f"[red]error: flatten failed: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    try:
+        save_account(acct, target)
+    except OSError as exc:
+        console.print(f"[red]error: cannot save {target}: {exc} (flatten NOT persisted).[/red]")
+        raise typer.Exit(code=1) from exc
+    typer.echo(json.dumps({"reason": "MANUAL_FLATTEN", "fill": fill}, indent=2, default=str))
+
+
+@paper_app.command("verify")
+def paper_verify(
+    account: Annotated[Path | None, typer.Option(help="Account file path.")] = None,
+    config: Annotated[
+        Path | None, typer.Option("--config", help="Path to a TOML config file.")
+    ] = None,
+) -> None:
+    """Verify a paper account checksum + schema (offline)."""
+    from crypto_engine.config.settings import load_settings
+    from crypto_engine.paper_trading.state import load_account
+
+    try:
+        settings = load_settings(config)
+    except (FileNotFoundError, ValueError) as exc:
+        console.print(f"[red]error: cannot load config: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    target = _resolve_account_file(settings, _repo_root(), account)
+    try:
+        acct = load_account(target)
+    except FileNotFoundError as exc:
+        typer.echo(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        raise typer.Exit(code=1) from exc
+    except ValueError as exc:
+        typer.echo(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        raise typer.Exit(code=1) from exc
+    typer.echo(json.dumps({"ok": True, "errors": [], "account_id": acct.account_id}, indent=2))
+
+
+@paper_app.command("compare")
+def paper_compare(
+    backtest: Annotated[Path | None, typer.Option(help="Backtest result.json file.")] = None,
+    account: Annotated[Path | None, typer.Option(help="Account file path.")] = None,
+    qty_rel_tol: Annotated[float, typer.Option(help="Qty relative tolerance.")] = 1e-9,
+    pnl_abs_tol: Annotated[float, typer.Option(help="Net-PnL absolute tolerance.")] = 1e-6,
+    equity_abs_tol: Annotated[float, typer.Option(help="End-equity absolute tolerance.")] = 1e-6,
+    config: Annotated[
+        Path | None, typer.Option("--config", help="Path to a TOML config file.")
+    ] = None,
+) -> None:
+    """Compare paper closed trades vs a frozen backtest ledger (offline)."""
+    from crypto_engine.backtesting.engine import BacktestResult
+    from crypto_engine.config.settings import load_settings
+    from crypto_engine.paper_trading.compare import compare_account_to_backtest
+    from crypto_engine.paper_trading.state import load_account
+
+    if backtest is None:
+        console.print("[red]error: --backtest <result.json> is required.[/red]")
+        raise typer.Exit(code=1)
+    try:
+        settings = load_settings(config)
+    except (FileNotFoundError, ValueError) as exc:
+        console.print(f"[red]error: cannot load config: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    target = _resolve_account_file(settings, _repo_root(), account)
+    try:
+        acct = load_account(target)
+    except (FileNotFoundError, ValueError) as exc:
+        console.print(f"[red]error: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    try:
+        ref = BacktestResult.model_validate_json(Path(backtest).read_text(encoding="utf-8"))
+    except Exception as exc:
+        console.print(f"[red]error: cannot parse backtest {backtest}: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    try:
+        report = compare_account_to_backtest(
+            acct,
+            ref,
+            qty_rel_tol=qty_rel_tol,
+            pnl_abs_tol=pnl_abs_tol,
+            equity_abs_tol=equity_abs_tol,
+        )
+    except (TypeError, ValueError) as exc:
+        console.print(f"[red]error: compare failed: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    typer.echo(report.model_dump_json(indent=2))
+    if report.verdict != "match":
+        raise typer.Exit(code=2)

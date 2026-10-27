@@ -9,10 +9,12 @@
 - Phase 4: AI interface + analysts + ablation (quant works with AI disabled).
 - Phase 5: canonical signal engine + deterministic risk gates + audit history
   (`sf signal`; no orders, no positions, no live P&L).
+- Phase 6: event-safe backtester + advisory-only paper sandbox
+  (`sf backtest`/`sf paper`; hypothetical fills only, never orders).
 
 ## Invariants
 
-- Phase 5 only unless a new phase is explicitly approved.
+- Phase 6 only unless a new phase is explicitly approved.
 - UTC-normalized market data with provenance; no silent fills; `NO_TRADE` valid.
 - Deterministic risk gates independent of models/AI; no live orders.
 - Secrets in env/`.env` only; never TOML/code/git. Accuracy ≠ win rate ≠ profitability.
@@ -71,3 +73,13 @@
 - [x] `uv run ruff format --check .` — 138 files clean (lead formatted 9 files)
 - [x] `uv run sf signal --help`/`generate`/`history`/`verify` — valid JSON, NO_TRADE paths, deterministic replay
 - [x] `uv run sf health` / `sf config-show` — `[signal]`/`[risk]` sections present
+
+## Verified commands (Phase 6 lead-run 2026-10-28, all EXIT 0)
+
+- [x] `uv sync` — clean, 73 packages (no new dependencies; lockfile preserved)
+- [x] `uv run pytest` — 431 passed, 1 skipped (lightgbm optional) in ~31 s
+- [x] `uv run pytest -rs` — skip reason: lightgbm not installed (legitimate)
+- [x] `uv run ruff check .` — clean (incl. lead NOT_APPROVED engine change)
+- [x] `uv run ruff format --check .` — 156 files clean
+- [x] `uv run sf backtest --help` / `sf paper --help` — sub-apps render
+- [x] `uv run sf health` / `sf config-show` — `[backtest]`/`[paper]` present

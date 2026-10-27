@@ -74,3 +74,14 @@ Append-only. Never rewrite history; supersede with new dated entries.
 - Levels are references, not fills: tick rounding conservative (stop down for LONG/up for SHORT); history is a hash-chained audit log (idempotent, tamper-detecting), not a trading ledger.
 - Replay: single-row decision input (CLI slices snapshot tail); same snapshot+model+config → same signal_id; perturbation changes it.
 - Subagent backend outage (DNS) during Track B: lead implemented directly; files from partial attempts reviewed line-by-line before adoption.
+
+## 2026-10-28 - Phase 6 backtest and paper design
+
+- Timing contract: signal generated_at in bar [t] fills no earlier than bar t+1 open (entry = first open strictly greater than generated_at); paper steps enforce generated_at < bar.ts (STALE_FUTURE reject). No wall-clock use; no invented bars.
+- Costs: BUY pays ref*(1+(spread/2+slip)/1e4), SELL receives mirror; fee on notional; funding per-bar side-agnostic (conservative assumption, documented); bp units with >=10000 decimal-mixup guard; legs reused from Phase 5 CostEstimate, not duplicated.
+- Ambiguity: same-bar SL+TP touch exits STOP_LOSS (matches triple-barrier conservative default); timeout exits at bar open before SL/TP; END_OF_DATA = last-close mark (convention, not a fill); levels are absolute signal levels — stale levels bite (probe-verified), so signals must be fresh.
+- Approval discipline: ONLY decision.status == approved records may trade (NOT_APPROVED skip); CLI filters + engine double-enforces. NEUTRAL closes only when approved.
+- Accounting: equity = cash ± qty*close marked each bar; fee math reconciles (cash + position value − costs); deterministic ids; run-twice identical ledger (tested).
+- Paper sandbox: checksummed atomic JSON state; duplicates consumed on accept AND reject (idempotent replay); halt blocks new positions (halt != liquidation); explicit costed flatten (MANUAL_FLATTEN via paper_reason — ExitReason left unchanged to avoid churning Track A types); steps must arrive in order; FIFO caps documented.
+- Divergence: paper stepping identical bar+signal sequences must reproduce backtest fills (proven: backtest → paper → flatten → compare = match); tolerances explicit; exit_reason intentionally not compared.
+- No orders: no ccxt/order/trade API imports in backtesting or paper_trading (grep-verified); no live credentials, no real money, no portfolio accounting beyond the sandbox.

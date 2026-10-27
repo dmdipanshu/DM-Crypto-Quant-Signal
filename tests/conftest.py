@@ -298,3 +298,77 @@ def proxy_labels_5():
         "expected": expected,
         "expected_mean": 0.0025,
     }
+
+
+# --- Track A backtest additions (append-only): tiny OHLC + signal builders --
+# NOTE: appended 2026-10-27 by Track A; existing fixtures above untouched.
+
+
+@pytest.fixture
+def backtest_monotone_12():
+    """12-bar steady uptrend frame (Track A backtest fixture)."""
+    from tests.fixtures.backtest_fixtures import monotone_frame
+
+    return monotone_frame(n=12)
+
+
+@pytest.fixture
+def backtest_reversal_12():
+    """12-bar rise-then-fall frame (Track A backtest fixture)."""
+    from tests.fixtures.backtest_fixtures import reversal_frame
+
+    return reversal_frame()
+
+
+@pytest.fixture
+def backtest_zero_cost():
+    """All-zero CostEstimate (exact passthrough)."""
+    from tests.fixtures.backtest_fixtures import zero_cost
+
+    return zero_cost()
+
+
+@pytest.fixture
+def backtest_small_cost():
+    """Hand-computable nonzero CostEstimate (fee 10 / spread 4 / slip 6 / fund 1)."""
+    from tests.fixtures.backtest_fixtures import small_cost
+
+    return small_cost()
+
+
+@pytest.fixture
+def backtest_config_default():
+    """Default BacktestConfig (BTC/USDT 1h, equity 10000, 10%, hold 24)."""
+    from crypto_engine.config.settings import BacktestConfig
+
+    return BacktestConfig()
+
+
+# --- Phase 6 Track B paper additions (append-only): cost/gate fixtures -----
+# NOTE: appended 2026-10-27 by Track B; existing fixtures above untouched.
+
+
+@pytest.fixture
+def paper_cost_zero():
+    """Zero-leg ExecutionCostModel (exact passthrough) for paper-step tests."""
+    from crypto_engine.backtesting.costs import ExecutionCostModel
+    from tests.fixtures.backtest_fixtures import zero_cost
+
+    return ExecutionCostModel(zero_cost())
+
+
+@pytest.fixture
+def paper_cost_small():
+    """Hand-computable nonzero ExecutionCostModel for paper-step tests."""
+    from crypto_engine.backtesting.costs import ExecutionCostModel
+    from tests.fixtures.backtest_fixtures import small_cost
+
+    return ExecutionCostModel(small_cost())
+
+
+@pytest.fixture
+def paper_gates_factory():
+    """Generous-age gate-context factory for paper-step unit tests."""
+    from tests.fixtures.backtest_fixtures import paper_gates_ctx
+
+    return paper_gates_ctx

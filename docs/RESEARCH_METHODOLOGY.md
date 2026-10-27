@@ -1,4 +1,4 @@
-# RESEARCH_METHODOLOGY.md — SignalForge (Phase 5)
+# RESEARCH_METHODOLOGY.md — SignalForge (Phase 6)
 
 ## Principles
 
@@ -29,13 +29,15 @@ procedure (walk-forward, purges/embargoes where observations overlap).
 Locked final holdouts, purge/embargo overlapping windows, deterministic accounting
 fixtures. Investigate suspicious performance instead of optimizing around it.
 
-> Phases 1–4 implemented: calibration (sigmoid/isotonic, event `P(y == positive_class)`),
-> reliability reporting, purged walk-forward with embargo, locked-holdout protocol
-> with access ledger, experiment registry (DSR, Holm/Bonferroni, no fabricated PBO),
-> cost/robustness analysis, and the advisory-only AI layer (ablation: inconclusive).
-> Phase 5 adds the canonical signal decision policy (LONG/SHORT/NEUTRAL/NO_TRADE),
-> calibration-aware handling (calibrated probabilities only for their documented
-> event), expected-edge gating against explicit cost estimates (edge never inferred
-> from confidence), deterministic risk gates, and a reproducible audit history.
-> A probability is not an edge; an edge estimate is not a fill; a backtest proxy
-> is not live performance. Full execution accounting remains Phase 6.
+> Phases 1–5 delivered: calibration, reliability reporting, purged walk-forward,
+> holdout protocol with access ledger, experiment registry (DSR, Holm/Bonferroni,
+> no fabricated PBO), cost/robustness analysis, the advisory-only AI layer
+> (ablation: inconclusive), and the canonical signal decision policy with
+> deterministic risk gates and audit history.
+> Phase 6 adds the event-safe backtester (signals fill no earlier than the next
+> bar open; absolute SL/TP levels; same-bar ties exit STOP_LOSS; timeout and
+> END_OF_DATA conventions documented; full cost legs; reproducible ledger) and
+> the advisory-only paper sandbox (persistent state, duplicate protection, halt,
+> divergence-vs-frozen-backtest comparison).
+> A backtest is a historical simulation, not live evidence; paper fills are
+> hypothetical, not executions. No profitability or accuracy claim is made.

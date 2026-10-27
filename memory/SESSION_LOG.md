@@ -60,3 +60,15 @@
 - Resource probe (decide()+run_gates, 40-row fixture; policy LONG/approved, gates fail-closed on missing edge): ~0.04s, ~26 KiB tracemalloc peak (not RSS).
 - Risk review (lead): no secrets; no order paths; gates fixed-order with trace; exposure never invented; AI advisory-only (verified LONG stays LONG); history hash-chained + secret-scan; replay deterministic.
 - No profitability, 90%, or live-readiness claim. Phase 6 NOT started; awaiting user review.
+
+## 2026-10-28 - Phase 6 authorized and implemented (lead integration)
+
+- Auth: Phase 6 only (event-safe backtester, realistic costs, conservative fills, reproducible ledger, advisory-only paper sandbox, `sf backtest`/`sf paper`). AGENTS.md scope updated to Phase 6.
+- Track A (backtesting engine/costs/metrics + BacktestConfig/PaperConfig + 29 tests + timing-leakage tests) clean at handoff: pytest 376 passed/1 skipped, ruff clean.
+- Track B (paper state/loop/compare + both CLI sub-apps + PAPER_TRADING.md + 54 tests) clean at handoff: pytest 430 passed/1 skipped, ruff clean, no ccxt/order imports (grep-verified).
+- Lead integration fix (correctness): engine acted on direction regardless of `decision.status` — now only `approved` records trade (`NOT_APPROVED` skip); fixed the broken NEUTRAL-close test to use an approved NEUTRAL and added a rejected-LONG never-trades test. Docstring updated.
+- Probe honesty note: first probe used stale fixture levels (entry_ref far below fill) and exited at the touched absolute TP for a net loss — correct engine behavior, wrong probe setup; re-ran with aligned levels (TP exit, +46.38 on 10000).
+- Resource probe (200-bar backtest, 1 TP trade): ~0.05s, ~168 KiB tracemalloc peak (not RSS).
+- Risk review (lead): no secrets; no live-order paths (no order/trade API imports in new paths); gates double-enforced (CLI filters + engine NOT_APPROVED); exposure never invented; AI untouched by Phase 6; history/audit logs intact.
+- Final: pytest 431 passed/1 skipped (lightgbm optional), ruff check + format (156 files) clean, all CLI helps + health + config-show EXIT 0.
+- No profitability, accuracy, or live-readiness claim. Paper fills are hypothetical. Phase 7 NOT started; awaiting user review.

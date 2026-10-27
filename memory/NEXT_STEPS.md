@@ -1,30 +1,32 @@
 # NEXT_STEPS.md — SignalForge handoff
 
-## Immediate: user review (Phase 5 gate)
+## Immediate: user review (Phase 6 gate)
 
-1. Review this Phase 5 report; explicitly approve or reject opening Phase 6.
-2. Do NOT start the event-driven backtester, paper trading (Phase 6), or
-   API/dashboard (Phase 7) until approval.
+1. Review this Phase 6 report; explicitly approve or reject opening Phase 7.
+2. Do NOT start API/dashboard implementation (Phase 7) until approval.
 
-## If Phase 6 approved, proposed scope
+## If Phase 7 approved, proposed scope
 
-- Event-safe backtesting engine (next-bar execution, fees/spread/slippage/
-  funding, conservative ambiguous fills, reproducible trade ledger).
-- Paper-trading loop consuming canonical `SignalRecord`s, compared against
-  frozen backtest expectations; advisory-only, no live orders.
+- Read-only API over canonical records (signals, backtest ledgers, paper
+  state, audit history) reusing validated schemas; no order placement.
+- Dashboard consuming canonical result schemas only, never engine internals;
+  no fabricated or stale predictions shown as current.
 
-## Gates already met (verified 2026-10-27)
+## Gates already met (verified 2026-10-28)
 
-- [x] Canonical schema (v1.0, deterministic ids, closed enums, NO_TRADE first-class)
-- [x] Decision policy (fixed veto order, calibration matching, edge gating, determinism)
-- [x] Costs/levels (bp units, mixup guard, conservative tick rounding)
-- [x] Risk gates A→B→C→D (fail-closed, no invented state, AI never overrides)
-- [x] Audit history (hash chain, idempotent, tamper-detecting, secret-free)
-- [x] `sf signal` CLI (offline default, replay deterministic, clear errors)
-- [x] `uv sync` clean, `pytest` 346 passed/1 skipped (lightgbm optional), ruff clean
-- [ ] Explicit user approval to open Phase 6
+- [x] Event-safe backtester (next-bar fills, absolute levels, conservative ties)
+- [x] Realistic costs (fee/spread/slippage/funding legs, bp units, mixup guard)
+- [x] Reproducible ledger (deterministic ids, fee math reconciles, run-twice identical)
+- [x] Approved-only trading (NOT_APPROVED skip; gates + engine double-enforced)
+- [x] Paper sandbox (persistent checksummed state, duplicate protection, halt/flatten)
+- [x] Divergence comparison (match/diverged verdicts with tolerances)
+- [x] `sf backtest` / `sf paper` CLI (offline, zero-trade valid, clear errors)
+- [x] `uv sync` clean, `pytest` 431 passed/1 skipped (lightgbm optional), ruff clean
+- [x] No ccxt/order/trade API imports in backtesting or paper_trading paths
+- [ ] Explicit user approval to open Phase 7
 
 ## Out of scope (stop and ask)
 
-Event backtester, paper/live trading, portfolio accounting, API/dashboard,
-new AI providers, large searches, unapproved global config changes.
+Live orders, real-money trading, portfolio accounting beyond the paper
+sandbox, API/dashboard, new AI providers, large searches, unapproved global
+config changes.

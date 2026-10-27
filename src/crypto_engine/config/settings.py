@@ -149,6 +149,36 @@ class RiskConfig(BaseModel):
     enabled: bool = True
 
 
+class BacktestConfig(BaseModel):
+    """Phase 6 event-safe backtest bounds (Track A; single symbol/timeframe).
+
+    4 GB laptop: single-process, one symbol/timeframe, bounded bars.
+    Costs come from a Phase 5 ``CostEstimate`` passed to the engine
+    (never duplicated here).
+    """
+
+    symbol: str = "BTC/USDT"
+    timeframe: str = "1h"
+    starting_equity: float = Field(default=10000.0, gt=0)
+    position_pct: float = Field(default=10.0, gt=0)
+    max_holding_bars: int = Field(default=24, ge=0)
+    require_levels: bool = False
+    max_bars: int = Field(default=5000, ge=2)
+
+
+class PaperConfig(BaseModel):
+    """Phase 6 advisory-only paper trading bounds (Track B owns engine).
+
+    Declared here so Track B never edits ``settings.py``; no live orders
+    anywhere — paper state is advisory only.
+    """
+
+    account_path: str = "data/paper"
+    poll_bars: int = Field(default=1, ge=1)
+    max_pending_signals: int = Field(default=100, ge=1)
+    fail_closed: bool = True
+
+
 class Settings(BaseModel):
     """Root validated settings object."""
 
@@ -162,6 +192,8 @@ class Settings(BaseModel):
     ai: AiConfig = Field(default_factory=AiConfig)
     signal: SignalConfig = Field(default_factory=SignalConfig)
     risk: RiskConfig = Field(default_factory=RiskConfig)
+    backtest: BacktestConfig = Field(default_factory=BacktestConfig)
+    paper: PaperConfig = Field(default_factory=PaperConfig)
 
     @classmethod
     def from_toml_dict(cls, data: dict[str, Any]) -> Settings:
@@ -218,11 +250,13 @@ __all__ = [
     "AiBudgetConfig",
     "AiConfig",
     "AiProviderConfig",
+    "BacktestConfig",
     "CalibrationConfig",
     "DataConfig",
     "ExchangeConfig",
     "LoggingConfig",
     "ModelConfig",
+    "PaperConfig",
     "RegistryConfig",
     "RiskConfig",
     "Settings",
