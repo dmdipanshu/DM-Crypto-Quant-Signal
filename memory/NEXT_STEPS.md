@@ -1,32 +1,35 @@
-# NEXT_STEPS.md — SignalForge handoff
+# NEXT_STEPS.md — SignalForge handoff (final phase complete)
 
-## Immediate: user review (Phase 6 gate)
+## Status: Phase 7 implemented and verified (2026-10-28). No Phase 8 exists.
 
-1. Review this Phase 6 report; explicitly approve or reject opening Phase 7.
-2. Do NOT start API/dashboard implementation (Phase 7) until approval.
+The platform is complete as an advisory research system:
 
-## If Phase 7 approved, proposed scope
+- Read-only API (`/api/v1`, GET-only) over canonical stores.
+- Server-rendered dashboard with explicit empty/uninitialized states.
+- `sf serve` loopback-only foreground server.
+- Security tests (GET-only table, 405s, traversal, secrets, CORS, sanitization).
+- Operational docs (`INSTALL_WINDOWS.md`, README, ARCHITECTURE, SECURITY).
 
-- Read-only API over canonical records (signals, backtest ledgers, paper
-  state, audit history) reusing validated schemas; no order placement.
-- Dashboard consuming canonical result schemas only, never engine internals;
-  no fabricated or stale predictions shown as current.
+## If new work is ever requested (requires explicit user approval)
 
-## Gates already met (verified 2026-10-28)
+- Any new phase (live trading, cloud deployment, new model families,
+  write-capable API) is out of scope for this design and must be authorized
+  explicitly with its own safety review. Default answer: stop and ask.
 
-- [x] Event-safe backtester (next-bar fills, absolute levels, conservative ties)
-- [x] Realistic costs (fee/spread/slippage/funding legs, bp units, mixup guard)
-- [x] Reproducible ledger (deterministic ids, fee math reconciles, run-twice identical)
-- [x] Approved-only trading (NOT_APPROVED skip; gates + engine double-enforced)
-- [x] Paper sandbox (persistent checksummed state, duplicate protection, halt/flatten)
-- [x] Divergence comparison (match/diverged verdicts with tolerances)
-- [x] `sf backtest` / `sf paper` CLI (offline, zero-trade valid, clear errors)
-- [x] `uv sync` clean, `pytest` 431 passed/1 skipped (lightgbm optional), ruff clean
-- [x] No ccxt/order/trade API imports in backtesting or paper_trading paths
-- [ ] Explicit user approval to open Phase 7
+## Gates met (verified 2026-10-28)
 
-## Out of scope (stop and ask)
+- [x] Read-only API (32 GET endpoints, envelopes, pagination caps, 404/unavailable contracts)
+- [x] Read-only adapters (no mkdir/write side effects, bounded scans, verified checksums surfaced)
+- [x] Dashboard (6 pages, shared adapters, escaped output, no trading controls)
+- [x] `sf serve` (loopback default, explicit remote opt-in, clear errors, graceful shutdown)
+- [x] Security (GET-only build assertion, 405s, traversal blocked, secrets never leak, CORS deny-default)
+- [x] Live server proof (uvicorn 127.0.0.1:8123, 4 endpoints 200, clean shutdown)
+- [x] `uv sync` + `--extra api` clean, `pytest` 466 passed/1 skipped, ruff clean
+- [x] Final audit (this file set) — no live orders, no real money, no public exposure anywhere
 
-Live orders, real-money trading, portfolio accounting beyond the paper
-sandbox, API/dashboard, new AI providers, large searches, unapproved global
-config changes.
+## Permanently out of scope for this design
+
+Live orders, real-money trading, order placement/cancellation, deposits,
+withdrawals, leverage, paper-state mutation via API, training/retraining or
+signal/backtest triggers via API, public exposure by default, architecture
+rewrites, unapproved global config changes.

@@ -160,3 +160,18 @@ account_path = "data/paper"  # persistent paper state root (relative to repo)
 poll_bars = 1                # bars per paper poll step
 max_pending_signals = 100    # cap on queued advisory signals
 fail_closed = true           # state/ledger errors -> halt (never fail-open)
+
+# Phase 7 read-only API + dashboard server. Loopback-only by default;
+# no trading, training, fetching, or mutation through HTTP.
+[api]
+host = "127.0.0.1"  # bind address; non-loopback requires allow_remote = true
+port = 8000            # conservative default port
+allow_remote = false  # never expose to LAN/internet automatically
+# cors_origins = []     # explicit origins only; no wildcard credentials
+page_size_default = 50  # default list page size
+page_size_max = 500    # hard cap enforced on every list endpoint
+ledger_scan_cap = 5000 # max JSONL lines scanned per read (4GB guard)
+backtest_dir = "data/backtests"  # persisted sf backtest run dirs
+experiments_path = "reports/experiments.jsonl"  # Phase 3 experiment registry
+holdout_ledger_path = "reports/holdout.json"     # Phase 3 holdout ledger
+

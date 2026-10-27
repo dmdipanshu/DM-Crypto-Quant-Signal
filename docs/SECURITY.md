@@ -1,4 +1,4 @@
-# SECURITY.md — SignalForge (Phase 5)
+# SECURITY.md — SignalForge (Phase 7, final)
 
 ## Secrets
 
@@ -17,6 +17,11 @@
 - Treat exchange responses and AI outputs as untrusted: validate schemas, bound
   sizes/timeouts, handle failures explicitly. AI context is advisory-only and
   can never override a risk gate or flip a rejected signal to approved.
+- Phase 7 read-only API: GET-only routes (build-time assertion + tests);
+  loopback-only bind by default with explicit opt-in for remote; no wildcard
+  credentialed CORS; no filesystem writes; no secret/env/keys in responses;
+  path confinement against traversal; sanitized errors (no tracebacks);
+  dashboard HTML-escapes all dynamic content (no raw model HTML/JS).
 
 ## Dependencies and filesystem
 

@@ -179,6 +179,25 @@ class PaperConfig(BaseModel):
     fail_closed: bool = True
 
 
+class ApiConfig(BaseModel):
+    """Phase 7 read-only API + dashboard server bounds.
+
+    Loopback-only by default; no trading, training, fetching, or mutation
+    through HTTP. All list endpoints are bounded (page_size_max cap).
+    """
+
+    host: str = "127.0.0.1"
+    port: int = Field(default=8000, ge=1, le=65535)
+    allow_remote: bool = False
+    cors_origins: list[str] = Field(default_factory=list)
+    page_size_default: int = Field(default=50, ge=1, le=500)
+    page_size_max: int = Field(default=500, ge=1, le=5000)
+    ledger_scan_cap: int = Field(default=5000, ge=100)
+    backtest_dir: str = "data/backtests"
+    experiments_path: str = "reports/experiments.jsonl"
+    holdout_ledger_path: str = "reports/holdout.json"
+
+
 class Settings(BaseModel):
     """Root validated settings object."""
 
@@ -194,6 +213,7 @@ class Settings(BaseModel):
     risk: RiskConfig = Field(default_factory=RiskConfig)
     backtest: BacktestConfig = Field(default_factory=BacktestConfig)
     paper: PaperConfig = Field(default_factory=PaperConfig)
+    api: ApiConfig = Field(default_factory=ApiConfig)
 
     @classmethod
     def from_toml_dict(cls, data: dict[str, Any]) -> Settings:
@@ -250,6 +270,7 @@ __all__ = [
     "AiBudgetConfig",
     "AiConfig",
     "AiProviderConfig",
+    "ApiConfig",
     "BacktestConfig",
     "CalibrationConfig",
     "DataConfig",

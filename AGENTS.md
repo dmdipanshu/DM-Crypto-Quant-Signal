@@ -1,24 +1,24 @@
-# AGENTS.md — SignalForge Operating Rules (Phase 6 authorized)
+# AGENTS.md — SignalForge Operating Rules (Phase 7 authorized)
 
 Read this file and `memory/` before any work. It overrides any conflicting assumption.
 
-## 1. Scope: Phase 6 Only
+## 1. Scope: Phase 7 Only
 
-SignalForge Phase 6 = event-safe historical backtesting (next-bar execution,
-realistic costs, conservative fills, reproducible ledger) + advisory-only paper
-trading (persistent state, duplicate protection, divergence vs frozen backtest),
-`sf backtest` / `sf paper` CLI, offline tests. Phases 1–5 (data, features,
-labels, models, calibration, validation, AI layer, signal engine, risk gates)
-are done — extend, do not rewrite.
-**Not implemented in Phase 6:** live orders, real-money trading, portfolio
-accounting beyond the paper sandbox, API/dashboard, new AI providers, broad
-hyperparameter searches. Stop before Phase 7 unless explicitly authorized.
+SignalForge Phase 7 = read-only FastAPI (`/api/v1`, GET-only), read-only
+repository adapters over canonical stores, lightweight server-rendered
+dashboard, `sf serve` (loopback-only default), security tests, operational
+docs, final verification. Phases 1–6 are done — extend, do not rewrite.
+**Not implemented in Phase 7:** live orders, real-money trading, order
+placement/cancellation, deposits/withdrawals/leverage, paper-state mutation
+via API, training/retraining endpoints, signal/backtest triggers via API,
+public exposure by default, architecture rewrites. No Phase 8 exists.
 
 ## 2. Resource Constraint: 4 GB Laptop (mandatory)
 
 - One training job / one process by default; `n_jobs=1` everywhere.
 - Bounded chunks, column/row-group Parquet reads, no full-matrix copies.
-- No PyTorch/TF/Transformers/LLMs, no GPU, no pretrained downloads in Phase 6.
+- No PyTorch/TF/Transformers/LLMs, no GPU, no pretrained downloads in Phase 7.
+- API/dashboard: single process, loopback-only default, bounded pagination, no polling loops.
 - AI concurrency default 1; all provider SDKs optional; ordinary tests offline.
 - Signal generation single-process, one symbol/timeframe at a time by default.
 - Backtests/paper run single-process, one symbol/timeframe, bounded bars.
@@ -94,11 +94,10 @@ Load the matching skill before doing domain work.
 
 ## 9. Phase Authorization
 
-- Approved: Phase 6 (event-safe backtester, realistic costs, conservative fills,
-  reproducible ledger, advisory-only paper trading with persistent state,
-  `sf backtest` / `sf paper` CLI).
-- Anything beyond Phase 6 (API/dashboard Phase 7) requires explicit user
-  approval. Default answer to out-of-phase requests: stop and ask.
+- Approved: Phase 7 (read-only API + dashboard + `sf serve` + security tests +
+  operational docs + final verification). This is the final authorized phase;
+  anything beyond it requires explicit user approval. Default answer to
+  out-of-scope requests: stop and ask.
 
 ## 10. Risk / Security Rules
 

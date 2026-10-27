@@ -72,3 +72,14 @@
 - Risk review (lead): no secrets; no live-order paths (no order/trade API imports in new paths); gates double-enforced (CLI filters + engine NOT_APPROVED); exposure never invented; AI untouched by Phase 6; history/audit logs intact.
 - Final: pytest 431 passed/1 skipped (lightgbm optional), ruff check + format (156 files) clean, all CLI helps + health + config-show EXIT 0.
 - No profitability, accuracy, or live-readiness claim. Paper fills are hypothetical. Phase 7 NOT started; awaiting user review.
+
+## 2026-10-28 - Phase 7 authorized and implemented (lead implementation, final phase)
+
+- Auth: Phase 7 only (read-only API + dashboard + `sf serve` + security tests + docs + final verification). AGENTS.md scope updated; no Phase 8 exists.
+- Implemented directly by lead (integration surface too coupled to split safely): `src/crypto_engine/api/` (security/schemas/repos/routes/app), `src/crypto_engine/dashboard/` (pages/routes sharing repo readers), `sf serve` (loopback enforced, extra-aware), `[api]` config, 35 new tests + 2 fixture helpers (stdlib ASGI harness, populated tmp stores).
+- API design: 32 GET routes, versioned envelopes (`api_version`/`request_id`/`data_ts`), pagination caps (50/500), `unavailable` payloads (never fabricated rows), `SignalHistory` read path without mkdir side effects (lead fix).
+- FastAPI 0.162 note: `include_router` defers merging (`_IncludedRouter`); `assert_get_only`/`list_data_routes` traverse lazy routers — build assertion still holds, tests prove it.
+- Lead verification: full suite 466 passed/1 skipped (extra on) and green-with-skips (extra off); ruff clean (206 files); live uvicorn proof 4x200 + clean shutdown; resource probe (overview+signals pages: ~0.09s, ~58 KiB tracemalloc peak, not RSS).
+- Risk review (lead): route table GET-only (asserted at build + tested incl. 405s); path confinement tested; secrets scanned (env-secret test); CORS deny-default; errors sanitized (no tracebacks); dashboard escapes all dynamic content; no trading buttons/forms; no order/trade API imports added.
+- Final audit: git state clean, history linear, no uncommitted user changes found; docs distinguish implemented/verified vs unavailable integrations; no profitability/accuracy/live/cloud claim.
+- No Phase 8. Standing by for user review, not new work.

@@ -1288,3 +1288,90 @@ def paper_compare(
     typer.echo(report.model_dump_json(indent=2))
     if report.verdict != "match":
         raise typer.Exit(code=2)
+
+
+# --- Phase 7: `sf serve` read-only server ------------------------------------
+# Loopback-only by default; explicit startup; no training, fetching, backtests,
+# or mutations � the app only reads canonical stores. Requires the optional
+# `api` extra (`uv sync --extra api`).
+
+
+@app.command("serve")
+def serve(
+    host: Annotated[str | None, typer.Option(help="Bind address (default from config).")] = None,
+    port: Annotated[int | None, typer.Option(help="Bind port (default from config).")] = None,
+    allow_remote: Annotated[
+        bool, typer.Option(help="Allow non-loopback bind (explicit only).")
+    ] = False,
+    config: Annotated[
+        Path | None, typer.Option("--config", help="Path to a TOML config file.")
+    ] = None,
+) -> None:
+    """Start the read-only SignalForge API + dashboard server (foreground)."""
+    import ipaddress
+
+    from crypto_engine.config.settings import load_settings
+
+    try:
+        settings = load_settings(config)
+    except (FileNotFoundError, ValueError) as exc:
+        console.print(f"[red]error: cannot load config: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+
+    bind_host = host or settings.api.host
+    bind_port = int(port) if port is not None else int(settings.api.port)
+    remote_ok = bool(allow_remote) or bool(settings.api.allow_remote)
+    try:
+        is_loopback = ipaddress.ip_address(bind_host).is_loopback
+    except ValueError:
+        is_loopback = bind_host.lower() in ("localhost",)
+    if not is_loopback and not remote_ok:
+        console.print(
+            f"[red]error: refusing non-loopback bind {bind_host} without --allow-remote "
+            "(and documented auth/networking). Use 127.0.0.1.[/red]"
+        )
+        raise typer.Exit(code=1)
+
+    try:
+        from crypto_engine.api.app import create_app
+        from crypto_engine.api.repos import RepoRoots
+    except ImportError as exc:
+        console.print(
+            "[red]error: API extra not installed. "
+            "Run `uv sync --extra api` (installs fastapi + uvicorn).[/red]"
+        )
+        raise typer.Exit(code=1) from exc
+
+    root = _signal_repo_root()
+    storage = _resolve_storage(settings, root)
+
+    def _abs(value: str) -> Path:
+        candidate = Path(value)
+        return candidate if candidate.is_absolute() else root / candidate
+
+    roots = RepoRoots(
+        signals_dir=_resolve_history_dir(settings, root, None),
+        registry_dir=_abs(settings.registry.path),
+        data_storage=storage,
+        backtest_dir=_abs(settings.api.backtest_dir),
+        paper_path=_resolve_account_file(settings, root, None),
+        experiments_path=_abs(settings.api.experiments_path),
+        holdout_ledger_path=_abs(settings.api.holdout_ledger_path),
+        scan_cap=int(settings.api.ledger_scan_cap),
+    )
+    application = create_app(roots, settings)
+
+    try:
+        import uvicorn
+    except ImportError as exc:
+        console.print("[red]error: uvicorn not installed. Run `uv sync --extra api`.[/red]")
+        raise typer.Exit(code=1) from exc
+    console.print(
+        f"[green]SignalForge read-only API serving on http://{bind_host}:{bind_port} "
+        "(Ctrl+C to stop). No trading, training, or mutations.[/green]"
+    )
+    try:
+        uvicorn.run(application, host=bind_host, port=bind_port, log_level="info")
+    except OSError as exc:
+        console.print(f"[red]error: cannot bind {bind_host}:{bind_port}: {exc}[/red]")
+        raise typer.Exit(code=1) from exc

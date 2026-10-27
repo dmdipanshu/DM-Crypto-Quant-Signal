@@ -11,10 +11,12 @@
   (`sf signal`; no orders, no positions, no live P&L).
 - Phase 6: event-safe backtester + advisory-only paper sandbox
   (`sf backtest`/`sf paper`; hypothetical fills only, never orders).
+- Phase 7 (final): read-only API + dashboard + `sf serve`
+  (GET-only, loopback-only, no predictions, no mutations, no orders).
 
 ## Invariants
 
-- Phase 6 only unless a new phase is explicitly approved.
+- No further phases authorized; anything new needs explicit user approval.
 - UTC-normalized market data with provenance; no silent fills; `NO_TRADE` valid.
 - Deterministic risk gates independent of models/AI; no live orders.
 - Secrets in env/`.env` only; never TOML/code/git. Accuracy ≠ win rate ≠ profitability.
@@ -83,3 +85,13 @@
 - [x] `uv run ruff format --check .` — 156 files clean
 - [x] `uv run sf backtest --help` / `sf paper --help` — sub-apps render
 - [x] `uv run sf health` / `sf config-show` — `[backtest]`/`[paper]` present
+
+## Verified commands (Phase 7 lead-run 2026-10-28, all EXIT 0)
+
+- [x] `uv sync --extra api` — installed fastapi 0.162.0 + uvicorn 0.54.0 (lockfile already pinned; no lock change)
+- [x] `uv run --extra api pytest` — 466 passed, 1 skipped (lightgbm optional) in ~75 s (35 new API/dashboard/security/serve tests)
+- [x] plain `uv run pytest` — API tests skip cleanly via importorskip; quant suite unaffected
+- [x] `uv run ruff check .` + `ruff format --check .` — clean, 171 files
+- [x] `uv run sf serve --help` — renders; non-loopback refused; occupied port exits 1
+- [x] live server proof (subprocess uvicorn 127.0.0.1:8123): /health, /api/v1/signals, /dashboard/, /api/v1/paper/status all 200, clean shutdown
+- [x] `uv run sf health` / `sf config-show` — `[api]` section present

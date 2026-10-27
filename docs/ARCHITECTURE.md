@@ -1,4 +1,4 @@
-# ARCHITECTURE.md — SignalForge (Phase 6)
+# ARCHITECTURE.md — SignalForge (Phase 7, final)
 
 ## Canonical pipeline
 
@@ -6,7 +6,7 @@
 exchange (ccxt, public) → market data → features → models → calibration
   → [optional AI context] → signal decision policy → risk gates
   → validated signal record → signal audit history
-  → (Phase 6: backtests/paper implemented; Phase 7: API/dashboard consumers)
+  → (Phase 6: backtests/paper implemented; Phase 7: API/dashboard implemented, read-only)
 ```
 
 Dashboard/API consume only canonical result schemas, never engine internals.
@@ -32,15 +32,15 @@ Dashboard/API consume only canonical result schemas, never engine internals.
 | 15 | Backtest engine (causal) | 6 | implemented: next-bar fills, costed, conservative ties, reproducible ledger |
 | 16 | Risk gates (deterministic) | 5 | fixed order A→B→C→D, fail-closed, AI never overrides; `NO_TRADE` valid |
 | 17 | AI provider adapters | 4 | 8 adapters, disabled default, advisory-only to signals |
-| 18 | API layer | 7 | planned, not implemented in Phase 5 |
-| 19 | Dashboard | 7 | planned, not implemented in Phase 5 |
+| 18 | API layer | 7 | implemented: GET-only /api/v1, versioned envelopes, no mutations |
+| 19 | Dashboard | 7 | implemented: server-rendered, shared adapters, escaped, no trading controls |
 | 20 | Paper-trading loop | 6 | implemented: advisory-only sandbox, persistent state, duplicate protection, no orders |
 
-## Phase 6 boundaries
+## Phase 7 boundaries (final)
 
-Phase 6 implements component 15 (event-safe backtester: `sf backtest`) and
-component 20 (advisory-only paper sandbox: `sf paper`), consuming canonical
-`SignalRecord`s and deterministic risk gates. Components 18–19 (API/dashboard)
-remain documented interfaces, not code. No live orders; no real-money trading;
-no portfolio accounting beyond the paper sandbox: exposure checks still use
-caller-supplied snapshots only.
+Phase 7 implements components 18–19 (read-only API: `sf serve` + `/api/v1`;
+server-rendered dashboard consuming shared repo readers). All 20 components
+are now implemented as designed — except nothing beyond this design exists:
+no live orders, no real-money trading, no public exposure by default, no
+portfolio accounting beyond the paper sandbox. The dashboard never predicts;
+the API never mutates, trains, fetches, or trades.
