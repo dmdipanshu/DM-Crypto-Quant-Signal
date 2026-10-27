@@ -1,4 +1,4 @@
-# RESEARCH_METHODOLOGY.md — SignalForge (Phase 3)
+# RESEARCH_METHODOLOGY.md — SignalForge (Phase 5)
 
 ## Principles
 
@@ -29,9 +29,13 @@ procedure (walk-forward, purges/embargoes where observations overlap).
 Locked final holdouts, purge/embargo overlapping windows, deterministic accounting
 fixtures. Investigate suspicious performance instead of optimizing around it.
 
-> Phase 3 implements calibration (sigmoid/isotonic, event `P(y == positive_class)`),
-> reliability reporting (bins, Brier, log-loss, ECE, coverage), purged walk-forward
-> with embargo, a locked-holdout protocol with access ledger, an experiment registry
-> (DSR, Holm/Bonferroni, no fabricated PBO), and research-level cost/robustness
-> analysis (fee/slippage stress, block bootstrap, MC). The cost proxy is a
-> research approximation, NOT a fill-level backtest; full execution remains Phase 6.
+> Phases 1–4 implemented: calibration (sigmoid/isotonic, event `P(y == positive_class)`),
+> reliability reporting, purged walk-forward with embargo, locked-holdout protocol
+> with access ledger, experiment registry (DSR, Holm/Bonferroni, no fabricated PBO),
+> cost/robustness analysis, and the advisory-only AI layer (ablation: inconclusive).
+> Phase 5 adds the canonical signal decision policy (LONG/SHORT/NEUTRAL/NO_TRADE),
+> calibration-aware handling (calibrated probabilities only for their documented
+> event), expected-edge gating against explicit cost estimates (edge never inferred
+> from confidence), deterministic risk gates, and a reproducible audit history.
+> A probability is not an edge; an edge estimate is not a fill; a backtest proxy
+> is not live performance. Full execution accounting remains Phase 6.

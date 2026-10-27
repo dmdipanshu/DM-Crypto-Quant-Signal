@@ -62,6 +62,17 @@ under a constant task string (prompt-injection: instructions in evidence
 cannot alter the task). Secrets: environment only (see `.env.example`);
 keys never appear in responses, logs, or errors (redacted, tests assert).
 
+## Signal-engine consumption (Phase 5)
+
+- The canonical pipeline consumes AI outputs only as `AiContextSummary`
+  (status/ids/timestamps/note); a missing/invalid/over-budget analyst never
+  changes direction — at most `AI_REQUIRED_UNAVAILABLE` abstention when the
+  operator explicitly required AI.
+- Analysts cannot create/modify model artifacts, calibration metadata, the
+  experiment registry, or the holdout ledger; ablation refuses non-pristine
+  holdouts.
+- Signal records never contain prompts, keys, or unrestricted external text.
+
 ## Residual risks
 
 - **API drift**: adapter endpoints verified against docs 2026-10-27; vendor

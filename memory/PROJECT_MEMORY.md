@@ -7,10 +7,12 @@
 - 20 components (see `docs/ARCHITECTURE.md`); Phases 1–2 implement data→models;
   Phase 3 adds calibration + walk-forward/holdout validation (no production signals).
 - Phase 4: AI interface + analysts + ablation (quant works with AI disabled).
+- Phase 5: canonical signal engine + deterministic risk gates + audit history
+  (`sf signal`; no orders, no positions, no live P&L).
 
 ## Invariants
 
-- Phase 4 only unless a new phase is explicitly approved.
+- Phase 5 only unless a new phase is explicitly approved.
 - UTC-normalized market data with provenance; no silent fills; `NO_TRADE` valid.
 - Deterministic risk gates independent of models/AI; no live orders.
 - Secrets in env/`.env` only; never TOML/code/git. Accuracy ≠ win rate ≠ profitability.
@@ -59,3 +61,13 @@
 - [x] `uv run ruff check .` — clean (lead fixed 9x RUF012 ClassVar + B027 noqa + 11 auto-fixes)
 - [x] `uv run ruff format --check .` — 122 files clean (lead formatted 11 files)
 - [x] `uv run sf health` / `sf config-show` — `[ai]` section present, providers empty/disabled
+
+## Verified commands (Phase 5 lead-run 2026-10-27, all EXIT 0)
+
+- [x] `uv sync` — clean (no new deps; lockfile preserved)
+- [x] `uv run pytest` — 346 passed, 1 skipped (lightgbm optional) in ~18 s
+- [x] `uv run pytest -rs` — skip reason: lightgbm not installed (legitimate)
+- [x] `uv run ruff check .` — clean (lead fixed 8x B904 from-exc, SIM102, F841, RUF059)
+- [x] `uv run ruff format --check .` — 138 files clean (lead formatted 9 files)
+- [x] `uv run sf signal --help`/`generate`/`history`/`verify` — valid JSON, NO_TRADE paths, deterministic replay
+- [x] `uv run sf health` / `sf config-show` — `[signal]`/`[risk]` sections present

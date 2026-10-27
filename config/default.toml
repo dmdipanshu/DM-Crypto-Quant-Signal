@@ -113,3 +113,30 @@ max_chars = 200000         # in-memory cap on prompt+excerpt chars per tracker
 # model_id = "custom-model"
 # enabled = false
 # base_url = "http://localhost:11434/v1"
+
+# Phase 5 signal-generation policy (Track A). 4GB: single-process, one
+# symbol/timeframe at a time; small fixtures (<=50 rows in unit tests).
+# NO_TRADE is a valid expected output (abstain on weak evidence).
+[signal]
+horizon_bars = 24         # prediction horizon in bars (>=1)
+t_long = 0.6              # P(+1) >= t_long -> LONG (must be > 0.5)
+t_short = 0.4             # P(+1) <= t_short -> SHORT (must be < 0.5)
+threshold_version = "v1"  # recorded on every SignalRecord for audit
+calibration_required = true  # uncalibrated scores -> NO_TRADE(UNCALIBRATED)
+require_edge = true       # edge < cost+margin -> NO_TRADE(INSUFFICIENT_EDGE)
+edge_margin_bp = 0.0      # extra safety margin over costs (basis points)
+enabled_directions = ["LONG", "SHORT", "NEUTRAL", "NO_TRADE"]
+max_signal_age_min = 60   # signals older than this are stale
+staleness_limit_min = 90  # data older than this -> STALE_DATA veto
+require_ai_veto = false   # AI is advisory-only; true + unavailable AI -> veto
+history_path = "data/signals"  # persistent signal audit history root
+max_rows_signal = 500     # row cap per signal batch (4GB guard)
+
+# Phase 5 deterministic risk gates (Track B enforces; Track A declares).
+# fail_closed=true: any gate error rejects the trade (never fail-open).
+[risk]
+max_trade_risk_pct = 1.0  # max risk per trade (% of equity)
+max_position_pct = 10.0   # max position size (% of equity)
+max_drawdown_pct = 5.0     # kill-switch drawdown (%)
+fail_closed = true        # gate errors -> reject (deterministic, model/AI cannot override)
+enabled = true            # master switch for risk gates

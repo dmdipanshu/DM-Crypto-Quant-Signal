@@ -49,3 +49,14 @@
 - Resource probe (6 analysts, mocked provider): ~0.03s, ~44 KiB tracemalloc peak (not RSS).
 - Risk review (lead): no secrets in repo; no live-order paths; AI cannot mutate quant artifacts/registry/holdout; ablation refuses non-pristine holdout; injection treated as data.
 - Ablation verdict: inconclusive (mocked zero-value context, delta 0.0; no timestamped news dataset). No AI predictive-value, profitability, or 90% claim. Phase 5 NOT started; awaiting user review.
+
+## 2026-10-27 - Phase 5 authorized and implemented (lead integration)
+
+- Auth: Phase 5 only (canonical signal schema/policy, edge/costs, deterministic gates, advisory AI, levels, audit history, `sf signal`). AGENTS.md scope updated to Phase 5.
+- Track A (signals schema/policy/costs/levels + SignalConfig/RiskConfig + 46 tests) clean at handoff: pytest 300 passed/1 skipped, ruff clean.
+- Track B subagent backend unreachable (2x DNS failure); files had landed across attempts: risk/gates.py, signals/history.py, cli.py signal sub-app, 4 test files. Lead adopted as implementer: reviewed, fixed, verified.
+- Lead fixes: 8x B904 `from exc` in cli.py, SIM102 dedent (repaired veto indentation), F841 + RUF059 in tests; formatted 9 files. Final: pytest 346 passed/1 skipped (lightgbm optional), ruff check + format (138 files) clean.
+- Subagent backend outage noted as infra failure, not a code defect; no parallel agents used (4GB rule + outage).
+- Resource probe (decide()+run_gates, 40-row fixture; policy LONG/approved, gates fail-closed on missing edge): ~0.04s, ~26 KiB tracemalloc peak (not RSS).
+- Risk review (lead): no secrets; no order paths; gates fixed-order with trace; exposure never invented; AI advisory-only (verified LONG stays LONG); history hash-chained + secret-scan; replay deterministic.
+- No profitability, 90%, or live-readiness claim. Phase 6 NOT started; awaiting user review.

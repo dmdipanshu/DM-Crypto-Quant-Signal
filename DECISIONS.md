@@ -64,3 +64,13 @@ Append-only. Never rewrite history; supersede with new dated entries.
 - No ai-* registry extras: sandbox lacks package network, so new requirements would invalidate uv.lock. SDKs are user-installed (pip install openai ...); base stays SDK-free; ordinary tests offline with mocked transports.
 - Analysts advisory-only with closed schemas; judge lean-only, never trade direction; context scores bounded/expiring, never returns/probabilities/edges; orchestrator template-merge, sequential default.
 - Ablation: 4 arms on identical folds, train-end evidence cutoff, registry-recorded (n_trials=4), margin verdict (+0.02 acc default); result inconclusive on mocked data — AI stays explanation/context-only until real timestamped evidence + validated path exist.
+
+## 2026-10-27 - Phase 5 signal engine and risk design
+
+- Label semantics fixed: triple-barrier `+1` = favorable-up (pt-hit long geometry), `-1` = favorable-down, `0` = neutral/timeout/ambiguous; policy direction mapping assumes `long_up` convention; SHORT requires `-1` in the label set.
+- Calibration honesty: calibrator applies only on family+version+feature-hash+positive-class MATCH; P(y==positive_class) is a ranking score for its event, not a trade-win probability; uncalibrated/rule-based/multiclass-without-calibrator paths abstain or go NEUTRAL with reasons (CLI v1 has no calibrator wiring).
+- Edge discipline: expected_edge_bp comes only from caller-supplied validated evidence (walk-forward proxy or configured estimate); never inferred from classification confidence; missing cost → COST_INPUTS_MISSING, missing edge → EDGE_UNAVAILABLE, below cost+margin → INSUFFICIENT_EDGE; bp units with decimal-mixup guard (>=10000bp rejected).
+- Gates: fixed order A→B→C→D with per-gate trace (observed/limit, no secrets); exposure/drawdown evaluated ONLY from caller-supplied snapshots; absent required state → EXPOSURE_UNKNOWN + fail-closed default; never invent zero exposure; no persistent P&L (no fake daily tracker); AI presence-checked only, never overrides.
+- Levels are references, not fills: tick rounding conservative (stop down for LONG/up for SHORT); history is a hash-chained audit log (idempotent, tamper-detecting), not a trading ledger.
+- Replay: single-row decision input (CLI slices snapshot tail); same snapshot+model+config → same signal_id; perturbation changes it.
+- Subagent backend outage (DNS) during Track B: lead implemented directly; files from partial attempts reviewed line-by-line before adoption.

@@ -115,6 +115,40 @@ class AiConfig(BaseModel):
     log_prompts: bool = False
 
 
+class SignalConfig(BaseModel):
+    """Phase 5 signal-generation policy defaults (Track A).
+
+    4 GB laptop: one symbol/timeframe, single-process; thresholds and
+    edge gates keep output conservative (NO_TRADE is expected).
+    """
+
+    horizon_bars: int = Field(default=24, ge=1)
+    t_long: float = Field(default=0.6, gt=0.5, lt=1.0)
+    t_short: float = Field(default=0.4, gt=0.0, lt=0.5)
+    threshold_version: str = "v1"
+    calibration_required: bool = True
+    require_edge: bool = True
+    edge_margin_bp: float = Field(default=0.0, ge=0.0)
+    enabled_directions: list[str] = Field(
+        default_factory=lambda: ["LONG", "SHORT", "NEUTRAL", "NO_TRADE"]
+    )
+    max_signal_age_min: int = Field(default=60, ge=1)
+    staleness_limit_min: int = Field(default=90, ge=1)
+    require_ai_veto: bool = False
+    history_path: str = "data/signals"
+    max_rows_signal: int = Field(default=500, ge=1)
+
+
+class RiskConfig(BaseModel):
+    """Phase 5 deterministic risk-gate bounds (Track B enforces; Track A declares)."""
+
+    max_trade_risk_pct: float = Field(default=1.0, gt=0.0)
+    max_position_pct: float = Field(default=10.0, gt=0.0)
+    max_drawdown_pct: float = Field(default=5.0, gt=0.0)
+    fail_closed: bool = True
+    enabled: bool = True
+
+
 class Settings(BaseModel):
     """Root validated settings object."""
 
@@ -126,6 +160,8 @@ class Settings(BaseModel):
     calibration: CalibrationConfig = Field(default_factory=CalibrationConfig)
     validation: ValidationConfig = Field(default_factory=ValidationConfig)
     ai: AiConfig = Field(default_factory=AiConfig)
+    signal: SignalConfig = Field(default_factory=SignalConfig)
+    risk: RiskConfig = Field(default_factory=RiskConfig)
 
     @classmethod
     def from_toml_dict(cls, data: dict[str, Any]) -> Settings:
@@ -188,7 +224,9 @@ __all__ = [
     "LoggingConfig",
     "ModelConfig",
     "RegistryConfig",
+    "RiskConfig",
     "Settings",
+    "SignalConfig",
     "ValidationConfig",
     "default_config_path",
     "load_settings",

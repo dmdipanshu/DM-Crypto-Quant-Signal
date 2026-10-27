@@ -1,17 +1,22 @@
-# SECURITY.md — SignalForge (Phase 1)
+# SECURITY.md — SignalForge (Phase 5)
 
 ## Secrets
 
 - Never commit secrets. `.env` is git-ignored; `.env.example` holds placeholders only.
 - `config/default.toml` is non-secret settings only; TOML never holds secrets.
-- AI provider keys (Phase 4+) load from environment.
+- AI provider keys load from environment; signal audit history rejects
+  secret-like field names on append.
 
 ## Data and execution
 
-- Phase 1 uses public read-only market data only; no API keys required.
+- Public read-only market data only; no API keys required for quant path.
 - No live orders anywhere in the codebase. Paper trading (Phase 6) is advisory-only.
+- Phase 5 signal engine places no orders, holds no positions, tracks no live P&L:
+  exposure/drawdown gates evaluate caller-supplied snapshots only, fail closed
+  when required state is absent, never invent zero exposure.
 - Treat exchange responses and AI outputs as untrusted: validate schemas, bound
-  sizes/timeouts, handle failures explicitly.
+  sizes/timeouts, handle failures explicitly. AI context is advisory-only and
+  can never override a risk gate or flip a rejected signal to approved.
 
 ## Dependencies and filesystem
 

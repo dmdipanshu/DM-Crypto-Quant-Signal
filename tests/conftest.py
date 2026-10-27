@@ -211,6 +211,67 @@ def ablation_frame_120():
     return {"y": y, "p": p, "ts": ts, "folds": folds}
 
 
+# --- Track A signal additions (append-only): policy/signal fixtures -------
+# NOTE: appended 2026-10-27 by Track A; existing fixtures above untouched.
+
+
+@pytest.fixture
+def signal_feature_frame_40():
+    """Tiny deterministic binary feature frame (40 rows, seed 0)."""
+    from tests.fixtures.signal_fixtures import make_feature_frame
+
+    return make_feature_frame(n=40, seed=0)
+
+
+@pytest.fixture
+def signal_calibrated_pair():
+    """Fitted (base, calibrator, calibrator_meta, row) for policy tests."""
+    from tests.fixtures.signal_fixtures import make_calibrated_pair
+
+    return make_calibrated_pair(seed=0)
+
+
+# --- Track B signal additions (append-only): tiny snapshot/model/portfolio --
+# NOTE: appended 2026-10-27 by Track B (signals); existing fixtures above untouched.
+
+
+@pytest.fixture
+def tiny_snapshot_dir(tmp_path):
+    """Tiny 5-candle BTC/USDT 1h snapshot dir (offline, deterministic)."""
+    from tests.fixtures.signal_fixtures import make_snapshot_dir
+
+    snap_dir, _ = make_snapshot_dir(tmp_path / "storage")
+    return snap_dir
+
+
+@pytest.fixture
+def stub_registry_model_dir(tmp_path):
+    """Tiny fitted TrendBaseline persisted via registry save_model (offline)."""
+    from tests.fixtures.signal_fixtures import make_registry_model_dir
+
+    model_dir, _, _ = make_registry_model_dir(tmp_path / "registry")
+    return model_dir
+
+
+@pytest.fixture
+def portfolio_valid():
+    """Valid caller-supplied portfolio snapshot."""
+    from tests.fixtures.signal_fixtures import make_portfolio
+
+    return make_portfolio("valid")
+
+
+@pytest.fixture
+def portfolio_breached():
+    """Breached caller-supplied portfolio snapshot (drawdown + limits)."""
+    from tests.fixtures.signal_fixtures import make_portfolio
+
+    return make_portfolio("breached")
+
+
+# NOTE: appended 2026-10-27 by Track B; existing fixtures above untouched.
+
+
 # --- Track B validation additions (append-only): hand-computed proxy case --
 # NOTE: appended 2026-10-27 by Track B; existing fixtures above untouched.
 

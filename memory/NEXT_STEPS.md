@@ -1,33 +1,30 @@
 # NEXT_STEPS.md — SignalForge handoff
 
-## Immediate: user review (Phase 4 gate)
+## Immediate: user review (Phase 5 gate)
 
-1. Review this Phase 4 report; explicitly approve or reject opening Phase 5.
-2. Do NOT start production signals/risk (Phase 5), backtests/paper (Phase 6),
-   or API/dashboard (Phase 7) until approval.
+1. Review this Phase 5 report; explicitly approve or reject opening Phase 6.
+2. Do NOT start the event-driven backtester, paper trading (Phase 6), or
+   API/dashboard (Phase 7) until approval.
 
-## If Phase 5 approved, proposed scope
+## If Phase 6 approved, proposed scope
 
-- Canonical signal decision engine (LONG/SHORT/NEUTRAL/NO_TRADE JSON with IDs,
-  horizons, calibrated probabilities where available, evidence, abstention
-  reasons) consuming Phase 2–4 outputs.
-- Deterministic risk gates (hard-coded policy, configurable values) independent
-  of models/AI; AI context advisory-only, never overriding gates.
+- Event-safe backtesting engine (next-bar execution, fees/spread/slippage/
+  funding, conservative ambiguous fills, reproducible trade ledger).
+- Paper-trading loop consuming canonical `SignalRecord`s, compared against
+  frozen backtest expectations; advisory-only, no live orders.
 
 ## Gates already met (verified 2026-10-27)
 
-- [x] Provider-independent interface (typed requests/responses, 9 statuses)
-- [x] 8 adapters (urllib default, SDKs BYO, all disabled default, env-only secrets)
-- [x] Retry/fallback/budgets (bounded, sequential, stops before paid escalation)
-- [x] Structured validation (closed schemas, injection-as-data, redaction)
-- [x] 8 analysts + sequential orchestrator (AI-disabled path verified)
-- [x] Context-score contract (bounded, expiring, NOT a return/probability/edge)
-- [x] Ablation (4 arms, temporal cutoff, registry-recorded, verdict: inconclusive)
-- [x] `uv sync --offline` clean, `pytest` 254 passed/1 skipped, ruff clean
-- [ ] Explicit user approval to open Phase 5
+- [x] Canonical schema (v1.0, deterministic ids, closed enums, NO_TRADE first-class)
+- [x] Decision policy (fixed veto order, calibration matching, edge gating, determinism)
+- [x] Costs/levels (bp units, mixup guard, conservative tick rounding)
+- [x] Risk gates A→B→C→D (fail-closed, no invented state, AI never overrides)
+- [x] Audit history (hash chain, idempotent, tamper-detecting, secret-free)
+- [x] `sf signal` CLI (offline default, replay deterministic, clear errors)
+- [x] `uv sync` clean, `pytest` 346 passed/1 skipped (lightgbm optional), ruff clean
+- [ ] Explicit user approval to open Phase 6
 
 ## Out of scope (stop and ask)
 
-Production signals, AI trading decisions, execution/orders, full backtests, paper
-trading, live trading, API/dashboard, large local downloads, large searches,
-unapproved global config changes.
+Event backtester, paper/live trading, portfolio accounting, API/dashboard,
+new AI providers, large searches, unapproved global config changes.
