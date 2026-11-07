@@ -46,6 +46,7 @@ class RepoRoots:
     paper_path: Path = field(default_factory=lambda: Path("data/paper/account.json"))
     experiments_path: Path = field(default_factory=lambda: Path("reports/experiments.jsonl"))
     holdout_ledger_path: Path = field(default_factory=lambda: Path("reports/holdout.json"))
+    progress_dir: Path = field(default_factory=lambda: Path("data/project_progress"))
     scan_cap: int = 5000
 
 

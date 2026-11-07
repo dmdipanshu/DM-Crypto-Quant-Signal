@@ -206,4 +206,5 @@ ledger_scan_cap = 5000 # max JSONL lines scanned per read (4GB guard)
 backtest_dir = "data/backtests"  # persisted sf backtest run dirs
 experiments_path = "reports/experiments.jsonl"  # Phase 3 experiment registry
 holdout_ledger_path = "reports/holdout.json"     # Phase 3 holdout ledger
+progress_dir = "data/project_progress"           # append-only progress ledger (read-only API)
 

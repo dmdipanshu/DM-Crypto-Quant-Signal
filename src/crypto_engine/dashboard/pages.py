@@ -20,6 +20,7 @@ from typing import Any
 APP_NAME = "SignalForge"
 NAV = (
     ("overview", "Overview", "/dashboard/"),
+    ("progress", "Progress", "/dashboard/progress/"),
     ("signals", "Signals", "/dashboard/signals"),
     ("research", "Research", "/dashboard/research"),
     ("backtests", "Backtests", "/dashboard/backtests"),

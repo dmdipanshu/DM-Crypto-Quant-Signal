@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>SignalForge — Project Progress &amp; Development Control</title>
+  <meta name="description" content="Read-only SignalForge project progress, development control, evidence and risk dashboard.">
+  <link rel="stylesheet" href="/dashboard/progress/progress.css">
+</head>
+<body>
+  <a class="skip-link" href="#view-root">Skip to main content</a>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar" aria-label="Dashboard navigation">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">SF</span>
+        <div class="brand-text">
+          <strong>SignalForge</strong>
+          <span>Development Control</span>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="Progress sections">
+        <a href="#overview" class="nav-link" data-view="overview">Overview</a>
+        <a href="#roadmap" class="nav-link" data-view="roadmap">Project Roadmap</a>
+        <a href="#timeline" class="nav-link" data-view="timeline">Development Timeline</a>
+        <a href="#activity" class="nav-link" data-view="activity">Build Activity</a>
+        <a href="#phases" class="nav-link" data-view="phases">Phases</a>
+        <a href="#ai" class="nav-link" data-view="ai">AI Stages</a>
+        <a href="#architecture" class="nav-link" data-view="architecture">Architecture</a>
+        <a href="#subsystems" class="nav-link" data-view="subsystems">Subsystems</a>
+        <a href="#testing" class="nav-link" data-view="testing">Testing &amp; Quality</a>
+        <a href="#security" class="nav-link" data-view="security">Security</a>
+        <a href="#resources" class="nav-link" data-view="resources">Resource Monitor</a>
+        <a href="#issues" class="nav-link" data-view="issues">Issues &amp; Risks</a>
+        <a href="#git" class="nav-link" data-view="git">Git &amp; Changes</a>
+        <a href="#evidence" class="nav-link" data-view="evidence">Evidence &amp; Reports</a>
+        <a href="#docs" class="nav-link" data-view="docs">Documentation</a>
+        <a href="#glossary" class="nav-link" data-view="glossary">Glossary</a>
+      </nav>
+
+      <div class="sidebar-foot">
+        <p class="muted">Read-only. No trading, no orders, no writes through this page.</p>
+        <a class="back-link" href="/dashboard/">← Research dashboard</a>
+      </div>
+    </aside>
+
+    <div class="workspace">
+      <header class="topbar">
+        <button type="button" class="icon-btn menu-btn" id="menu-toggle" aria-expanded="false" aria-controls="sidebar" aria-label="Toggle navigation">☰</button>
+
+        <div class="identity">
+          <h1>SignalForge <span class="identity-sub">Project Progress</span></h1>
+          <div class="identity-meta">
+            <span class="chip" id="project-status" data-status="NOT_VERIFIED">Loading…</span>
+            <span class="identity-item"><span class="label">Active:</span> <span id="active-item">—</span></span>
+          </div>
+        </div>
+
+        <div class="topbar-controls">
+          <div class="connection" id="connection" data-state="loading" role="status" aria-live="polite">
+            <span class="dot" aria-hidden="true"></span>
+            <span id="connection-text">Connecting…</span>
+          </div>
+          <span class="updated"><span class="label">Last update:</span> <span id="last-update">—</span></span>
+
+          <div class="segmented" role="group" aria-label="View mode">
+            <button type="button" id="view-simple" class="seg-btn is-active" aria-pressed="true">Simple</button>
+            <button type="button" id="view-technical" class="seg-btn" aria-pressed="false">Technical</button>
+          </div>
+
+          <button type="button" class="btn" id="refresh-btn">Refresh</button>
+        </div>
+      </header>
+
+      <div class="searchbar">
+        <label class="search-label" for="global-search">Search</label>
+        <input type="search" id="global-search" class="search-input" placeholder="Search events, phases, stages, files, evidence…" autocomplete="off">
+        <span class="search-hint" id="search-hint" aria-live="polite"></span>
+      </div>
+
+      <div class="stale-banner" id="stale-banner" role="alert" hidden>
+        <strong>Stale data.</strong>
+        <span id="stale-text">The last recorded progress event is older than the freshness window. Showing the last valid state.</span>
+      </div>
+
+      <div class="error-banner" id="error-banner" role="alert" hidden>
+        <strong>Progress source unavailable.</strong>
+        <span id="error-text">Could not reach the read-only progress endpoint.</span>
+      </div>
+
+      <main id="view-root" class="view" tabindex="-1" aria-live="polite">
+        <div class="loading-state">
+          <p class="muted">Loading recorded project progress…</p>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="/dashboard/progress/progress.js" defer></script>
+</body>
+</html>

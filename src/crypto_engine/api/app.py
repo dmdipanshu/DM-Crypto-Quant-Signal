@@ -116,6 +116,10 @@ def create_app(roots: Any, settings: Any) -> Any:
     from crypto_engine.dashboard import routes as dashboard_routes
 
     dashboard_routes.register(router, roots, settings)
+
+    from crypto_engine.api import progress_routes
+
+    progress_routes.register(router, roots, settings)
     app.include_router(router)
 
     origins = list(getattr(settings.api, "cors_origins", []) or [])

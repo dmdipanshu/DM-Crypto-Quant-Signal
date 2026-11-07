@@ -1370,6 +1370,7 @@ def serve(
         paper_path=_resolve_account_file(settings, root, None),
         experiments_path=_abs(settings.api.experiments_path),
         holdout_ledger_path=_abs(settings.api.holdout_ledger_path),
+        progress_dir=_abs(settings.api.progress_dir),
         scan_cap=int(settings.api.ledger_scan_cap),
     )
     application = create_app(roots, settings)

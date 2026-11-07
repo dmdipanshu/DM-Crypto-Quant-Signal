@@ -121,5 +121,53 @@ def register(router: Any, roots: Any, settings: Any) -> None:
         payload = R.read_models(_roots())
         return P.models_page(payload.get("models", []) if payload.get("available") else [])
 
+    # -- project progress control center (Phase 7 extension, read-only) -----
+    from pathlib import Path as _Path
+
+    progress_assets = _Path(__file__).resolve().parent / "progress"
+    csp = (
+        "default-src 'self'; script-src 'self'; style-src 'self'; "
+        "img-src 'self' data:; connect-src 'self'; base-uri 'none'; "
+        "form-action 'none'; frame-ancestors 'none'"
+    )
+
+    @router.get("/dashboard/progress/", response_class=HTMLResponse)
+    def dash_progress() -> Any:
+        index = progress_assets / "index.html"
+        if not index.is_file():
+            from fastapi import HTTPException
+
+            raise HTTPException(status_code=404, detail="progress dashboard assets are missing")
+        return HTMLResponse(
+            index.read_text(encoding="utf-8"),
+            headers={
+                "Content-Security-Policy": csp,
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff",
+                "Referrer-Policy": "no-referrer",
+            },
+        )
+
+    def _asset(name: str, media_type: str) -> Any:
+        from fastapi import HTTPException
+        from fastapi.responses import Response
+
+        path = progress_assets / name
+        if not path.is_file():
+            raise HTTPException(status_code=404, detail="progress asset is missing")
+        return Response(
+            content=path.read_bytes(),
+            media_type=media_type,
+            headers={"Cache-Control": "no-cache", "X-Content-Type-Options": "nosniff"},
+        )
+
+    @router.get("/dashboard/progress/progress.css", include_in_schema=False)
+    def progress_css() -> Any:
+        return _asset("progress.css", "text/css; charset=utf-8")
+
+    @router.get("/dashboard/progress/progress.js", include_in_schema=False)
+    def progress_js() -> Any:
+        return _asset("progress.js", "text/javascript; charset=utf-8")
+
 
 __all__ = ["register"]

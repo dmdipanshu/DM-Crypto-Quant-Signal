@@ -237,6 +237,7 @@ class ApiConfig(BaseModel):
     backtest_dir: str = "data/backtests"
     experiments_path: str = "reports/experiments.jsonl"
     holdout_ledger_path: str = "reports/holdout.json"
+    progress_dir: str = "data/project_progress"
 
 
 class Settings(BaseModel):
