@@ -23,6 +23,10 @@ backtest_app: typer.Typer = typer.Typer(help="Phase 6 event-safe historical back
 app.add_typer(backtest_app, name="backtest")
 paper_app: typer.Typer = typer.Typer(help="Phase 6 advisory-only paper trading (no live orders).")
 app.add_typer(paper_app, name="paper")
+model_app: typer.Typer = typer.Typer(
+    help="Phase 8 model training on local snapshots (no live data)."
+)
+app.add_typer(model_app, name="model")
 ai_app: typer.Typer = typer.Typer(help="Universal AI gateway (advisory only; offline by default).")
 app.add_typer(ai_app, name="ai")
 
@@ -1389,6 +1393,139 @@ def serve(
     except OSError as exc:
         console.print(f"[red]error: cannot bind {bind_host}:{bind_port}: {exc}[/red]")
         raise typer.Exit(code=1) from exc
+
+
+# --- Phase 8: `sf model` training commands (local snapshots only) ------------
+
+
+@model_app.command("train")
+def model_train(
+    snapshot: Annotated[Path | None, typer.Option(help="Explicit snapshot directory.")] = None,
+    symbol: Annotated[
+        str | None, typer.Option(help="Symbol for snapshot discovery (e.g. BTC/USDT).")
+    ] = None,
+    timeframe: Annotated[
+        str | None, typer.Option(help="Timeframe for snapshot discovery (e.g. 1h).")
+    ] = None,
+    registry: Annotated[
+        Path | None, typer.Option(help="Registry root for the new artifact.")
+    ] = None,
+    train_frac: Annotated[float, typer.Option(help="Chronological training share (0,1).")] = 0.6,
+    valid_frac: Annotated[
+        float, typer.Option(help="Chronological validation share; rest is holdout.")
+    ] = 0.2,
+    pt_mult: Annotated[
+        float | None, typer.Option(help="Triple-barrier profit multiple (default from config).")
+    ] = None,
+    sl_mult: Annotated[
+        float | None, typer.Option(help="Triple-barrier stop multiple (default from config).")
+    ] = None,
+    max_horizon: Annotated[
+        int | None, typer.Option(help="Triple-barrier horizon in bars (default from config).")
+    ] = None,
+    config: Annotated[
+        Path | None, typer.Option("--config", help="Path to a TOML config file.")
+    ] = None,
+) -> None:
+    """Train a logistic baseline on a local snapshot; print the run summary as JSON."""
+    from crypto_engine.config.settings import load_settings
+    from crypto_engine.training.pipeline import TrainRequest, train_model
+
+    try:
+        settings = load_settings(config)
+    except (FileNotFoundError, ValueError) as exc:
+        console.print(f"[red]error: cannot load config: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+
+    if snapshot is None and (symbol is None or timeframe is None):
+        console.print(
+            "[red]error: pass --snapshot <dir>, or both --symbol and --timeframe "
+            "for snapshot discovery. Training never fetches live data.[/red]"
+        )
+        raise typer.Exit(code=1)
+    if (
+        not (0.0 < train_frac < 1.0)
+        or not (0.0 <= valid_frac < 1.0)
+        or train_frac + valid_frac >= 1.0
+    ):
+        console.print("[red]error: need 0 < --train-frac < 1, 0 <= --valid-frac, sum < 1.[/red]")
+        raise typer.Exit(code=2)
+    for name, value in (("pt-mult", pt_mult), ("sl-mult", sl_mult)):
+        if value is not None and not value > 0:
+            console.print(f"[red]error: --{name} must be > 0.[/red]")
+            raise typer.Exit(code=2)
+    if max_horizon is not None and max_horizon < 1:
+        console.print("[red]error: --max-horizon must be >= 1.[/red]")
+        raise typer.Exit(code=2)
+
+    root = _repo_root()
+    reg_root = Path(registry) if registry is not None else Path(settings.registry.path)
+    if not reg_root.is_absolute():
+        reg_root = root / reg_root
+    request = TrainRequest(
+        snapshot_dir=Path(snapshot) if snapshot is not None else None,
+        symbol=symbol,
+        timeframe=timeframe,
+        storage_root=_resolve_storage(settings, root),
+        registry_root=reg_root,
+        train_frac=float(train_frac),
+        valid_frac=float(valid_frac),
+        pt_mult=pt_mult,
+        sl_mult=sl_mult,
+        max_horizon_bars=max_horizon,
+    )
+    try:
+        summary = train_model(request, settings)
+    except FileNotFoundError as exc:
+        console.print(f"[red]error: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    except FileExistsError as exc:
+        console.print(f"[red]error: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    except ValueError as exc:
+        console.print(f"[red]error: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    console.print_json(json.dumps(summary, default=str))
+
+
+@model_app.command("list")
+def model_list(
+    registry: Annotated[Path | None, typer.Option(help="Registry root to inspect.")] = None,
+    config: Annotated[
+        Path | None, typer.Option("--config", help="Path to a TOML config file.")
+    ] = None,
+) -> None:
+    """List registered model artifacts (metadata only, never loads weights)."""
+    from crypto_engine.config.settings import load_settings
+    from crypto_engine.registry.store import list_models
+
+    try:
+        settings = load_settings(config)
+    except (FileNotFoundError, ValueError) as exc:
+        console.print(f"[red]error: cannot load config: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    root = _repo_root()
+    reg_root = Path(registry) if registry is not None else Path(settings.registry.path)
+    if not reg_root.is_absolute():
+        reg_root = root / reg_root
+    try:
+        records = list_models(reg_root)
+    except OSError as exc:
+        console.print(f"[red]error: cannot read registry {reg_root}: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    table = Table(title=f"Models ({len(records)})")
+    for col in ("model_id", "family", "version", "status", "dataset_snapshot_id", "created_at"):
+        table.add_column(col)
+    for record in records:
+        table.add_row(
+            record.model_id,
+            record.family,
+            record.version,
+            str(record.status),
+            record.dataset_snapshot_id,
+            str(record.created_at),
+        )
+    console.print(table)
 
 
 # ---------------------------------------------------------------------------

@@ -95,3 +95,12 @@ Append-only. Never rewrite history; supersede with new dated entries.
 - Dashboard: 6 server-rendered pages sharing repo readers (no second source of truth); `html.escape` on all dynamic values; explicit empty/uninitialized states; paper always labeled hypothetical; no trading buttons/forms/order paths; no fake live-updating values; no calibrated-probability display of raw scores.
 - Security posture: GET-only asserted at build (`assert_get_only` traverses lazy routers) and tested (405s on POST/PUT/DELETE/PATCH for data + root paths); path traversal and malformed ids rejected (400/404, sanitized); env secrets scanned absent from all responses; tracebacks never leak (generic 500 + request id; server logs only).
 - Verified, not merely implemented: 35 new tests green; live uvicorn proof (127.0.0.1:8123, 4 endpoints 200, clean shutdown); final audit clean. No live/paper account exists; no cloud deployment claimed.
+
+## 2026-10-28 - Phase 8 local model-training workflow
+
+- New `src/crypto_engine/training/` package (splits.py + pipeline.py) plus `sf model train|list`; reuses load_snapshot, compute_features, triple-barrier helpers, valid_mask, assert_no_leakage, label_config_hash, SklearnLogistic, MajorityBaseline, save/load/list_models, classification_report_small — no existing module modified.
+- Chronological 60/20/20 splits (configurable fractions); purge drops training rows whose observable_at exceeds the cutoff; embargo drops trailing train rows (validation.embargo_bars); single/multi-class handled, single-class explicitly rejected; max_rows_train cap applied to most-recent rows and recorded.
+- No calibration fitting in Phase 8 (models marked UNCALIBRATED); no thresholds fitted (holdout used for reporting only, never tuning); edge vs confidence never conflated (edge gating stays in the Phase 5 policy).
+- Registry discipline preserved: save_model no-overwrite honored, FileExistsError surfaced with guidance; reload verified (fitted, schema, checksum, prediction compatibility).
+- CLI is offline-only (no fetch flag exists); discovery via list_snapshots latest match; invalid inputs exit 1/2 with guidance.
+- 26 new tests; full suite 492 passed, 1 skipped; ruff clean; fixtures <=400 rows; no new dependencies.
