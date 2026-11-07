@@ -36,3 +36,8 @@ desktop.ini
 
 # SignalForge local-only project progress runtime data
 data/project_progress/
+
+# SignalForge local runtime state and generated research output
+data/paper/
+data/scheduler/
+reports/historical_backtests/

@@ -386,11 +386,10 @@ Observed on 2026-11-07, recorded here for the integration lead, **not fixed**:
 
 Status update (2026-11-07, later the same day): item 4 is resolved. The
 repository now has a working uv-managed `.venv`; targeted `pytest` and `ruff`
-runs execute offline. Item 2 is partly resolved: `data/project_progress/` is
-now ignored by `.gitignore:38`. The three paths listed in item 2
-(`reports/historical_backtests/`, `data/paper/`, `data/scheduler/`) are still
-not ignored. Items 1 and 3 remain open and are still outside this document's
-scope.
+runs execute offline. Item 2 is resolved: `.gitignore` now excludes
+`data/project_progress/`, `data/paper/`, `data/scheduler/` and
+`reports/historical_backtests/`. Items 1 and 3 remain open and are still
+outside this document's scope.
 
 ## 8. What this document is not
 
