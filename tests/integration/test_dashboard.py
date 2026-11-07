@@ -37,6 +37,50 @@ def _test_app(tmp_path: Path):
     return create_app(roots, settings), roots
 
 
+def _test_app_empty(root: Path):
+    """App over absent stores: no snapshots, signals, models, paper or backtests."""
+    settings = load_settings()
+    roots = RepoRoots(
+        signals_dir=root / "signals",
+        registry_dir=root / "registry",
+        data_storage=root / "storage",
+        backtest_dir=root / "backtests",
+        paper_path=root / "paper",
+        experiments_path=root / "experiments.jsonl",
+        holdout_ledger_path=root / "holdout.json",
+        scan_cap=5000,
+    )
+    return create_app(roots, settings), roots
+
+
+def test_overview_matches_api_availability(tmp_path: Path) -> None:
+    """Regression: overview must agree with the API in both availability states.
+
+    The Datasets row previously read the API-only keys (snapshots_available /
+    snapshot_count) while the page context carries the shared contract
+    (available / total), so a populated store rendered as "none recorded".
+    Both states are exercised here; the empty case is not reachable from the
+    populated store fixture.
+    """
+    cases = (
+        ("populated", _test_app(tmp_path / "populated")[0], True),
+        ("empty", _test_app_empty(tmp_path / "empty")[0], False),
+    )
+    for name, app, expected_available in cases:
+        _, _, html = api_get(app, "/dashboard/")
+        _, _, status = api_get(app, "/api/v1/data/status")
+        row_html = html.split("Datasets")[1].split("</tr>")[0]
+        available = bool(status["data"].get("snapshots_available"))
+        assert available is expected_available, name
+        if available:
+            count = status["data"]["snapshot_count"]
+            assert "none recorded" not in row_html, name
+            assert f"{count} snapshot(s) recorded" in row_html, name
+        else:
+            assert "none recorded" in row_html, name
+            assert "0 snapshot(s) recorded" not in row_html, name
+
+
 def test_overview_renders(tmp_path: Path) -> None:
     app, _ = _test_app(tmp_path)
     status, headers, body = api_get(app, "/dashboard/")

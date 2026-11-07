@@ -103,8 +103,8 @@ def overview(ctx: dict[str, Any]) -> str:
         + f" <span class='small mono'>{_esc(health.get('package_version', ''))}</span>",
     )
     data = ctx.get("data_status", {})
-    if data.get("snapshots_available"):
-        _row("Datasets", f"{_esc(data.get('snapshot_count'))} snapshot(s) recorded")
+    if data.get("available") and int(data.get("total", 0) or 0) > 0:
+        _row("Datasets", f"{_esc(data.get('total', 0))} snapshot(s) recorded")
     else:
         _row("Datasets", _badge("none recorded", "warn"))
     latest = ctx.get("latest_signal")
