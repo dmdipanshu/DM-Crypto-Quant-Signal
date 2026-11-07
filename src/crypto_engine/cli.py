@@ -23,6 +23,8 @@ backtest_app: typer.Typer = typer.Typer(help="Phase 6 event-safe historical back
 app.add_typer(backtest_app, name="backtest")
 paper_app: typer.Typer = typer.Typer(help="Phase 6 advisory-only paper trading (no live orders).")
 app.add_typer(paper_app, name="paper")
+ai_app: typer.Typer = typer.Typer(help="Universal AI gateway (advisory only; offline by default).")
+app.add_typer(ai_app, name="ai")
 
 console = Console()
 
@@ -548,6 +550,17 @@ def signal_generate(
         record, ctx, artifact_hash=record_meta.artifact_sha256, feature_schema=model_features
     )
     _ = gate_trace
+
+    if ai == "explain":
+        from crypto_engine.ai.advisory import apply_ai_context, explain_signal
+        from crypto_engine.ai.composition import build_configured_gateway
+        from crypto_engine.ai.errors import AIError as AIBoundaryError
+
+        try:
+            ai_gateway = build_configured_gateway(settings.ai)
+        except AIBoundaryError:
+            ai_gateway = None
+        record = apply_ai_context(record, explain_signal(record, ai_gateway))
 
     hist_dir = _resolve_history_dir(settings, root, history_path)
     from crypto_engine.signals.history import PersistenceError, SignalHistory
@@ -1375,3 +1388,216 @@ def serve(
     except OSError as exc:
         console.print(f"[red]error: cannot bind {bind_host}:{bind_port}: {exc}[/red]")
         raise typer.Exit(code=1) from exc
+
+
+# ---------------------------------------------------------------------------
+# Stage 5: universal AI gateway CLI (advisory only; offline/mock by default)
+# ---------------------------------------------------------------------------
+
+
+def _load_ai_config(config: Path | None):
+    """Load validated settings and return the ``[ai]`` section."""
+    from crypto_engine.config.settings import load_settings
+
+    try:
+        return load_settings(config).ai
+    except (FileNotFoundError, ValueError) as exc:
+        console.print(f"[red]error: cannot load config: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+
+
+def _ai_registry_snapshot(config: Path | None):
+    from crypto_engine.ai.configuration import build_registry
+    from crypto_engine.ai.errors import AIError
+
+    cfg = _load_ai_config(config)
+    try:
+        return build_registry(cfg).snapshot()
+    except AIError as exc:
+        console.print_json(
+            json.dumps(
+                {"error": {"code": exc.status.value, "message": exc.message}},
+                sort_keys=True,
+            )
+        )
+        raise typer.Exit(code=1) from exc
+
+
+@ai_app.command("status")
+def ai_status(
+    config: Annotated[
+        Path | None, typer.Option("--config", help="Path to a TOML config file.")
+    ] = None,
+) -> None:
+    """Report AI enablement, registry counts and bounded limits (never secrets)."""
+    from crypto_engine.ai.configuration import build_registry
+    from crypto_engine.ai.errors import AIError
+
+    cfg = _load_ai_config(config)
+    error: dict[str, str] | None = None
+    snapshot = None
+    try:
+        snapshot = build_registry(cfg).snapshot()
+    except AIError as exc:
+        error = {"code": exc.status.value, "message": exc.message}
+    payload = {
+        "enabled": cfg.enabled,
+        "valid": error is None,
+        "providers": len(snapshot["providers"]) if snapshot else 0,
+        "models": len(snapshot["models"]) if snapshot else 0,
+        "routes": len(snapshot["routes"]) if snapshot else 0,
+        "max_concurrent_requests": cfg.max_concurrent_requests,
+        "max_retries": cfg.max_retries,
+        "timeout_s": cfg.timeout_s,
+        "max_request_chars": cfg.max_request_chars,
+        "max_response_chars": cfg.max_response_chars,
+        "max_output_tokens": cfg.max_output_tokens,
+        "error": error,
+    }
+    console.print_json(json.dumps(payload, sort_keys=True))
+
+
+@ai_app.command("config-check")
+def ai_config_check(
+    config: Annotated[
+        Path | None, typer.Option("--config", help="Path to a TOML config file.")
+    ] = None,
+) -> None:
+    """Validate providers/models/task routes without network access."""
+    from crypto_engine.ai.composition import build_ports
+    from crypto_engine.ai.configuration import build_registry
+    from crypto_engine.ai.errors import AIError
+
+    cfg = _load_ai_config(config)
+    try:
+        build_registry(cfg)
+        build_ports(cfg)
+        payload: dict[str, object] = {"ok": True, "errors": []}
+    except AIError as exc:
+        payload = {
+            "ok": False,
+            "errors": [{"code": exc.status.value, "message": exc.message}],
+        }
+    console.print_json(json.dumps(payload, sort_keys=True))
+    if not payload["ok"]:
+        raise typer.Exit(code=1)
+
+
+@ai_app.command("providers")
+def ai_providers(
+    config: Annotated[
+        Path | None, typer.Option("--config", help="Path to a TOML config file.")
+    ] = None,
+) -> None:
+    """List configured providers (credential references only, never values)."""
+    snapshot = _ai_registry_snapshot(config)
+    console.print_json(json.dumps({"providers": snapshot["providers"]}, sort_keys=True))
+
+
+@ai_app.command("models")
+def ai_models(
+    config: Annotated[
+        Path | None, typer.Option("--config", help="Path to a TOML config file.")
+    ] = None,
+) -> None:
+    """List configured models and their enablement."""
+    snapshot = _ai_registry_snapshot(config)
+    console.print_json(json.dumps({"models": snapshot["models"]}, sort_keys=True))
+
+
+@ai_app.command("routes")
+def ai_routes(
+    config: Annotated[
+        Path | None, typer.Option("--config", help="Path to a TOML config file.")
+    ] = None,
+) -> None:
+    """List deterministic task -> provider -> model routes."""
+    snapshot = _ai_registry_snapshot(config)
+    console.print_json(json.dumps({"routes": snapshot["routes"]}, sort_keys=True))
+
+
+@ai_app.command("test")
+def ai_test(
+    task: Annotated[str, typer.Option(help="AI task to route (e.g. signal_explanation).")] = (
+        "signal_explanation"
+    ),
+    live: Annotated[
+        bool,
+        typer.Option(
+            "--live",
+            help="Use the real provider endpoint (requires enabled config + credentials).",
+        ),
+    ] = False,
+    config: Annotated[
+        Path | None, typer.Option("--config", help="Path to a TOML config file.")
+    ] = None,
+) -> None:
+    """Exercise the gateway; offline mock by default, real calls only with --live."""
+    from crypto_engine.ai.composition import build_configured_gateway, mock_transport
+    from crypto_engine.ai.contracts import AIRequest, AITask
+    from crypto_engine.ai.errors import AIError
+
+    cfg = _load_ai_config(config)
+    try:
+        resolved_task = AITask(task)
+    except ValueError as exc:
+        console.print(f"[red]error: unknown AI task {task!r}[/red]")
+        raise typer.Exit(code=2) from exc
+    if not cfg.enabled:
+        console.print_json(
+            json.dumps(
+                {
+                    "status": "disabled",
+                    "detail": "AI is disabled in configuration; deterministic core runs alone.",
+                },
+                sort_keys=True,
+            )
+        )
+        return
+    try:
+        gateway = build_configured_gateway(
+            cfg,
+            mock=not live,
+            transport=None if live else mock_transport,
+        )
+    except AIError as exc:
+        console.print_json(
+            json.dumps({"status": exc.status.value, "error": exc.message}, sort_keys=True)
+        )
+        raise typer.Exit(code=1) from exc
+    request = AIRequest(
+        task=resolved_task,
+        task_text="Connectivity check. Reply with one short advisory sentence.",
+        evidence={"purpose": "sf ai test"},
+        output_schema_id="text.v1",
+    )
+    response = gateway.complete(request)
+    payload = {
+        "status": response.status.value,
+        "provider_id": response.provider_id,
+        "model_id": response.model_id,
+        "route_id": response.route_id,
+        "attempts": response.attempts,
+        "latency_ms": response.latency_ms,
+        "usage": {
+            "input_tokens": response.usage.input_tokens,
+            "output_tokens": response.usage.output_tokens,
+            "total_tokens": response.usage.total_tokens,
+        },
+        "advisory_only": response.advisory_only,
+        "live": live,
+        "text": (response.text or "")[:200],
+        "error": (
+            {
+                "code": response.error.code.value,
+                "message": response.error.message,
+                "retryable": response.error.retryable,
+                "provider_status": response.error.provider_status,
+            }
+            if response.error is not None
+            else None
+        ),
+    }
+    console.print_json(json.dumps(payload, sort_keys=True))
+    if not response.ok:
+        raise typer.Exit(code=1)

@@ -58,25 +58,54 @@ random_state = 42       # fixed seed for deterministic validation
 # provider SDKs are bring-your-own (pip install openai/anthropic/etc.) —
 # there are no registry-based ai-* extras (no package network in this env).
 [ai]
-default_provider = "none"  # provider_id or "none"
-fallback_order = []        # ordered provider_ids for fallback routing
-cache_ttl_s = 0            # response cache TTL (0 = disabled)
-log_prompts = false        # never log secrets regardless of this flag
+enabled = false            # global AI switch; deterministic core runs alone
+default_provider = "none"  # reserved (legacy); routing is [ai.tasks.*] only
+fallback_order = []        # reserved (legacy); no runtime failover is implemented
+cache_ttl_s = 0            # reserved; no response cache exists
+log_prompts = false        # reserved; no prompt/response logging exists
+timeout_s = 30.0           # bounded per-request ceiling (seconds)
+max_retries = 2            # bounded retries (0..3)
+max_request_chars = 8000   # bounded request size
+max_response_chars = 4000  # bounded response size
+max_output_tokens = 1024   # bounded output ceiling
+max_concurrent_requests = 1  # single-process design: exactly one in flight
 
 [ai.budgets]
-max_requests = 10          # in-memory cap on AI calls per tracker lifetime
-max_chars = 200000         # in-memory cap on prompt+excerpt chars per tracker
+# Parsed and validated, but no budget tracker is wired yet. The [ai] limits
+# above are the enforced bounds.
+max_requests = 10          # reserved; not enforced
+max_chars = 200000         # reserved; not enforced
 
 # [[ai.providers]] examples (ALL disabled; uncomment + enable one at a time).
 # [ai.providers.openai] -- NOTE: use array-of-tables below, one per provider.
 # [[ai.providers]]
 # provider_id = "openai"
-# model_id = "gpt-4o-mini"
+# display_name = "OpenAI"
+# dialect = "openai_compatible"
 # enabled = false
-# timeout_s = 30.0
-# max_retries = 2
-# max_response_chars = 4000
-# concurrency = 1
+# timeout_s = 30.0               # cap: min(provider, [ai].timeout_s)
+# max_retries = 2                # cap: min(provider, [ai].max_retries)
+# max_response_chars = 4000      # parsed but not applied; [ai] limit governs
+# concurrency = 1                # parsed but not applied; exactly 1 enforced
+# base_url = "https://api.openai.com/v1"
+# api_key_env = "OPENAI_API_KEY"   # NAME only, never the secret value
+# auth_mechanism = "bearer"
+# structured_output = "json_schema"
+#
+# [[ai.models]] examples (Stage 1 registry; disabled by default).
+# [[ai.models]]
+# provider_id = "openai"
+# model_id = "gpt-4o-mini"
+# display_name = "GPT-4o mini"
+# enabled = false
+# max_output_tokens = 1024
+# structured_output = "json_schema"
+#
+# [ai.tasks.signal_explanation] examples (Stage 1 task routing).
+# [ai.tasks.signal_explanation]
+# route = ["openai:gpt-4o-mini"]   # ordered preference; first enabled entry wins
+# max_output_tokens = 256          # parsed but not applied; [ai] ceiling governs
+# timeout_s = 15                   # parsed but not applied; [ai] ceiling governs
 #
 # [[ai.providers]]
 # provider_id = "anthropic"
@@ -104,15 +133,18 @@ max_chars = 200000         # in-memory cap on prompt+excerpt chars per tracker
 # enabled = false
 #
 # [[ai.providers]]
-# provider_id = "ollama"
+# provider_id = "ollama"          # loopback OpenAI-compatible endpoint
 # model_id = "llama3.1:8b"
 # enabled = false
+# base_url = "http://localhost:11434/v1"
+# auth_mechanism = "none"         # loopback-only no-auth is implemented
 #
 # [[ai.providers]]
 # provider_id = "compatible"
 # model_id = "custom-model"
 # enabled = false
 # base_url = "http://localhost:11434/v1"
+# auth_mechanism = "none"         # loopback-only; no credential is sent
 
 # Phase 5 signal-generation policy (Track A). 4GB: single-process, one
 # symbol/timeframe at a time; small fixtures (<=50 rows in unit tests).

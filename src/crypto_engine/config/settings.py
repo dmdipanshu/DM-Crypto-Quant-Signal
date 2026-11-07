@@ -86,7 +86,9 @@ class AiProviderConfig(BaseModel):
     """Single AI provider instance (Phase 4 Track A; all disabled by default)."""
 
     provider_id: str = "openai"
+    display_name: str = ""
     model_id: str = "gpt-4o-mini"
+    dialect: str = "openai_compatible"
     enabled: bool = False
     timeout_s: float = Field(default=30.0, gt=0)
     max_retries: int = Field(default=2, ge=0, le=3)
@@ -94,7 +96,37 @@ class AiProviderConfig(BaseModel):
     concurrency: int = Field(default=1, ge=1, le=1)
     base_url: str | None = None
     api_key_env: str | None = None
+    auth_mechanism: Literal["bearer", "header", "query", "none"] = "bearer"
+    structured_output: Literal["none", "json_mode", "json_schema"] = "none"
+    max_context_tokens: int = Field(default=0, ge=0)
+    max_output_tokens: int = Field(default=0, ge=0)
+    usage_reporting: Literal["exact", "estimated", "none"] = "none"
+    reasoning_metadata: bool = False
+    local: bool = False
+    egress_allowlist: list[str] = Field(default_factory=list)
     capabilities: dict[str, bool] = Field(default_factory=dict)
+
+
+class AiModelConfig(BaseModel):
+    """One model entry for the universal AI registry (Stage 1)."""
+
+    provider_id: str = ""
+    model_id: str = ""
+    display_name: str = ""
+    enabled: bool = False
+    context_limit: int = Field(default=0, ge=0)
+    max_output_tokens: int = Field(default=1024, ge=1)
+    structured_output: Literal["none", "json_mode", "json_schema"] = "none"
+    text_generation: bool = True
+    local: bool = False
+
+
+class AiTaskRouteConfig(BaseModel):
+    """Task route: ordered ``provider:model`` fallback list (Stage 1)."""
+
+    route: list[str] = Field(default_factory=list)
+    max_output_tokens: int | None = Field(default=None, ge=1)
+    timeout_s: float | None = Field(default=None, gt=0)
 
 
 class AiBudgetConfig(BaseModel):
@@ -107,12 +139,21 @@ class AiBudgetConfig(BaseModel):
 class AiConfig(BaseModel):
     """Phase 4 AI interface configuration (Track A owns semantics)."""
 
+    enabled: bool = False
     default_provider: str = "none"
     fallback_order: list[str] = Field(default_factory=list)
     providers: list[AiProviderConfig] = Field(default_factory=list)
+    models: list[AiModelConfig] = Field(default_factory=list)
+    tasks: dict[str, AiTaskRouteConfig] = Field(default_factory=dict)
     budgets: AiBudgetConfig = Field(default_factory=AiBudgetConfig)
     cache_ttl_s: int = Field(default=0, ge=0)
     log_prompts: bool = False
+    timeout_s: float = Field(default=30.0, gt=0, le=600)
+    max_retries: int = Field(default=2, ge=0, le=3)
+    max_request_chars: int = Field(default=8000, ge=1, le=1_000_000)
+    max_response_chars: int = Field(default=4000, ge=1, le=1_000_000)
+    max_output_tokens: int = Field(default=1024, ge=1, le=1_000_000)
+    max_concurrent_requests: int = Field(default=1, ge=1, le=1)
 
 
 class SignalConfig(BaseModel):
@@ -269,7 +310,9 @@ def load_settings(toml_path: Path | None = None) -> Settings:
 __all__ = [
     "AiBudgetConfig",
     "AiConfig",
+    "AiModelConfig",
     "AiProviderConfig",
+    "AiTaskRouteConfig",
     "ApiConfig",
     "BacktestConfig",
     "CalibrationConfig",

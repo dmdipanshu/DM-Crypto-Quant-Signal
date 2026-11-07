@@ -3,6 +3,13 @@
 > Implemented state. Track A (provider interface) + Track B (analyst agents,
 > ablation) are wired and tested offline. All providers disabled by default;
 > secrets from environment only.
+>
+> **Implemented target:** the provider-neutral port, gateway, registry, task
+> routing and secret boundary described in `docs/architecture/AI_GATEWAY.md`
+> now exist in `src/crypto_engine/ai/` (Stages 0–5, 2026-11-07). The legacy
+> `src/crypto_engine/ai_providers/` package described below is unchanged and
+> still used by `agents/`; the new gateway is used by `sf ai` and
+> `sf signal generate --ai explain`.
 
 ## What exists
 
