@@ -86,6 +86,48 @@ Append-only. Never rewrite history; supersede with new dated entries.
 - Divergence: paper stepping identical bar+signal sequences must reproduce backtest fills (proven: backtest → paper → flatten → compare = match); tolerances explicit; exit_reason intentionally not compared.
 - No orders: no ccxt/order/trade API imports in backtesting or paper_trading (grep-verified); no live credentials, no real money, no portfolio accounting beyond the sandbox.
 
+## 2026-10-28 - Phase 9 semantic audit + logistic diagnostics (no model-code changes)
+
+- Directional semantics VERIFIED consistent end-to-end, no mismatch: with
+  config side="both" the labeler uses long geometry (+1 = upper barrier first,
+  -1 = lower barrier first, 0 = timeout/ambiguous); policy maps predicted
+  -1/0/+1 to SHORT/NEUTRAL/LONG (multiclass argmax; binary t_long/t_short);
+  backtest opens same-direction positions (SHORT via SELL). Pinned by new
+  regression tests (tests/unit/test_phase9_semantics.py).
+- Documented nuance (not a code defect): with asymmetric multiples (pt 2.0 /
+  sl 1.0), label -1 records a long stop-out (down 1σ before up 2σ), which does
+  NOT prove a mirrored short would profit. The SHORT direction is a
+  directional hypothesis whose edge must be measured — never assumed. No
+  silent reinterpretation; existing artifact untouched.
+- Real-snapshot diagnosis (2209 bars → 2066 usable; read-only, artifact
+  unmodified): labels -1/+1/0 = 1270/697/99 (majority -1 at 61.5%); model
+  predicts only ±1, never 0 (4.8% minority class suppressed by argmax — no
+  mapping bug, no class_weight knob exists in the wrapper by design).
+  Valid acc 43.6% vs majority 61.5%; balanced accuracy 0.336 vs 0.333
+  (chance); train acc 63.0% → valid 43.6% gap = overfitting and/or regime
+  shift. Top-|coefficients| are relative/oscillator features (macd_hist,
+  bb_pos_20, trend_slope_5); raw price-level features do NOT dominate.
+  Metrics code hand-verified against manual confusion counts.
+- Controlled experiment (validation-only selection, predeclared rule: highest
+  validation macro-F1): majority 0.254, logistic 0.300, trend 0.285,
+  relative-only logistic 0.261. Selected: incumbent logistic config — but the
+  margin over degenerate alternatives is not convincing, so the artifact is
+  RETAINED unchanged and no new model was registered. Holdout figures
+  (0.47/0.61) are previously-inspected comparisons only, not pristine;
+  forward validation on genuinely new data recommended before any claim.
+- Backtest verdict: BLOCKED by design. Default gates veto every signal
+  (proven: full 2209-bar `sf backtest run` → 0 signals/0 trades; live veto
+  trace ends at policy:calibration UNCALIBRATED). Removing calibration/edge
+  gates to force trades is forbidden, so no trading backtest was run.
+- Incidental fix from browser smoke test: dashboard overview read the wrong
+  keys from the data-status payload (showed "none recorded" with 1 snapshot
+  present); fixed to the shared contract + regression test; verified live via
+  agent-browser (health JSON + overview render). `agent-browser open` hangs in
+  this sandbox (Chrome launch); `navigate`/`snapshot` work.
+- Grill-me skill is a stub pointing at a nonexistent "grilling" skill (load of
+  "grilling" fails); its stated intent was applied as an explicit adversarial
+  review instead (recorded in the Phase 9 handoff).
+
 ## 2026-10-28 - Phase 7 read-only API and dashboard design (final phase)
 
 - Read-only contract: 32 GET routes under `/api/v1` (+ root/health/dashboard pages); versioned envelopes (`api_version 1.0`, `request_id`, `data_ts`); pagination caps (default 50, max 500 enforced); `unavailable` payloads with reasons (not_initialized/empty/missing/corrupt) — never fabricated rows; expired/stale signal records labeled, never presented as actionable.
