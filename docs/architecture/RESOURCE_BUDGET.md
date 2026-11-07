@@ -86,7 +86,7 @@ not route requests; routing is `[ai.tasks.<task>].route` only. The legacy
 Phase 4 path and is not imported by `crypto_engine.ai`; it must not be
 described as part of the new gateway. Wiring `[ai.budgets]` or any other
 parsed-but-unenforced field requires separate authorization and review (M2);
-see `AI_GATEWAY.md` §16.9.
+see `AI_GATEWAY.md` §24.9.
 
 **Design intent (not implemented).** The earlier design described an in-memory
 budget tracker that would count requests/characters and stop before a paid

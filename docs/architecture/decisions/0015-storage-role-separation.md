@@ -1,6 +1,8 @@
 # ADR-0015 — Parquet, SQLite WAL and JSON as separate storage roles
 
-- **Status:** Proposed (architecture freeze, design only)
+- **Status:** Accepted — role contracts implemented (Stage 0, 2026-11-07).
+  The original design status was "Proposed (architecture freeze, design only)";
+  no database file or migration exists yet (see `STORAGE_OWNERSHIP.md` §9).
 - **Date:** 2026-11-07
 - **Deciders:** Operator, integration lead, market-data engineer
 - **Supersedes:** ADR-0005 (in part — SQLite becomes the canonical

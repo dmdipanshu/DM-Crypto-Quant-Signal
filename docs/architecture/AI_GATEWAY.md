@@ -1,11 +1,11 @@
 # Universal AI Gateway
 
 **Status: IMPLEMENTED (Stages 0–5, 2026-11-07) — sections 1–15 are the design
-contract; §16 records exactly what exists.**
+contract; §24 records exactly what exists.**
 
 The provider-neutral core, registry, gateway, one OpenAI-compatible adapter,
 bounded signal/research advisory layers, composition root and `sf ai` CLI exist
-in `src/crypto_engine/ai/` (uncommitted at the time of writing). No provider
+in `src/crypto_engine/ai/` and are committed (`a768063`, 2026-11-07). No provider
 SDK, no local LLM runtime, no network call in tests and no live credential are
 part of the implementation. AI output remains advisory-only and can never
 change signal direction, risk, position size, approval, execution, circuit
@@ -37,9 +37,9 @@ This document re-homes and formalizes it; it does not invent a parallel system.
 
 | Concern | Current (verified 2026-11-07) | Target |
 |---|---|---|
-| Package | `src/crypto_engine/ai_providers/` (12 modules) | `ports/ai.py` + `ai/` package |
-| Contract | pydantic `AiRequest` / `AiResponse` in `ai_providers/types.py` | Port DTOs in `ports/ai.py` (dataclasses) + gateway-normalized response |
-| Entry point | `create_provider()` factory + `run_with_fallback()` | `AiGateway` implementing the `AiClient` port |
+| Package | `ai_providers/` (legacy Phase 4 path, 12 modules) **and** the implemented `ai/` package (Stages 0–5) | `ports/ai.py` + `ai/` package |
+| Contract | pydantic `AiRequest` / `AiResponse` in `ai_providers/types.py`; stdlib dataclasses + `AIProviderPort` Protocol in `ai/contracts.py` | Port DTOs in `ports/ai.py` (dataclasses) + gateway-normalized response |
+| Entry point | `create_provider()` factory + `run_with_fallback()` (legacy); `AIGateway` via `ai/composition.py` (implemented) | `AiGateway` implementing the `AiClient` port |
 | Adapters | 8: `openai`, `anthropic`, `gemini`, `deepseek`, `openrouter`, `groq`, `ollama`, `compatible` | Same families, one directory each, plus declared capability metadata |
 | Transport | stdlib `urllib` by default; SDKs bring-your-own and optional | Same policy; SDK imports confined to the adapter module |
 | Budgets | `BudgetTracker` (max requests, concurrency 1) | Gateway-owned budgets, plus timeout/rate/token/cost points |
@@ -51,6 +51,10 @@ This document re-homes and formalizes it; it does not invent a parallel system.
 The current layer already satisfies most of the *contract shape*. The target
 adds capability metadata, task routing, a single gateway seam and an explicit
 provider/model registry. It is a re-homing, not a rewrite.
+
+The re-homing is now partly done: Stages 0–5 of the `ai/` package exist and are
+committed, while the legacy `ai_providers/` path remains in place and is not
+imported by `crypto_engine.ai`. See §24 for the implemented subset.
 
 ## 3. Position in the architecture
 
@@ -255,28 +259,35 @@ context as unavailable.
 
 ## 6. Provider adapters
 
-### 6.1 Target layout (design only; do not create yet)
+### 6.1 Layout as implemented (Stage 0–5)
 
 ```text
 src/crypto_engine/
-  ports/
-    ai.py                     # AiClient protocol + DTOs (stdlib only)
   ai/                         # OPTIONAL infrastructure, off by default
-    gateway.py                # implements AiClient; the only adapter caller
+    contracts.py              # AIProviderPort protocol + DTOs (stdlib only)
+    errors.py                 # AIStatus, redaction, exception classification
     registry.py               # provider + model registry (no secrets)
-    routing.py                # task -> route resolution
-    schemas/                  # closed output schemas (signal_explanation.v1, ...)
+    gateway.py                # the only adapter caller; task routing + limits
+    configuration.py          # TOML -> registry/gateway/limits; task bounds
+    composition.py            # composition root (mock transport / configured)
+    advisory/
+      signal.py               # bounded signal explanation (advisory only)
+      research.py             # bounded research advisory (advisory only)
     providers/
-      openai/
-      anthropic/
-      google/
-      meta/
-      nvidia/
-      custom/                 # OpenAI-compatible endpoint adapter
+      openai_compatible.py    # the single concrete adapter (stdlib HTTP)
 ```
 
-This tree is a target. `ports/ai.py` and `ai/` do not exist today; the current
-code lives in `ai_providers/` (see §2 and `TARGET_REPOSITORY_STRUCTURE.md`).
+Two deviations from the original target sketch, both intentional:
+
+- the port lives in `ai/contracts.py` (`AIProviderPort`) rather than a separate
+  `ports/ai.py`, because the `ports/` package is part of the unbuilt target
+  layout;
+- there is one generic `providers/openai_compatible.py` adapter instead of one
+  package per vendor; other vendors are reached through that OpenAI-compatible
+  surface. Additional adapters need separate approval.
+
+The legacy `ai_providers/` package (Phase 4 path) still exists and is not
+imported by `crypto_engine.ai` (see §2 and `TARGET_REPOSITORY_STRUCTURE.md`).
 
 ### 6.2 Adapter contract
 
@@ -877,9 +888,9 @@ from an agreed design instead of re-litigating architecture.
 
 ---
 
-## 16. Implementation status (Stages 0-5, 2026-11-07)
+## 24. Implementation status (Stages 0-5, 2026-11-07)
 
-This section records what is actually implemented. Sections 1-15 remain the
+This section records what is actually implemented. Sections 1-23 remain the
 target contract; where they differ, this section is the current truth.
 
 | Stage | Implemented | Offline evidence |
@@ -891,7 +902,7 @@ target contract; where they differ, this section is the current truth.
 | 4 - Research advisory | `ai/advisory/research.py` | 24 tests (`test_stage4_ai_research_advisory.py`) |
 | 5 - Hardening + CLI | `ai/composition.py`; `sf ai status/config-check/providers/models/routes/test` | 31 architecture + 18 failure/resource + 12 CLI tests |
 
-### 16.1 Provider and model registry
+### 24.1 Provider and model registry
 
 Providers and models are declared in validated TOML. Each provider record
 carries `provider_id`, `display_name`, `dialect`, `base_url`, `api_key_env`
@@ -902,7 +913,7 @@ narrowed capabilities. A model may narrow provider capabilities; widening is
 rejected before any call. Local-inference providers are rejected by the
 registry.
 
-### 16.2 Task routing
+### 24.2 Task routing
 
 Routing is deterministic configuration: `task -> ordered provider:model list`.
 `AIRegistry.resolve()` selects the first enabled provider/model. AI never
@@ -910,7 +921,7 @@ selects its own provider or model. Unknown tasks, empty routes, duplicate
 entries, unknown providers/models, disabled entries and capability widening
 raise `invalid_configuration` / `not_configured` before any network access.
 
-### 16.3 Secret boundary (implemented)
+### 24.3 Secret boundary (implemented)
 
 - Only environment-variable *names* (`api_key_env`) appear in configuration,
   registry snapshots, CLI output and error messages.
@@ -921,7 +932,7 @@ raise `invalid_configuration` / `not_configured` before any network access.
 - `sf ai test` is offline/mock by default; `--live` requires enabled
   configuration plus a real environment credential.
 
-### 16.4 Failure isolation (implemented)
+### 24.4 Failure isolation (implemented)
 
 Provider and transport faults map into the closed `AIStatus` vocabulary
 (`auth_failure`, `rate_limited`, `timeout`, `provider_outage`, `invalid_output`,
@@ -933,7 +944,7 @@ deterministic signal or report is returned unchanged. Retries are bounded
 (0-3, exponential backoff capped at 2 s) and timeouts are capped by the
 gateway (default 30 s).
 
-### 16.5 AI advisory authority (implemented)
+### 24.5 AI advisory authority (implemented)
 
 - `AIExplanation` and `ResearchSummary` are frozen dataclasses with
   `advisory_only=True` and no direction, score, risk, position-size, approval,
@@ -949,7 +960,7 @@ gateway (default 30 s).
   rejected. Deterministic research reports are never mutated; AI output is
   attached as an `ai_advisory` block only.
 
-### 16.6 Provider adapter boundary (implemented)
+### 24.6 Provider adapter boundary (implemented)
 
 Only `ai/composition.py` imports concrete adapters. The gateway, registry and
 contracts are adapter-free, so a new provider is one adapter module plus
@@ -968,7 +979,7 @@ and loopback-only `none`; `header`/`query` fail closed as `unsupported` rather
 than silently sending a Bearer token. Per-provider `timeout_s` and
 `max_retries` act as caps on the global `[ai]` limits.
 
-### 16.7 Resource envelope (implemented)
+### 24.7 Resource envelope (implemented)
 
 `max_concurrent_requests = 1` (enforced by constructor), `max_request_chars =
 8000`, `max_response_chars = 4000`, `max_output_tokens = 1024`, `timeout_s =
@@ -977,14 +988,14 @@ value. Signal evidence is priority-ordered and truncated with explicit marker
 keys, never silently. No local LLM runtime, GPU stack or HTTP framework was
 added.
 
-### 16.8 Storage roles (unchanged)
+### 24.8 Storage roles (unchanged)
 
 Parquet remains canonical for OHLCV/market datasets, SQLite WAL for
 transactional state, and JSON for metadata/manifests. `storage/sqlite.py` is
 the only `sqlite3` importer; market-data modules do not import it; AI modules
 do not import storage. See `STORAGE_OWNERSHIP.md`.
 
-### 16.9 Configuration fields parsed but not enforced
+### 24.9 Configuration fields parsed but not enforced
 
 These fields are validated so configuration cannot be structurally wrong, but
 they do not currently change runtime behaviour. They are listed here so the

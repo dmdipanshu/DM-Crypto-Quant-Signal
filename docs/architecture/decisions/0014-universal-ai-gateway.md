@@ -1,6 +1,8 @@
 # ADR-0014 — Provider-neutral AI port and universal gateway
 
-- **Status:** Proposed (architecture freeze, design only)
+- **Status:** Accepted — core implemented (Stages 0–5, 2026-11-07).
+  The original design status was "Proposed (architecture freeze, design only)";
+  the implemented subset is recorded in `AI_GATEWAY.md` §24.
 - **Date:** 2026-11-07
 - **Deciders:** Operator, integration lead, AI provider engineer
 - **Supersedes:** none

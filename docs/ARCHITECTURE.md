@@ -44,3 +44,27 @@ are now implemented as designed — except nothing beyond this design exists:
 no live orders, no real-money trading, no public exposure by default, no
 portfolio accounting beyond the paper sandbox. The dashboard never predicts;
 the API never mutates, trains, fetches, or trades.
+
+## Target architecture set (`docs/architecture/`)
+
+`docs/architecture/` contains the **target** architecture: layers and ports,
+dependency rules, storage roles (Parquet / SQLite WAL / JSON), the universal
+AI gateway, security boundaries, resource budget and a proposed roadmap. It is
+additive documentation and does not authorize a new phase.
+
+Two parts of that set are already implemented and must not be read as design
+only:
+
+- the provider-neutral AI gateway in `src/crypto_engine/ai/` (Stages 0–5:
+  contracts, registry, gateway, one OpenAI-compatible adapter, bounded
+  signal/research advisory, composition root, `sf ai` CLI). Advisory only: no
+  provider SDK is required, no live credential is stored, and AI output can
+  never change direction, score, risk, position size, approval or execution;
+- the storage role contracts in `src/crypto_engine/storage/`
+  (`contracts.py`, `sqlite.py` with enforced WAL, `json_store.py`). They create
+  no database file, no migration and no `data/state/` directory.
+
+Everything else in the set — the layered `domain/`/`application/`/`ports/`
+split, the target package layout, roadmap stages and deferred subsystems —
+remains design intent only. This document remains the truthful description of
+the current code.

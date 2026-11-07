@@ -319,12 +319,16 @@ Verified 2026-11-07:
   manifests and matching checksums.
 - Transactional state is currently JSON/JSONL: signal history, paper state,
   model registry records, experiment registry, holdout ledger.
-- No SQLite database exists. No `sqlite3` import exists in `src/`.
+- The SQLite WAL role contract and helper exist (`storage/contracts.py`,
+  `storage/sqlite.py`, `storage/json_store.py`, Stage 0). `sqlite3` is imported
+  only by `storage/sqlite.py`.
+- No SQLite database file exists and no transactional state has migrated yet.
 - `data/state/` and `data/scheduler/` do not exist.
 
 Target migration (future, authorized phase only):
 
-1. Introduce `storage/sqlite` behind the existing port abstraction.
+1. Define the first concrete repository on the existing `TransactionalStore`
+   contract (the Stage 0 helper already exists).
 2. Create the database and schema with a recorded version.
 3. Import JSON state idempotently, verifying counts and checksums.
 4. Keep a JSON export for inspection and recovery.
