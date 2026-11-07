@@ -33,3 +33,6 @@ desktop.ini
 
 # uv — keep uv.lock TRACKED (do not ignore it)
 .uv/
+
+# SignalForge local-only project progress runtime data
+data/project_progress/

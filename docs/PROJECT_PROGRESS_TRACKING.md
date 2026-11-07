@@ -11,6 +11,47 @@ data/project_progress/
     schema.json      # machine-readable schema and status transitions
 ```
 
+## Project Progress Runtime Data — LOCAL ONLY
+
+`data/project_progress/` is local runtime data, not repository content.
+
+- The complete directory is excluded from Git by default through the
+  `.gitignore` rule `data/project_progress/`. Do not force-add it.
+- `events.jsonl` is this machine's recorded progress history. It is
+  append-only; the dashboard and the API never rewrite or regenerate it.
+- `schema.json` is generated and maintained locally from the canonical schema
+  implementation in `src/crypto_engine/progress/schema.py` (`SCHEMA_VERSION`,
+  `LEVELS`, `STATUSES`, `schema_document()`). It is a local copy, not a
+  versioned project artifact.
+- `manifest.json` is derived local state. It embeds a read-only Git snapshot
+  (`branch`, `HEAD`, modified and untracked counts) captured by the `snapshot`
+  command, so it describes one machine at one moment.
+- These files must not be committed by default.
+- A fresh clone therefore starts with no recorded local project history. That
+  is the designed default, not a defect.
+- Runtime progress is not synchronized between machines, and nothing in the
+  repository copies it into Git.
+
+Initialize local data with the official recorder:
+
+```powershell
+uv run python scripts/project_progress.py seed
+```
+
+`seed` appends the recorded historical baseline, creates the directory when it
+is missing, and writes the derived `schema.json` and `manifest.json`. It skips
+event ids that already exist, so rerunning it is safe.
+
+The dashboard and the read-only API handle a missing or empty ledger safely:
+`GET /api/v1/progress/snapshot` returns HTTP 200 with `meta.available: false`,
+and the Progress page shows an explicit "ledger is not available yet" state
+with the `seed` hint instead of failing.
+
+Sharing or archiving progress data requires a separately reviewed export
+artifact in a future authorized task, not a commit of the live files. Do not
+hand-edit or hand-recreate ledger history to fill a fresh clone; use `seed` for
+the baseline and `record` for new events.
+
 ## Recording an update
 
 Use the standard-library utility. It validates the event, enforces status
