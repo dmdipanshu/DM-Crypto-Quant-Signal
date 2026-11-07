@@ -138,6 +138,46 @@ Append-only. Never rewrite history; supersede with new dated entries.
 - Security posture: GET-only asserted at build (`assert_get_only` traverses lazy routers) and tested (405s on POST/PUT/DELETE/PATCH for data + root paths); path traversal and malformed ids rejected (400/404, sanitized); env secrets scanned absent from all responses; tracebacks never leak (generic 500 + request id; server logs only).
 - Verified, not merely implemented: 35 new tests green; live uvicorn proof (127.0.0.1:8123, 4 endpoints 200, clean shutdown); final audit clean. No live/paper account exists; no cloud deployment claimed.
 
+## 2026-10-28 - Phase 10 frozen forward validation (no training, no tuning, no commit)
+
+- Model logistic-ee482c-3e3324f2 (artifact sha256 42a8ea4b…, label_hash 74cd…,
+  side=both, pt 2.0/sl 1.0, horizon 24) evaluated on genuinely new snapshot
+  binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06 (checksum
+  90e5339e…, 793 rows, Sep 25–Oct 28). Eval rows strictly after 2026-10-01
+  (first scored bar Oct 1 01:00, last Oct 27; tail incomplete excluded).
+- Exclusions: 26 pre-cutoff rows (Sep overlap, warm-up context only), 119
+  warm-up NaN rows, 44 incomplete-horizon rows; 624 rows scored.
+  Purge kept all training rows honest (observable_at verified ≤ cutoff).
+- Result: accuracy 0.401, balanced accuracy 0.367, macro-F1 0.264 vs
+  historical-majority (-1) baseline 0.644. Predicted +1 on 83% of rows while
+  reality was 64% -1 (October downtrend the model persistently read as
+  bullish). Per-class: -1 P/R 0.73/0.19, +1 0.33/0.91, 0: 0/0.
+  Confusion [-1,0,+1]x[-1,0,+1]: [[77,0,325],[11,0,21],[17,0,173]].
+- Conclusion: the frozen model does not beat the trivial baseline on unseen
+  data; no retraining/tuning (holdout already viewed; tuning would be
+  invalid). Retain-as-is is moot — no deployment path exists (fail-closed
+  gates veto uncalibrated, edgeless signals; no backtest run, by design).
+- Backtest remains BLOCKED: a cost-aware backtest would require bypassing
+  calibration/edge gates, which is forbidden. No trades simulated.
+- Grill-me skill is a stub pointing at nonexistent "grilling"; applied its
+  stated adversarial intent manually (recorded in the Phase 9 handoff and
+  session log). Dashboard smoke test ran under Phase 9 (browser-verified
+  render + contract-bug fix); not re-run here — no dashboard code changed.
+
+## 2026-11-07 - Phase 10 label-hash transcription correction (append-only)
+
+- The Phase 10 entry dated 2026-10-28 above records the frozen model's label
+  hash with the prefix `74cd…`. The authoritative artifact record
+  (`models/artifacts/logistic-ee482c-3e3324f2-20261028T132236/record.json`)
+  and the historical forward report
+  (`reports/generated/forward_validation_binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06_20261028T145235.json`,
+  where `labels.recorded_hash == labels.hash`) both carry the complete value
+  `74bd147242856a17ea17cd17916cf9c674d98e25c7fbb4c526445875e366a072`.
+- This entry supersedes only that transcription. The original Phase 10 text is
+  preserved unchanged for audit history. No model, artifact, validation run,
+  metric, prediction or report was changed; this is a documentation
+  correction, not a model or validation change.
+
 ## 2026-10-28 - Phase 8 local model-training workflow
 
 - New `src/crypto_engine/training/` package (splits.py + pipeline.py) plus `sf model train|list`; reuses load_snapshot, compute_features, triple-barrier helpers, valid_mask, assert_no_leakage, label_config_hash, SklearnLogistic, MajorityBaseline, save/load/list_models, classification_report_small — no existing module modified.
