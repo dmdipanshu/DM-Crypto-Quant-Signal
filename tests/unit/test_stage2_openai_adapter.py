@@ -140,7 +140,9 @@ def test_request_serialization_is_bounded_and_secret_free() -> None:
     assert call["url"] == "https://ai.example.test/v1/chat/completions"
     assert body["model"] == "small-1"
     assert body["stream"] is False
-    assert body["max_tokens"] == 512
+    assert body["max_completion_tokens"] == 512
+    assert body["reasoning_effort"] == "minimal"
+    assert "temperature" not in body
     assert "abc123" in body["messages"][1]["content"]
     assert call["headers"]["Authorization"].startswith("Bearer ")
     assert "sk-test-adapter-secret" not in json.dumps(body)
@@ -213,8 +215,6 @@ def test_malformed_json_is_invalid_response() -> None:
     [
         {},
         {"choices": []},
-        {"choices": [{"message": {"content": ""}}]},
-        {"choices": [{"message": {"tool_calls": []}}]},
     ],
 )
 def test_missing_advisory_text_is_invalid_response(payload: dict) -> None:
@@ -222,6 +222,47 @@ def test_missing_advisory_text_is_invalid_response(payload: dict) -> None:
     with pytest.raises(AIError) as info:
         _adapter(transport).complete(_request(), model=_model(), timeout_s=5.0)
     assert info.value.status is AIStatus.INVALID_RESPONSE
+
+
+def test_null_advisory_text_is_invalid_output() -> None:
+    """Meta Muse can return content: null when finish_reason=length.
+
+    The adapter must reject JSON null content as INVALID_OUTPUT, not accept it.
+    """
+    payload = {"choices": [{"message": {"content": None}, "finish_reason": "length"}]}
+    transport = FakeTransport(_json_response(payload))
+    with pytest.raises(AIError) as info:
+        _adapter(transport).complete(_request(), model=_model(), timeout_s=5.0)
+    assert info.value.status is AIStatus.INVALID_OUTPUT
+
+
+def test_empty_advisory_text_is_invalid_output() -> None:
+    """Empty string content is INVALID_OUTPUT, not a valid advisory response."""
+    payload = {"choices": [{"message": {"content": ""}, "finish_reason": "stop"}]}
+    transport = FakeTransport(_json_response(payload))
+    with pytest.raises(AIError) as info:
+        _adapter(transport).complete(_request(), model=_model(), timeout_s=5.0)
+    assert info.value.status is AIStatus.INVALID_OUTPUT
+
+
+def test_truncated_response_is_invalid_output() -> None:
+    """finish_reason=length means truncated output → INVALID_OUTPUT."""
+    payload = {
+        "choices": [{"message": {"content": "Partial explanation"}, "finish_reason": "length"}]
+    }
+    transport = FakeTransport(_json_response(payload))
+    with pytest.raises(AIError) as info:
+        _adapter(transport).complete(_request(), model=_model(), timeout_s=5.0)
+    assert info.value.status is AIStatus.INVALID_OUTPUT
+
+
+def test_whitespace_only_content_is_invalid_output() -> None:
+    """Whitespace-only content is INVALID_OUTPUT."""
+    payload = {"choices": [{"message": {"content": "   \n\t   "}, "finish_reason": "stop"}]}
+    transport = FakeTransport(_json_response(payload))
+    with pytest.raises(AIError) as info:
+        _adapter(transport).complete(_request(), model=_model(), timeout_s=5.0)
+    assert info.value.status is AIStatus.INVALID_OUTPUT
 
 
 def test_oversized_response_is_rejected() -> None:

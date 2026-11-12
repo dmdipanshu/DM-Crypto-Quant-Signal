@@ -241,4 +241,42 @@ def test_route_table_is_get_only(tmp_path: Path) -> None:
     assert_get_only(app)  # raises if any non-GET data route exists
 
 
+def test_ai_status_endpoint(tmp_path: Path) -> None:
+    """AI status endpoint returns enablement, counts and limits (no secrets)."""
+    app, _ = _test_app(tmp_path)
+    status, _, body = api_get(app, "/api/v1/ai/status")
+    assert status == 200
+    data = body["data"]
+    assert "available" in data
+    assert "enabled" in data
+    assert "valid" in data
+    assert "providers" in data
+    assert "models" in data
+    assert "routes" in data
+    assert "max_concurrent_requests" in data
+    assert "max_retries" in data
+    assert "timeout_s" in data
+    assert "max_request_chars" in data
+    assert "max_response_chars" in data
+    assert "max_output_tokens" in data
+    # No secrets ever appear in the response.
+    body_str = json.dumps(body).lower()
+    assert "sk-" not in body_str
+    assert "akia" not in body_str
+    assert "authorization" not in body_str
+
+
+def test_read_ai_status_directly() -> None:
+    """read_ai_status returns a well-shaped payload without network access."""
+    from crypto_engine.api import repos as R
+
+    payload = R.read_ai_status()
+    assert "available" in payload
+    assert "enabled" in payload
+    assert "valid" in payload
+    assert isinstance(payload["providers"], int)
+    assert isinstance(payload["models"], int)
+    assert isinstance(payload["routes"], int)
+
+
 __all__ = ["test_health_and_envelope"]

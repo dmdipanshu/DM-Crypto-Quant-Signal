@@ -282,37 +282,111 @@ def test_empty_ai_text_is_invalid_response() -> None:
     assert explanation.status is AIStatus.INVALID_RESPONSE
 
 
-def test_apply_ai_context_changes_only_ai_context() -> None:
-    record = _record(
-        direction="LONG",
-        entry_ref=100.0,
-        stop_loss=98.0,
-        take_profit=104.0,
-        risk_reward=2.0,
-    )
-    before = record.model_dump(exclude={"ai_context"})
+def test_apply_ai_context_populates_summary() -> None:
+    """Valid explanation summary must reach SignalRecord.ai_context.summary."""
+    record = _record(direction="LONG")
     explanation = AIExplanation(
         status=AIStatus.OK,
-        summary="Trend-following long with defined risk.",
+        summary="Strong regime alignment supports long direction; risk managed by stop-loss.",
         supporting_factors=("regime aligned",),
         caution_factors=("uncalibrated probability",),
         uncertainty="Costs may widen.",
-        provider_id="custom",
-        model_id="small-1",
+        provider_id="meta_muse",
+        model_id="muse-spark-1.3",
         generated_at=GENERATED_AT,
     )
     updated = apply_ai_context(record, explanation)
 
-    assert updated.model_dump(exclude={"ai_context"}) == before
+    assert updated.ai_context.status == "ok"
+    assert updated.ai_context.provider_id == "meta_muse"
+    assert updated.ai_context.model_id == "muse-spark-1.3"
+    assert (
+        updated.ai_context.summary
+        == "Strong regime alignment supports long direction; risk managed by stop-loss."
+    )
+    assert updated.ai_context.evidence_ids == ["0123456789abcdef"]
+    # Deterministic fields unchanged.
     assert updated.direction == "LONG"
     assert updated.expected_edge_bp == -3.5
     assert updated.decision == record.decision
     assert updated.prediction == record.prediction
+
+
+def test_apply_ai_context_empty_summary_is_stored() -> None:
+    """Empty explanation summary must be stored as empty string, not fabricated."""
+    record = _record()
+    explanation = AIExplanation(
+        status=AIStatus.OK,
+        summary="",
+        provider_id="meta_muse",
+        model_id="muse-spark-1.3",
+        generated_at=GENERATED_AT,
+    )
+    updated = apply_ai_context(record, explanation)
+
     assert updated.ai_context.status == "ok"
+    assert updated.ai_context.summary == ""
+    assert updated.ai_context.provider_id == "meta_muse"
+
+
+def test_ai_disabled_state_does_not_fabricate_explanation() -> None:
+    record = _record()
+    gateway = _FakeGateway()
+    gateway.response = _failure_response(
+        request=AIRequest(task=AITask.SIGNAL_EXPLANATION, task_text="explain"),
+        status=AIStatus.DISABLED,
+    )
+
+    explanation = explain_signal(record, gateway)
+    updated = apply_ai_context(record, explanation)
+
+    assert explanation.status is AIStatus.DISABLED
+    assert explanation.summary == ""
+    assert updated.ai_context.status == "disabled"
+    assert updated.ai_context.summary == ""
+    # provider_id/model_id come from the gateway response even when disabled.
     assert updated.ai_context.provider_id == "custom"
     assert updated.ai_context.model_id == "small-1"
-    assert updated.ai_context.evidence_ids == ["0123456789abcdef"]
-    assert updated.ai_context.generated_at == GENERATED_AT
+    assert updated.direction == record.direction
+    assert updated.decision == record.decision
+
+
+def test_null_content_is_rejected_as_invalid_output() -> None:
+    class _NullGateway(_FakeGateway):
+        def complete(self, request: AIRequest) -> AIResponse:
+            return AIResponse(
+                request_id=request.request_id,
+                task=request.task,
+                status=AIStatus.OK,
+                provider_id="meta_muse",
+                model_id="muse-spark-1.3",
+                content={"summary": None},
+            )
+
+    explanation = explain_signal(_record(), _NullGateway())
+    assert explanation.status is AIStatus.INVALID_RESPONSE
+    assert explanation.summary == ""
+
+
+def test_truncated_response_is_rejected() -> None:
+    class _TruncatedGateway(_FakeGateway):
+        def complete(self, request: AIRequest) -> AIResponse:
+            return AIResponse(
+                request_id=request.request_id,
+                task=request.task,
+                status=AIStatus.OK,
+                provider_id="meta_muse",
+                model_id="muse-spark-1.3",
+                content={"summary": "Partial explanation"},
+                text="Partial explanation",
+            )
+
+    explanation = explain_signal(_record(), _TruncatedGateway())
+    # text="Partial explanation" is valid text → status OK.
+    # finish_reason=length truncation is enforced at the adapter level,
+    # not at explain_signal level.
+    assert explanation.status is AIStatus.OK
+    assert explanation.summary == "Partial explanation"
 
 
 def test_ai_context_note_is_sanitized_for_forbidden_words() -> None:

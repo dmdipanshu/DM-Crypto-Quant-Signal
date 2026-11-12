@@ -240,10 +240,23 @@ def test_gateway_built_from_disabled_configuration_makes_no_call() -> None:
     assert port.calls == 0
 
 
-def test_repository_default_config_is_disabled_and_parses() -> None:
+def test_repository_default_config_is_enabled_and_parses() -> None:
     config = load_ai_config()
-    assert config.enabled is False
+    assert config.enabled is True
     assert config.max_concurrent_requests == 1
-    assert config.providers == []
-    assert config.models == []
-    assert config.tasks == {}
+    assert len(config.providers) == 1
+    provider_ids = {p.provider_id for p in config.providers}
+    assert provider_ids == {"meta_muse"}
+    meta_muse = next(p for p in config.providers if p.provider_id == "meta_muse")
+    assert meta_muse.dialect == "openai_compatible"
+    assert meta_muse.base_url == "https://api.meta.ai/v1"
+    assert meta_muse.api_key_env == "META_MUSE_API_KEY"
+    assert meta_muse.auth_mechanism == "bearer"
+    assert meta_muse.enabled is True
+    assert len(config.models) == 1
+    model_keys = {(m.provider_id, m.model_id) for m in config.models}
+    assert model_keys == {("meta_muse", "muse-spark-1.3")}
+    assert "signal_explanation" in config.tasks
+    assert len(config.tasks["signal_explanation"].route) == 1
+    route_keys = {tuple(r.split(":")) for r in config.tasks["signal_explanation"].route}
+    assert route_keys == {("meta_muse", "muse-spark-1.3")}

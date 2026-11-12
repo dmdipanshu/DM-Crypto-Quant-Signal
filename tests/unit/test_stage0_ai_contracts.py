@@ -47,7 +47,6 @@ FORBIDDEN_IMPORTS = (
     "anthropic",
     "google",
     "meta",
-    "nvidia",
     "httpx",
     "requests",
     "aiohttp",

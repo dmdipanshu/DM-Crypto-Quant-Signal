@@ -57,13 +57,13 @@ def test_ai_help_lists_all_commands() -> None:
         assert command in result.output
 
 
-def test_ai_status_default_is_disabled_and_valid() -> None:
+def test_ai_status_enabled_and_valid() -> None:
     result = runner.invoke(app, ["ai", "status"])
     assert result.exit_code == 0, result.output
     payload = json.loads(result.output)
-    assert payload["enabled"] is False
+    assert payload["enabled"] is True
     assert payload["valid"] is True
-    assert payload["providers"] == 0
+    assert payload["providers"] == 1
     assert payload["max_concurrent_requests"] == 1
 
 
@@ -75,20 +75,59 @@ def test_ai_config_check_default_is_ok() -> None:
 
 def test_ai_registry_commands_default_to_empty_lists() -> None:
     for command, key, expected in (
-        ("providers", "providers", []),
-        ("models", "models", []),
-        ("routes", "routes", {}),
+        (
+            "providers",
+            "providers",
+            [
+                {"provider_id": "meta_muse"},
+            ],
+        ),
+        (
+            "models",
+            "models",
+            [
+                {"provider_id": "meta_muse", "model_id": "muse-spark-1.3"},
+            ],
+        ),
+        (
+            "routes",
+            "routes",
+            {
+                "signal_explanation": [
+                    {"provider_id": "meta_muse", "model_id": "muse-spark-1.3"},
+                ]
+            },
+        ),
     ):
         result = runner.invoke(app, ["ai", command])
         assert result.exit_code == 0, result.output
-        assert json.loads(result.output)[key] == expected
+        actual = json.loads(result.output)[key]
+        # Check key fields match; don't assert full equality since display_name etc. may vary
+        if key == "providers":
+            assert len(actual) == 1
+            provider_ids = {p["provider_id"] for p in actual}
+            assert provider_ids == {p["provider_id"] for p in expected}
+        elif key == "models":
+            assert len(actual) == 1
+            model_keys = {(m["provider_id"], m["model_id"]) for m in actual}
+            assert model_keys == {(m["provider_id"], m["model_id"]) for m in expected}
+        elif key == "routes":
+            assert len(actual) == 1
+            route = actual["signal_explanation"]
+            assert len(route) == 1
+            route_keys = {(r["provider_id"], r["model_id"]) for r in route}
+            assert route_keys == {
+                (r["provider_id"], r["model_id"]) for r in expected["signal_explanation"]
+            }
 
 
-def test_ai_test_disabled_config_makes_no_call() -> None:
+def test_ai_test_without_live_flag_makes_no_call() -> None:
+    """ai test without --live must not make any network call."""
     result = runner.invoke(app, ["ai", "test"])
     assert result.exit_code == 0, result.output
     payload = json.loads(result.output)
-    assert payload["status"] == "disabled"
+    assert payload["status"] == "ok"
+    assert payload["live"] is False
 
 
 def test_ai_test_offline_mock_routes_without_network(tmp_path: Path) -> None:

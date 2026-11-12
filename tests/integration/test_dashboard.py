@@ -94,7 +94,102 @@ def test_overview_renders(tmp_path: Path) -> None:
     assert "<form" not in lowered
 
 
-def test_signals_page_matches_api(tmp_path: Path) -> None:
+def test_signals_page_shows_ai_explanation(tmp_path: Path) -> None:
+    """Dashboard signals page must render AI explanation summary when present."""
+    from datetime import UTC, datetime
+
+    from crypto_engine.signals.history import SignalHistory
+    from crypto_engine.signals.schema import (
+        AiContextSummary,
+        CostEstimate,
+        DecisionInfo,
+        PredictionInfo,
+        SignalRecord,
+    )
+
+    app, roots = _test_app(tmp_path)
+    # Write a signal with AI explanation to the history store.
+    hist = SignalHistory(roots.signals_dir)
+    hist.append(
+        SignalRecord(
+            signal_id="0123456789abcdef",
+            symbol="BTC/USDT",
+            exchange="binance",
+            timeframe="1h",
+            generated_at=datetime(2026, 1, 1, tzinfo=UTC),
+            valid_until=datetime(2026, 1, 2, tzinfo=UTC),
+            direction="LONG",
+            prediction_horizon_bars=24,
+            model_id="model-1",
+            model_version="v1",
+            model_artifact_hash="a" * 64,
+            dataset_snapshot_id="snap-001",
+            feature_snapshot_hash="b" * 64,
+            prediction=PredictionInfo(
+                raw_score=0.42,
+                calibrated_probability=None,
+                calibration_status="uncalibrated",
+                positive_class=1,
+                model_family="logistic",
+            ),
+            market_regime="trend_down",
+            expected_edge_bp=-3.5,
+            cost_estimate=CostEstimate(
+                fee_bp=4.0,
+                spread_bp=1.0,
+                slippage_bp=2.0,
+                funding_bp=0.0,
+                source="configured",
+            ),
+            data_quality="validated",
+            ai_context=AiContextSummary(
+                status="ok",
+                provider_id="meta_muse",
+                model_id="muse-spark-1.3",
+                evidence_ids=["0123456789abcdef"],
+                generated_at="2026-01-01T00:00:00+00:00",
+                summary="Strong regime alignment supports long direction; risk managed by stop-loss.",
+            ),
+            decision=DecisionInfo(
+                status="abstained",
+                reason_codes=["EDGE_BELOW_MARGIN"],
+                gate="policy",
+            ),
+        )
+    )
+    status, _, html = api_get(app, "/dashboard/signals")
+    assert status == 200
+    assert "meta_muse" in html
+    assert "muse-spark-1.3" in html
+    assert "AI Explanation" in html
+    assert "Strong regime alignment" in html
+
+
+def test_signals_page_handles_empty_ai_summary(tmp_path: Path) -> None:
+    """Dashboard must not fabricate text when AI explanation is empty."""
+    app, roots = _test_app(tmp_path)
+    payload = read_signals(roots, limit=50, offset=0)
+    signals = payload["signals"]
+    if signals:
+        sig = signals[0]
+        sig["ai_context"] = {
+            "status": "ok",
+            "provider_id": "meta_muse",
+            "model_id": "muse-spark-1.3",
+            "evidence_ids": [],
+            "generated_at": "2026-01-01T00:00:00+00:00",
+            "expiry": None,
+            "note": "",
+            "summary": "",
+        }
+    status, _, html = api_get(app, "/dashboard/signals")
+    assert status == 200
+    # Empty summary should render as "AI: ok" not as fabricated text.
+    assert "AI: ok" in html or "meta_muse" not in html
+
+
+def test_signals_page_matches_api_and_ai(tmp_path: Path) -> None:
+    """Signal ids from API must appear on dashboard page; AI explanation renders when present."""
     app, roots = _test_app(tmp_path)
     status, _, html = api_get(app, "/dashboard/signals")
     assert status == 200

@@ -28,9 +28,9 @@ except ImportError as exc:  # pragma: no cover - exercised when extra is absent
     _FASTAPI_AVAILABLE = False
     _FASTAPI_IMPORT_ERROR = exc
 
+from crypto_engine.ai.env_loader import load_env
 from crypto_engine.api.schemas import fail, utc_now_iso
 from crypto_engine.api.security import ApiError
-from crypto_engine.env_loader import load_env
 
 # Load .env at module import time so AI credentials are available when the
 # API server starts.

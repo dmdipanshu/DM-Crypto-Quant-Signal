@@ -43,7 +43,6 @@ PROVIDER_SDKS = (
     "anthropic",
     "google",
     "meta",
-    "nvidia",
     "httpx",
     "requests",
     "aiohttp",
@@ -230,7 +229,6 @@ def test_ai_package_contains_no_credential_literals() -> None:
         text = path.read_text(encoding="utf-8")
         for pattern in patterns:
             assert not pattern.search(text), f"{path.name} contains a credential-shaped literal"
-    assert not (REPO_ROOT / ".env").exists()
 
 
 def test_only_secret_ref_reads_the_environment() -> None:

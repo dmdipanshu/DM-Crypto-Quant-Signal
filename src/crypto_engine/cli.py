@@ -13,7 +13,7 @@ from rich.console import Console
 from rich.table import Table
 
 from crypto_engine import __version__
-from crypto_engine.env_loader import load_env
+from crypto_engine.ai.env_loader import load_env
 
 # Load .env before any command runs so AI credentials are available to the
 # gateway without manual shell exports.

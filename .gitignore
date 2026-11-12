@@ -1,43 +1,12 @@
-# Python
+.env
+.env.*
+!.env.example
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-.venv/
-venv/
-.env/
-
-# Test / lint caches
+*.py[cod]
 .pytest_cache/
 .ruff_cache/
-.mypy_cache/
 .coverage
-coverage.xml
 htmlcov/
-
-# Data and artifacts (large, regenerable — never commit)
-data/raw/
-data/processed/
-models/artifacts/
-reports/generated/
-*.parquet
-!tests/fixtures/**/*.parquet
-
-# OS / editor / OneDrive
-.DS_Store
-Thumbs.db
-desktop.ini
-.vscode/
-.idea/
-*.swp
-
-# uv — keep uv.lock TRACKED (do not ignore it)
-.uv/
-
-# SignalForge local-only project progress runtime data
-data/project_progress/
-
-# SignalForge local runtime state and generated research output
-data/paper/
-data/scheduler/
-reports/historical_backtests/
+data/ai_telemetry/
+data/signals/
+reports/
