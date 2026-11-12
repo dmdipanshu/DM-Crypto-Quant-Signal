@@ -184,7 +184,9 @@ class TelemetryStore:
             )
         successful = sum(1 for r in records if r.ai_status == "ok")
         failed = total - successful
-        latencies = sorted(r.latency_ms for r in records if r.latency_ms is not None)
+        latencies = sorted(
+            r.latency_ms for r in records if r.latency_ms is not None and r.latency_ms > 0
+        )
         avg_latency = sum(latencies) / len(latencies) if latencies else 0.0
         median_idx = len(latencies) // 2
         median_latency = latencies[median_idx] if latencies else 0.0

@@ -522,14 +522,16 @@ def read_ai_status() -> dict[str, Any]:
         "max_response_chars": cfg.max_response_chars,
         "max_output_tokens": cfg.max_output_tokens,
         "error": error,
+        "provider_id": snapshot["providers"][0]["provider_id"] if snapshot.get("providers") else "",
+        "model_id": snapshot["models"][0]["model_id"] if snapshot.get("models") else "",
     }
 
 
 def read_ai_metrics(roots: RepoRoots) -> dict[str, Any]:
     """AI observability metrics from stored telemetry (read-only, no secrets)."""
-    from crypto_engine.ai.telemetry import TelemetryStore
+    from crypto_engine.ai.telemetry import get_default_store
 
-    store = TelemetryStore(roots.progress_dir / "ai_telemetry" / "events.jsonl")
+    store = get_default_store()
     try:
         metrics = store.metrics()
     except Exception:
