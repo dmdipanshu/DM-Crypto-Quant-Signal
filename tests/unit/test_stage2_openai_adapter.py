@@ -444,3 +444,157 @@ def test_adapter_package_has_no_provider_sdk_imports() -> None:
                 assert not (module == forbidden or module.startswith(f"{forbidden}.")), (
                     f"{path.name} imports forbidden SDK {module}"
                 )
+
+
+# ---------------------------------------------------------------------------
+# Max output tokens and token budget handling
+# ---------------------------------------------------------------------------
+
+
+def test_max_output_tokens_passed_to_provider() -> None:
+    """Task-level max_output_tokens must be passed to the provider.
+
+    Previously 256 was too small and caused truncation; 1024 allows a
+    complete explanation.
+    """
+    transport = FakeTransport(_json_response({"choices": [{"message": {"content": "ok"}}]}))
+    adapter = _adapter(transport)
+    model = _model(max_output_tokens=1024)
+    adapter.complete(_request(max_output_tokens=256), model=model, timeout_s=5.0)
+    call = transport.calls[0]
+    body = json.loads(call["body"])
+    # max_output_tokens=256 should be used, not model's 1024
+    assert body["max_completion_tokens"] == 256
+
+
+def test_complete_ai_explanation_not_truncated() -> None:
+    """With sufficient max_output_tokens, the model can return a complete
+    explanation instead of being truncated mid-sentence."""
+    transport = FakeTransport(
+        _json_response(
+            {
+                "choices": [
+                    {
+                        "message": {
+                            "content": "Direction: NO_TRADE. Raw score 0.42 is below "
+                            "the decision threshold. Risk gates vetoed the signal "
+                            "due to insufficient edge after costs."
+                        },
+                        "finish_reason": "stop",
+                    }
+                ],
+                "usage": {"prompt_tokens": 50, "completion_tokens": 40},
+            }
+        )
+    )
+    response = _adapter(transport).complete(
+        _request(), model=_model(max_output_tokens=1024), timeout_s=5.0
+    )
+    assert response.status is AIStatus.OK
+    assert "Direction: NO_TRADE" in response.text
+    assert "Risk gates vetoed" in response.text
+    assert response.usage.output_tokens == 40
+
+
+def test_historical_telemetry_without_provider_id() -> None:
+    """Old telemetry records without provider_id must still load safely."""
+    from crypto_engine.ai.telemetry import TelemetryRecord
+
+    record = TelemetryRecord(
+        timestamp="2026-01-01T00:00:00+00:00",
+        request_id="old-req",
+        provider_id="",
+        model_id="",
+        task="signal_explanation",
+        ai_status="ok",
+        latency_ms=100,
+        prompt_tokens=10,
+        completion_tokens=5,
+        total_tokens=15,
+        reasoning_tokens=None,
+        finish_reason="stop",
+        retry_count=0,
+        error_classification=None,
+        explanation_available=True,
+    )
+    # Should not raise
+    assert record.provider_id == ""
+    assert record.model_id == ""
+    assert record.explanation_available is True
+
+
+def test_multiple_providers_in_telemetry(tmp_path: Path) -> None:
+    """When multiple providers have been used, provider_id shows 'mixed'."""
+    from crypto_engine.ai.telemetry import TelemetryRecord, TelemetryStore
+
+    store = TelemetryStore(tmp_path / "mixed.jsonl")
+    records = [
+        TelemetryRecord(
+            timestamp="2026-01-01T00:00:00+00:00",
+            request_id="r1",
+            provider_id="meta_muse",
+            model_id="muse-spark-1.3",
+            task="signal_explanation",
+            ai_status="ok",
+            latency_ms=100,
+            prompt_tokens=10,
+            completion_tokens=5,
+            total_tokens=15,
+            reasoning_tokens=None,
+            finish_reason="stop",
+            retry_count=0,
+            error_classification=None,
+            explanation_available=True,
+        ),
+        TelemetryRecord(
+            timestamp="2026-01-01T00:01:00+00:00",
+            request_id="r2",
+            provider_id="openai",
+            model_id="gpt-4o-mini",
+            task="signal_explanation",
+            ai_status="ok",
+            latency_ms=200,
+            prompt_tokens=20,
+            completion_tokens=10,
+            total_tokens=30,
+            reasoning_tokens=None,
+            finish_reason="stop",
+            retry_count=0,
+            error_classification=None,
+            explanation_available=True,
+        ),
+    ]
+    for r in records:
+        store.record(r)
+    metrics = store.metrics()
+    assert metrics.provider_id == "mixed"
+
+
+def test_single_provider_in_telemetry(tmp_path: Path) -> None:
+    """When only one provider has been used, provider_id shows that provider."""
+    from crypto_engine.ai.telemetry import TelemetryRecord, TelemetryStore
+
+    store = TelemetryStore(tmp_path / "single.jsonl")
+    records = [
+        TelemetryRecord(
+            timestamp="2026-01-01T00:00:00+00:00",
+            request_id="r1",
+            provider_id="meta_muse",
+            model_id="muse-spark-1.3",
+            task="signal_explanation",
+            ai_status="ok",
+            latency_ms=100,
+            prompt_tokens=10,
+            completion_tokens=5,
+            total_tokens=15,
+            reasoning_tokens=None,
+            finish_reason="stop",
+            retry_count=0,
+            error_classification=None,
+            explanation_available=True,
+        ),
+    ]
+    for r in records:
+        store.record(r)
+    metrics = store.metrics()
+    assert metrics.provider_id == "meta_muse"

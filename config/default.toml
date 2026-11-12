@@ -174,7 +174,7 @@ structured_output = "json_schema"
 
 [ai.tasks.signal_explanation]
 route = ["meta_muse:muse-spark-1.3"]
-max_output_tokens = 256
+max_output_tokens = 1024
 timeout_s = 15
 
 # Phase 5 signal-generation policy (Track A). 4GB: single-process, one

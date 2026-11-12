@@ -186,3 +186,12 @@ Append-only. Never rewrite history; supersede with new dated entries.
 - Registry discipline preserved: save_model no-overwrite honored, FileExistsError surfaced with guidance; reload verified (fitted, schema, checksum, prediction compatibility).
 - CLI is offline-only (no fetch flag exists); discovery via list_snapshots latest match; invalid inputs exit 1/2 with guidance.
 - 26 new tests; full suite 492 passed, 1 skipped; ruff clean; fixtures <=400 rows; no new dependencies.
+
+## 2026-11-12 — AI telemetry path consistency and store resolution
+
+- **Canonical helper `get_telemetry_store(config)`**: Resolves custom or default telemetry path across CLI (`sf ai metrics`), API (`read_ai_metrics`), and dashboard repositories.
+- **Record-derived provider ID**: `TelemetryStore.metrics()` computes `provider_id` from observed telemetry events and passes it into `TelemetryMetrics` (single provider name, `mixed` for multiple, or empty if none).
+- **Flexible record ingestion**: `TelemetryStore.record()` accepts `AIResponse`, `TelemetryRecord`, or dictionaries without silent drops.
+- **Isolated resolution**: No global cached store singleton is retained across invocations, guaranteeing test isolation and avoiding state leakage across tests or environments.
+- **RepoRoots inclusion**: `RepoRoots` includes `ai_telemetry_path` defaulting to `data/ai_telemetry/events.jsonl` and forwarded consistently through API and dashboard router factories.
+

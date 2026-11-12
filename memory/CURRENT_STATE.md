@@ -15,7 +15,18 @@
   dashboard), `6c498e9` (Phase 8), `a339526` (Phase 9). **Uncommitted:
   `AGENTS.md` (user-owned) and these four `memory/` files only.** No Phase 11
   path appears anywhere in Git history.
-- **Fresh verification (2026-11-10)**: `uv run --offline pytest
+- **Fresh verification (2026-11-12)**: `uv run pytest -q --ignore=tests/unit/test_phase11_shadow.py` →
+  **946 tests, 945 passed, 0 failed, 0 errors, 1 skipped** (LightGBM optional);
+  `tests/integration/test_ai_cli.py` 20 passed / 0 failed;
+  `tests/unit/test_stage2_openai_adapter.py` 40 passed / 0 failed;
+  Repo-wide `uv run ruff check .` → All checks passed (0 errors);
+  Repo-wide `uv run ruff format --check .` → 301 files already formatted;
+  `uv run sf health` exit 0; `uv run sf config-show` exit 0;
+  `uv run sf ai metrics` exit 0 (provider display derived from records);
+  `test_ai_metrics_shows_provider_id_from_telemetry` passes;
+  CLI and dashboard agree on telemetry metrics;
+  `git diff --check` exit 0.
+- **Prior verification (2026-11-10)**: `uv run --offline pytest
   -p no:cacheprovider --ignore=tests/unit/test_phase11_shadow.py -q tests` →
   **873 tests, 872 passed, 0 failed, 0 errors, 1 skipped**
   (811 original + 62 new: 24 domain, 13 analytics, 9 bootstrap, 16 architecture);

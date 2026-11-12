@@ -59,8 +59,11 @@ Stage 12 (Documentation and verification) — done:
   GET /api/v1/ai/status endpoint, read_ai_status in repos.py, tests added.
 - A7 (Architecture tests): tests/architecture/test_dependency_rules.py with
   11 tests enforcing DR-1..DR-17 dependency rules.
+- A8 (Telemetry path resolution & provider metrics): canonical get_telemetry_store(config)
+  resolution across CLI, API, and dashboard; TelemetryStore.metrics() provider derivation;
+  	est_ai_metrics_shows_provider_id_from_telemetry and regression suite passing.
 
-## Gates met (verified 2026-11-10)
+## Gates met (verified 2026-11-12)
 
 - [x] Read-only API (33 GET endpoints, envelopes, pagination caps, 404/unavailable contracts)
 - [x] Read-only adapters (no mkdir/write side effects, bounded scans, verified checksums surfaced)

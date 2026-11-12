@@ -257,3 +257,17 @@
 - [x] `uv run sf health` exit 0, `uv run sf config-show` exit 0, `uv run sf signal verify` exit 0 (`{"ok": true, "errors": []}`)
 - [x] Progress ledger: `python scripts/project_progress.py validate` - 71/71 valid events, 0 corrupt, 0 duplicates
 - [x] Invariants preserved: zero live orders, loopback-only API, 4 GB single-process bounds, Phase 10 boundary respected, Phase 11 quarantined
+
+## AI telemetry & metrics verification (2026-11-12, FRESHLY VERIFIED)
+
+- [x] `get_telemetry_store(config)` canonical factory implemented in `ai/telemetry.py` (no cached global singleton)
+- [x] TelemetryStore.metrics() records and propagates `provider_id` from observed records (`meta_muse`, `custom`, `mixed`, or empty)
+- [x] TelemetryStore.record() supports `AIResponse | TelemetryRecord | dict[str, Any]`
+- [x] `sf ai metrics --config PATH` correctly respects custom and Windows paths
+- [x] CLI and dashboard repository (`read_ai_metrics(roots)`) read from consistent telemetry stores
+- [x] Full test suite: 946 collected, 945 passed, 1 skipped (LightGBM optional), 0 failed
+- [x] `tests/integration/test_ai_cli.py` 20 passed, 0 failed
+- [x] `tests/unit/test_stage2_openai_adapter.py` 40 passed, 0 failed
+- [x] Repo-wide `uv run ruff check .` clean (0 errors)
+- [x] Repo-wide `uv run ruff format --check .` clean (301 files formatted)
+- [x] `uv run sf health` exit 0, `uv run sf ai metrics` exit 0

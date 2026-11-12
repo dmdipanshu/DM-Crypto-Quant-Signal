@@ -416,3 +416,43 @@
   - Comprehensive test suite execution: unit (697 passed), integration (82 passed), and leakage (31 passed, 1 skipped for LightGBM): 810 passed, 1 skipped, 0 failed across 811 total tests.
   - Executed `scripts/export_forward_predictions.py`: 624 rows verified against Phase 10 forward validation report (accuracy 0.4006), manifest generated, cross-check PASS.
   - Re-verified CLI commands: `sf health` exit 0, `sf config-show` exit 0, `sf data status` (2 snapshots verified), `sf model list` (1 model), `sf signal verify` (0 errors).
+
+## 2026-11-12 (UTC) - Fix AI metrics integration test & telemetry consistency
+
+- **Root cause investigation**:
+  - `test_ai_metrics_shows_provider_id_from_telemetry` failed because `TelemetryStore.metrics()` computed `provider_id` but omitted passing `provider_id=provider_id` to `TelemetryMetrics(...)`, causing `provider_id` to default to `""` and CLI to render `n/a`.
+  - `TelemetryStore.record()` previously accepted only `AIResponse`, causing `TelemetryRecord` inputs from tests or callers to be dropped silently.
+  - In `src/crypto_engine/cli.py`, `ai_metrics` resolved custom telemetry paths inconsistently, and `src/crypto_engine/api/repos.py` `read_ai_metrics` invoked `get_default_store()`, ignoring `RepoRoots` and relying on a cached global store.
+- **Implemented fixes**:
+  - `src/crypto_engine/ai/telemetry.py`:
+    - Updated `TelemetryStore.record()` to accept `AIResponse | TelemetryRecord | dict[str, Any]` and ensure parent directory creation before write.
+    - Updated `TelemetryStore.metrics()` to pass `provider_id=provider_id` into `TelemetryMetrics`.
+    - Added `resolve_telemetry_path(config=None, default_path=...)` resolving `Settings`, `AiConfig`, `RepoRoots`, strings, and `Path`s with Windows compatibility and canonical repo-root relative path resolution.
+    - Added `get_telemetry_store(config=None)` factory that avoids shared global cached store state.
+    - Updated `get_default_store()` to delegate to `get_telemetry_store(None)`.
+  - `src/crypto_engine/cli.py`:
+    - Updated `ai_metrics` to use canonical `get_telemetry_store(settings)`.
+    - Updated `sf serve` to pass `ai_telemetry_path` to `RepoRoots`.
+  - `src/crypto_engine/ai/composition.py`:
+    - Updated `build_configured_gateway` to obtain store via `get_telemetry_store(config)`.
+  - `src/crypto_engine/api/repos.py`:
+    - Added `ai_telemetry_path` to `RepoRoots`.
+    - Updated `read_ai_metrics` to use `get_telemetry_store(roots)` and handle empty/missing telemetry with standard unavailable envelopes (`"missing"` and `"empty"`).
+  - `src/crypto_engine/api/routes.py` & `src/crypto_engine/dashboard/routes.py`:
+    - Reconstructed `RepoRoots` forwarding `ai_telemetry_path` to ensure CLI and dashboard use the same canonical store.
+  - `tests/integration/test_ai_cli.py`:
+    - Corrected `test_ai_metrics_shows_provider_id_from_telemetry` to isolate temporary telemetry file with `meta_muse`, `muse-spark-1.3`, status `ok`, and nonzero latency, safely configuring TOML without fragile regex.
+    - Isolated `test_ai_metrics_shows_n_a_when_no_providers` from production telemetry.
+    - Added 6 regression tests: custom telemetry path respected, default path works, multiple providers display `mixed`, Windows paths handling, empty telemetry unavailable state in repos, and CLI/dashboard telemetry data consistency.
+  - `tests/unit/test_stage2_openai_adapter.py`:
+    - Verified unit tests for single and multiple providers telemetry metrics aggregation.
+- **Verification**:
+  - `uv run pytest -q tests/integration/test_ai_cli.py -k test_ai_metrics_shows_provider_id_from_telemetry -vv` -> 1 passed (0.40s).
+  - `uv run pytest -q tests/integration/test_ai_cli.py` -> 20 passed.
+  - `uv run pytest -q tests/unit/test_stage2_openai_adapter.py` -> 40 passed.
+  - Full suite: `uv run pytest -q --ignore=tests/unit/test_phase11_shadow.py` -> 945 passed, 1 skipped (LightGBM optional), 0 failed.
+  - `uv run ruff check .` -> All checks passed (0 errors).
+  - `uv run ruff format --check .` -> 301 files already formatted.
+  - `uv run sf ai metrics` -> Provider: mixed, total requests: 187, exit 0.
+  - `uv run sf health` -> exit 0.
+  - Dashboard and CLI verified reading consistent telemetry.
