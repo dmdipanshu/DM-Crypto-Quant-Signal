@@ -21,6 +21,7 @@ import json
 import threading
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from typing import Any
 
 from crypto_engine.ai.contracts import AIResponse, AIStatus
 
@@ -68,6 +69,7 @@ class TelemetryMetrics:
     http_402_count: int
     http_429_count: int
     sample_size: int
+    provider_id: str = ""
 
 
 class TelemetryStore:
@@ -87,15 +89,22 @@ class TelemetryStore:
         with contextlib.suppress(OSError):
             self._path.parent.mkdir(parents=True, exist_ok=True)
 
-    def record(self, response: AIResponse) -> None:
-        """Append one AIResponse as a telemetry record (best effort)."""
+    def record(self, response: AIResponse | TelemetryRecord | dict[str, Any]) -> None:
+        """Append one AIResponse, TelemetryRecord, or record dict (best effort)."""
         try:
-            record = self._response_to_record(response)
+            if isinstance(response, TelemetryRecord):
+                record = response
+            elif isinstance(response, dict):
+                record = TelemetryRecord(**response)
+            else:
+                record = self._response_to_record(response)
         except Exception:
             # If we can't even build a record, skip telemetry entirely.
             return
         line = json.dumps(asdict(record), sort_keys=True, ensure_ascii=True)
         with self._lock:
+            with contextlib.suppress(OSError):
+                self._path.parent.mkdir(parents=True, exist_ok=True)
             lines: list[str] = []
             if self._path.is_file():
                 try:
@@ -201,6 +210,13 @@ class TelemetryStore:
         http_401 = sum(1 for r in records if r.error_classification == "auth_failure")
         http_402 = sum(1 for r in records if r.error_classification == "payment_required")
         http_429 = sum(1 for r in records if r.error_classification == "rate_limited")
+        # Provider id: most common provider among records, or "mixed" if >1 distinct provider
+        provider_ids = {r.provider_id for r in records if r.provider_id}
+        provider_id = (
+            next(iter(provider_ids))
+            if len(provider_ids) == 1
+            else ("mixed" if provider_ids else "")
+        )
         return TelemetryMetrics(
             total_requests=total,
             successful_requests=successful,
@@ -220,36 +236,100 @@ class TelemetryStore:
             http_402_count=http_402,
             http_429_count=http_429,
             sample_size=total,
+            provider_id=provider_id,
         )
 
 
-# Module-level default store (lazy-initialized on first use).
-_default_store: TelemetryStore | None = None
-_default_store_lock = threading.Lock()
+def _find_repo_root() -> Path:
+    start = Path(__file__).resolve()
+    for candidate in (start, *start.parents):
+        if (candidate / "pyproject.toml").is_file():
+            return candidate
+    return Path.cwd()
+
+
+def resolve_telemetry_path(
+    config: Any = None,
+    default_path: str = "data/ai_telemetry/events.jsonl",
+) -> Path:
+    """Resolve the canonical telemetry path from configuration or defaults.
+
+    Args:
+        config: Can be a ``TelemetryStore``, a ``Settings`` object, an
+            ``AiConfig`` object, a ``RepoRoots`` object, a ``Path`` or ``str``
+            (pointing to a TOML config or a JSONL telemetry file), or ``None``.
+        default_path: Fallback path when no configuration or path is found.
+
+    Returns:
+        A resolved, canonical Path.
+    """
+    if isinstance(config, TelemetryStore):
+        return config._path
+
+    raw_path: str | Path | None = None
+
+    # Check for RepoRoots (has .ai_telemetry_path)
+    if hasattr(config, "ai_telemetry_path"):
+        raw_path = config.ai_telemetry_path
+    # Check for Settings (has .ai)
+    elif hasattr(config, "ai"):
+        ai_cfg = config.ai
+        if ai_cfg is not None and hasattr(ai_cfg, "telemetry_path"):
+            raw_path = ai_cfg.telemetry_path
+    # Check for AiConfig (has .telemetry_path directly)
+    elif hasattr(config, "telemetry_path"):
+        raw_path = config.telemetry_path
+    # Check for string or Path
+    elif isinstance(config, (str, Path)):
+        p = Path(config)
+        if p.suffix.lower() == ".toml":
+            from crypto_engine.config.settings import load_settings
+
+            try:
+                settings = load_settings(p)
+                return resolve_telemetry_path(settings, default_path=default_path)
+            except Exception:
+                pass
+        else:
+            raw_path = p
+
+    # If still not found and config is None, try loading default settings
+    if raw_path is None:
+        try:
+            from crypto_engine.config.settings import load_settings
+
+            settings = load_settings(None)
+            ai_cfg = getattr(settings, "ai", None)
+            if ai_cfg is not None and hasattr(ai_cfg, "telemetry_path"):
+                raw_path = ai_cfg.telemetry_path
+        except Exception:
+            pass
+
+    if raw_path is None:
+        raw_path = default_path
+
+    target = Path(raw_path)
+    if target.is_absolute():
+        return target
+
+    repo_root = _find_repo_root()
+    return repo_root / target
+
+
+def get_telemetry_store(config: Any = None) -> TelemetryStore:
+    """Canonical factory to obtain a TelemetryStore from configuration or defaults.
+
+    Does not cache global state so test runs and different configs stay isolated.
+    """
+    if isinstance(config, TelemetryStore):
+        return config
+    path = resolve_telemetry_path(config)
+    return TelemetryStore(path)
 
 
 def get_default_store() -> TelemetryStore:
-    """Get or create the default telemetry store.
-
-    Reads telemetry path from validated config if available, otherwise falls
-    back to data/ai_telemetry/events.jsonl under the project root.
-    """
-    global _default_store
-    if _default_store is None:
-        with _default_store_lock:
-            if _default_store is None:
-                path = Path("data/ai_telemetry/events.jsonl")
-                try:
-                    from crypto_engine.config.settings import load_settings
-
-                    cfg = load_settings()
-                    ai_cfg = getattr(cfg, "ai", None)
-                    if ai_cfg is not None and hasattr(ai_cfg, "telemetry_path"):
-                        path = Path(ai_cfg.telemetry_path)
-                except Exception:
-                    pass  # Fall back to default path
-                _default_store = TelemetryStore(path)
-    return _default_store
+    """Get the default telemetry store."""
+    return get_telemetry_store(None)
 
 
 def record_response(response: AIResponse) -> None:
@@ -269,5 +349,7 @@ __all__ = [
     "TelemetryRecord",
     "TelemetryStore",
     "get_default_store",
+    "get_telemetry_store",
     "record_response",
+    "resolve_telemetry_path",
 ]

@@ -47,6 +47,7 @@ class RepoRoots:
     experiments_path: Path = field(default_factory=lambda: Path("reports/experiments.jsonl"))
     holdout_ledger_path: Path = field(default_factory=lambda: Path("reports/holdout.json"))
     progress_dir: Path = field(default_factory=lambda: Path("data/project_progress"))
+    ai_telemetry_path: Path = field(default_factory=lambda: Path("data/ai_telemetry/events.jsonl"))
     scan_cap: int = 5000
 
 
@@ -529,15 +530,20 @@ def read_ai_status() -> dict[str, Any]:
 
 def read_ai_metrics(roots: RepoRoots) -> dict[str, Any]:
     """AI observability metrics from stored telemetry (read-only, no secrets)."""
-    from crypto_engine.ai.telemetry import get_default_store
+    from crypto_engine.ai.telemetry import get_telemetry_store
 
-    store = get_default_store()
+    store = get_telemetry_store(roots)
+    if not store._path.is_file():
+        return unavailable("missing", "AI telemetry store not found.")
     try:
         metrics = store.metrics()
     except Exception:
-        return unavailable("missing", "AI telemetry store unreadable.")
+        return unavailable("corrupt", "AI telemetry store unreadable.")
+    if metrics.sample_size == 0:
+        return unavailable("empty", "No AI telemetry events recorded.")
     return {
         "available": True,
+        "provider_id": metrics.provider_id,
         "total_requests": metrics.total_requests,
         "successful_requests": metrics.successful_requests,
         "failed_requests": metrics.failed_requests,

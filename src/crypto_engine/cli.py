@@ -1393,6 +1393,9 @@ def serve(
         experiments_path=_abs(settings.api.experiments_path),
         holdout_ledger_path=_abs(settings.api.holdout_ledger_path),
         progress_dir=_abs(settings.api.progress_dir),
+        ai_telemetry_path=_abs(settings.ai.telemetry_path)
+        if hasattr(settings, "ai") and hasattr(settings.ai, "telemetry_path")
+        else _abs("data/ai_telemetry/events.jsonl"),
         scan_cap=int(settings.api.ledger_scan_cap),
     )
     application = create_app(roots, settings)
@@ -1767,7 +1770,7 @@ def ai_metrics(
 ) -> None:
     """Read-only AI observability metrics from stored telemetry (never secrets)."""
     from crypto_engine.ai.configuration import load_settings
-    from crypto_engine.ai.telemetry import TelemetryStore
+    from crypto_engine.ai.telemetry import get_telemetry_store
 
     try:
         settings = load_settings(config)
@@ -1775,12 +1778,7 @@ def ai_metrics(
         console.print(f"[red]error: cannot load config: {exc}[/red]")
         raise typer.Exit(code=1) from exc
 
-    ai_cfg = getattr(settings, "ai", None)
-    telemetry_path = Path("data/ai_telemetry/events.jsonl")
-    if ai_cfg is not None and hasattr(ai_cfg, "telemetry_path"):
-        telemetry_path = Path(ai_cfg.telemetry_path)
-
-    store = TelemetryStore(telemetry_path)
+    store = get_telemetry_store(settings)
     metrics = store.metrics()
 
     table = Table(title="AI Observability Metrics (read-only, no secrets)")
@@ -1790,7 +1788,7 @@ def ai_metrics(
     def _row(label: str, value: str) -> None:
         table.add_row(label, value)
 
-    _row("Provider", ai_cfg.provider_id if hasattr(ai_cfg, "provider_id") else "n/a")
+    _row("Provider", metrics.provider_id if metrics.provider_id else "n/a")
     _row("Total requests", str(metrics.total_requests))
     _row("Successful requests", str(metrics.successful_requests))
     _row("Failed requests", str(metrics.failed_requests))

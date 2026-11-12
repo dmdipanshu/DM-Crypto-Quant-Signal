@@ -30,6 +30,10 @@ def register(router: Any, roots: Any, settings: Any) -> None:
             paper_path=Path(str(roots.paper_path)),
             experiments_path=Path(str(roots.experiments_path)),
             holdout_ledger_path=Path(str(roots.holdout_ledger_path)),
+            progress_dir=Path(str(getattr(roots, "progress_dir", "data/project_progress"))),
+            ai_telemetry_path=Path(
+                str(getattr(roots, "ai_telemetry_path", "data/ai_telemetry/events.jsonl"))
+            ),
             scan_cap=int(api.ledger_scan_cap),
         )
 
