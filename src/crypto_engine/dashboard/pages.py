@@ -142,6 +142,32 @@ def overview(ctx: dict[str, Any]) -> str:
         _row("Paper sandbox", _badge("uninitialized — not a portfolio", "warn"))
     audit = ctx.get("audit", {})
     _row("Audit chain", _status_badge("ok") if audit.get("ok") else _badge("unverified", "bad"))
+    ai = ctx.get("ai_status", {})
+    if ai.get("available"):
+        ai_state = "enabled" if ai.get("enabled") else "disabled"
+        ai_valid = "valid" if ai.get("valid") else "invalid"
+        error = ai.get("error")
+        if error:
+            _row(
+                "AI gateway",
+                _badge(f"{ai_state} · {ai_valid} · error: {error.get('code', 'unknown')}", "bad"),
+            )
+        else:
+            _row(
+                "AI gateway",
+                f"{_badge(ai_state, 'ok')} · {_badge(ai_valid)} · "
+                f"{ai.get('providers')} providers, {ai.get('models')} models, "
+                f"{ai.get('routes')} routes",
+            )
+    else:
+        _row("AI gateway", _badge("disabled — advisory only", "muted"))
+    ai_metrics = ctx.get("ai_metrics", {})
+    if ai_metrics.get("available"):
+        _row("AI requests", str(ai_metrics.get("total_requests", 0)))
+        _row("AI success rate", f"{ai_metrics.get('success_percentage', 0)}%")
+        _row("AI avg latency (ms)", str(ai_metrics.get("average_latency_ms", 0)))
+        _row("AI total tokens", str(ai_metrics.get("total_tokens", 0)))
+        _row("AI invalid outputs", str(ai_metrics.get("invalid_output_count", 0)))
     body = f"<h2>Overview</h2><table>{''.join(rows)}</table>"
     body += "<p class='small'>A healthy service does not mean a model is trained or a strategy is profitable.</p>"
     return layout("overview", "Overview", body)
@@ -162,6 +188,19 @@ def signals_page(signals: list[dict[str, Any]], total: int) -> str:
         cal = pred.get("calibration_status", "unavailable")
         cal_label = "calibrated" if cal == "calibrated" else f"uncalibrated ({cal})"
         reasons = ", ".join(str(r) for r in decision.get("reason_codes", []))
+        ai_ctx = sig.get("ai_context", {}) if isinstance(sig.get("ai_context"), dict) else {}
+        ai_summary = ai_ctx.get("summary", "")
+        ai_status = ai_ctx.get("status", "disabled")
+        ai_provider = ai_ctx.get("provider_id", "")
+        ai_model = ai_ctx.get("model_id", "")
+        ai_html = ""
+        if ai_status == "ok" and ai_summary:
+            ai_html = (
+                f"<td class='small mono'><b>AI ({ai_provider}/{ai_model}):</b> "
+                f"{_esc(ai_summary[:200])}" + ("..." if len(ai_summary) > 200 else "") + "</td>"
+            )
+        else:
+            ai_html = f"<td class='small muted'>AI: {ai_status}</td>"
         rows.append(
             "<tr>"
             f"<td class='mono'>{_esc(sig.get('signal_id'))}</td>"
@@ -172,15 +211,15 @@ def signals_page(signals: list[dict[str, Any]], total: int) -> str:
             f"<td class='small'>{(cal_label)}</td>"
             f"<td>{_esc(sig.get('data_quality'))}</td>"
             f"<td class='small mono'>{_esc(reasons)}</td>"
+            f"{ai_html}"
             "</tr>"
         )
     body = (
         "<h2>Signals</h2>"
         f"<p class='small'>Showing {len(signals)} of {total} recorded (newest first). Historical records — not live recommendations.</p>"
         "<table><tr><th>ID</th><th>Symbol</th><th>Direction</th><th>Decision</th>"
-        "<th>Generated / expiry (UTC)</th><th>Calibration</th><th>Data</th><th>Reasons</th></tr>"
-        + "".join(rows)
-        + "</table>"
+        "<th>Generated / expiry (UTC)</th><th>Calibration</th><th>Data</th><th>Reasons</th>"
+        "<th>AI Explanation</th></tr>" + "".join(rows) + "</table>"
     )
     return layout("signals", "Signals", body)
 

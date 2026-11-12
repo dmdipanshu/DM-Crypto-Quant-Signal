@@ -58,13 +58,14 @@ random_state = 42       # fixed seed for deterministic validation
 # provider SDKs are bring-your-own (pip install openai/anthropic/etc.) —
 # there are no registry-based ai-* extras (no package network in this env).
 [ai]
-enabled = false            # global AI switch; deterministic core runs alone
+enabled = true             # global AI switch; Meta Muse advisory-only
 default_provider = "none"  # reserved (legacy); routing is [ai.tasks.*] only
 fallback_order = []        # reserved (legacy); no runtime failover is implemented
 cache_ttl_s = 0            # reserved; no response cache exists
 log_prompts = false        # reserved; no prompt/response logging exists
 timeout_s = 30.0           # bounded per-request ceiling (seconds)
 max_retries = 2            # bounded retries (0..3)
+telemetry_path = "data/ai_telemetry/events.jsonl"  # append-only JSONL, bounded
 max_request_chars = 8000   # bounded request size
 max_response_chars = 4000  # bounded response size
 max_output_tokens = 1024   # bounded output ceiling
@@ -145,6 +146,36 @@ max_chars = 200000         # reserved; not enforced
 # enabled = false
 # base_url = "http://localhost:11434/v1"
 # auth_mechanism = "none"         # loopback-only; no credential is sent
+
+# Meta Muse provider (Stage 1; enabled explicitly).
+[[ai.providers]]
+provider_id = "meta_muse"
+display_name = "Meta Muse"
+dialect = "openai_compatible"
+enabled = true
+timeout_s = 30.0
+max_retries = 2
+max_response_chars = 4000
+concurrency = 1
+base_url = "https://api.meta.ai/v1"
+api_key_env = "META_MUSE_API_KEY"
+auth_mechanism = "bearer"
+structured_output = "json_schema"
+egress_allowlist = []
+
+[[ai.models]]
+provider_id = "meta_muse"
+model_id = "muse-spark-1.3"
+display_name = "Meta Muse muse-spark-1.3"
+enabled = true
+context_limit = 0
+max_output_tokens = 1024
+structured_output = "json_schema"
+
+[ai.tasks.signal_explanation]
+route = ["meta_muse:muse-spark-1.3"]
+max_output_tokens = 256
+timeout_s = 15
 
 # Phase 5 signal-generation policy (Track A). 4GB: single-process, one
 # symbol/timeframe at a time; small fixtures (<=50 rows in unit tests).

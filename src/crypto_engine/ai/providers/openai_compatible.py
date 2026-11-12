@@ -16,6 +16,7 @@ can never be forwarded to a host that was not configured.
 from __future__ import annotations
 
 import json
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -38,8 +39,15 @@ MAX_RESPONSE_BYTES = 200_000
 #: Constant, application-owned instruction; never built from untrusted text.
 SYSTEM_INSTRUCTION = (
     "You are an advisory explanation assistant for a quantitative research "
-    "system. Explain only the supplied structured evidence. Do not invent "
-    "metrics, do not recommend trades, and never claim execution authority."
+    "system. You are given only structured evidence: a signal direction, an "
+    "expected edge, cost estimates, regime context, and risk gate verdicts. "
+    "Explain only what the evidence supports. Do not invent prices, indicators, "
+    "or metrics. Distinguish facts from uncertainty. State the rationale for "
+    "the direction (or NO_TRADE), the risk/invalidation conditions, and why "
+    "you cannot confirm a trade if evidence is thin. You are advisory-only: "
+    "never recommend execution, never override risk gates, never suggest order "
+    "placement, position size, or leverage. Your output is explanatory context, "
+    "never a trading decision."
 )
 
 _LOCAL_HOSTS = frozenset({"localhost", "127.0.0.1", "::1"})
@@ -162,8 +170,10 @@ class OpenAICompatibleProvider:
         }
         if api_key is not None:
             headers["Authorization"] = f"Bearer {api_key}"
+        start = time.monotonic()
         response = self._call_transport(self.endpoint(), headers, body, timeout_s, model)
-        return self._parse(response, request, model)
+        latency_ms = int((time.monotonic() - start) * 1000)
+        return self._parse(response, request, model, latency_ms=latency_ms)
 
     def _call_transport(
         self,
@@ -243,13 +253,15 @@ class OpenAICompatibleProvider:
                 {"role": "system", "content": SYSTEM_INSTRUCTION},
                 {"role": "user", "content": f"{request.task_text}\n\nEvidence:\n{evidence}"},
             ],
-            "max_tokens": int(max_tokens),
-            "temperature": 0,
+            "max_completion_tokens": int(max_tokens),
+            "reasoning_effort": "minimal",
             "stream": False,
         }
         return json.dumps(payload, sort_keys=True, ensure_ascii=True).encode("utf-8")
 
-    def _parse(self, response: TransportResponse, request: AIRequest, model: AIModel) -> AIResponse:
+    def _parse(
+        self, response: TransportResponse, request: AIRequest, model: AIModel, latency_ms: int = 0
+    ) -> AIResponse:
         status = response.status_code
         if status in {401, 403}:
             raise AIError(
@@ -345,10 +357,29 @@ class OpenAICompatibleProvider:
             )
         message = choices[0].get("message") if isinstance(choices[0], dict) else None
         text = message.get("content") if isinstance(message, dict) else None
-        if not isinstance(text, str) or not text.strip():
+        if not isinstance(text, str):
             raise AIError(
-                AIStatus.INVALID_RESPONSE,
+                AIStatus.INVALID_OUTPUT,
                 "provider response has no advisory text",
+                provider_id=self.provider_id,
+                model_id=model.model_id,
+                provider_status=status,
+            )
+        if not text.strip():
+            raise AIError(
+                AIStatus.INVALID_OUTPUT,
+                "provider response has empty or whitespace-only advisory text",
+                provider_id=self.provider_id,
+                model_id=model.model_id,
+                provider_status=status,
+            )
+        # Reject truncated output: finish_reason="length" means the model hit
+        # its token cap and the explanation is incomplete.
+        finish_reason = choices[0].get("finish_reason")
+        if finish_reason == "length":
+            raise AIError(
+                AIStatus.INVALID_OUTPUT,
+                "provider response was truncated (finish_reason=length)",
                 provider_id=self.provider_id,
                 model_id=model.model_id,
                 provider_status=status,
@@ -360,7 +391,7 @@ class OpenAICompatibleProvider:
             model_id=model.model_id,
             text=text,
             usage=_usage(payload.get("usage")),
-            latency_ms=0,
+            latency_ms=latency_ms,
         )
 
 

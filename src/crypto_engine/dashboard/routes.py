@@ -50,6 +50,8 @@ def register(router: Any, roots: Any, settings: Any) -> None:
             "backtests": R.read_backtests(roots_, limit=1, offset=0),
             "paper": R.read_paper(roots_),
             "audit": R.verify_signals(roots_),
+            "ai_status": R.read_ai_status(),
+            "ai_metrics": R.read_ai_metrics(roots_),
         }
         return P.overview(ctx)
 

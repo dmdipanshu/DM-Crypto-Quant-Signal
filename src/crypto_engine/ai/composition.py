@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 from collections.abc import Mapping
+from pathlib import Path
 
 from crypto_engine.ai.configuration import build_gateway, build_provider_spec
 from crypto_engine.ai.contracts import AIProviderPort
@@ -21,6 +22,7 @@ from crypto_engine.ai.errors import AIError, AIStatus
 from crypto_engine.ai.gateway import AIGateway
 from crypto_engine.ai.providers import OpenAICompatibleProvider, TransportResponse
 from crypto_engine.ai.providers.openai_compatible import TransportCallable
+from crypto_engine.ai.telemetry import TelemetryStore
 from crypto_engine.config.settings import AiConfig
 
 SUPPORTED_DIALECTS = frozenset({"openai_compatible"})
@@ -101,7 +103,26 @@ def build_configured_gateway(
         effective = {**placeholders, **dict(environ or {})}
         effective_transport = transport or mock_transport
     ports = build_ports(config, environ=effective, transport=effective_transport)
-    return build_gateway(config, ports, environ=effective)
+    # Telemetry store: best-effort append-only JSONL under data/ai_telemetry/.
+    try:
+        from crypto_engine.config.settings import load_settings
+
+        cfg = load_settings()
+        ai_cfg = getattr(cfg, "ai", None)
+        telemetry_path = (
+            Path(ai_cfg.telemetry_path)
+            if ai_cfg is not None and hasattr(ai_cfg, "telemetry_path")
+            else Path("data/ai_telemetry/events.jsonl")
+        )
+    except Exception:
+        telemetry_path = Path("data/ai_telemetry/events.jsonl")
+    telemetry_store = TelemetryStore(telemetry_path)
+    return build_gateway(
+        config,
+        ports,
+        environ=effective,
+        telemetry_store=telemetry_store,
+    )
 
 
 __all__ = [

@@ -30,6 +30,11 @@ except ImportError as exc:  # pragma: no cover - exercised when extra is absent
 
 from crypto_engine.api.schemas import fail, utc_now_iso
 from crypto_engine.api.security import ApiError
+from crypto_engine.env_loader import load_env
+
+# Load .env at module import time so AI credentials are available when the
+# API server starts.
+load_env()
 
 DOCS_PATHS = {"/openapi.json", "/docs", "/docs/oauth2-redirect", "/redoc"}
 

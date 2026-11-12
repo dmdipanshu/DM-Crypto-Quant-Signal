@@ -1,0 +1,31 @@
+{
+  "snapshot_id": "binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06",
+  "exchange": "binance",
+  "symbol": "BTC/USDT",
+  "timeframe": "1h",
+  "requested_start": "2026-09-25T00:00:00+00:00",
+  "requested_end": "2026-10-28T00:00:00+00:00",
+  "actual_start": "2026-09-25T00:00:00+00:00",
+  "actual_end": "2026-10-28T00:00:00+00:00",
+  "fetched_at": "2026-10-28T14:36:44.982418+00:00",
+  "row_count": 793,
+  "schema_version": "1.0",
+  "columns": {
+    "timestamp": "timestamp[ns, tz=UTC]",
+    "open": "float64",
+    "high": "float64",
+    "low": "float64",
+    "close": "float64",
+    "volume": "float64"
+  },
+  "quality": {
+    "duplicates": 0,
+    "missing_intervals": 0,
+    "warnings": [
+      "stale data: last candle 2026-10-28T00:00:00+00:00"
+    ]
+  },
+  "checksum_sha256": "90e5339e8fcc5636135df8e68006bd2f7de24f36fb703aad2ade3ffe13223f2d",
+  "config_hash": "",
+  "package_version": "0.1.0"
+}

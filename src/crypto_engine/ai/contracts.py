@@ -307,7 +307,7 @@ class AIResponse:
         if self.status is AIStatus.OK:
             if self.error is not None:
                 raise ValueError("ok AI response must not carry an error record")
-            if not self.text and not self.content:
+            if self.text is None and self.content is None:
                 raise ValueError("ok AI response must carry text or structured content")
         elif self.error is None:
             raise ValueError("failed AI response must carry an AIErrorInfo")

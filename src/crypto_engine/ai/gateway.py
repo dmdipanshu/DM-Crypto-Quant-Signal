@@ -14,6 +14,7 @@ returned as a non-ok :class:`AIResponse` and the deterministic core continues.
 
 from __future__ import annotations
 
+import contextlib
 import threading
 import time
 from collections.abc import Callable, Iterator, Mapping
@@ -32,6 +33,7 @@ from crypto_engine.ai.contracts import (
 )
 from crypto_engine.ai.errors import AIError, AIStatus, classify_exception
 from crypto_engine.ai.registry import AIRegistry, ResolvedRoute
+from crypto_engine.ai.telemetry import TelemetryStore
 
 
 class AIGateway:
@@ -46,6 +48,7 @@ class AIGateway:
         environ: Mapping[str, str] | None = None,
         clock: Callable[[], float] | None = None,
         sleeper: Callable[[float], None] | None = None,
+        telemetry_store: TelemetryStore | None = None,
     ) -> None:
         self._registry = registry
         self._ports: dict[str, AIProviderPort] = dict(ports or {})
@@ -54,6 +57,7 @@ class AIGateway:
         self._clock = clock or time.monotonic
         self._sleep = sleeper or time.sleep
         self._inflight = threading.Lock()
+        self._telemetry_store = telemetry_store
 
     @property
     def limits(self) -> AIResourceLimits:
@@ -89,9 +93,14 @@ class AIGateway:
             self._check_auth(route.provider)
             timeout_s = self._effective_timeout(request, route.provider)
             with self._single_flight():
-                return self._invoke(request, route, port, timeout_s)
+                response = self._invoke(request, route, port, timeout_s)
+                # Record telemetry (best effort; never breaks signal generation).
+                self._record_telemetry(response)
+            return response
         except AIError as error:
-            return self._failure(error, request=request, route_id=route_id)
+            response = self._failure(error, request=request, route_id=route_id)
+            self._record_telemetry(response)
+            return response
 
     def _validate_request(self, request: AIRequest) -> None:
         if request.char_size > self._limits.max_request_chars:
@@ -317,3 +326,9 @@ class AIGateway:
     def _backoff(self, attempts: int) -> None:
         """Bounded exponential backoff, injected for deterministic tests."""
         self._sleep(min(2.0, 0.5 * (2 ** (attempts - 1))))
+
+    def _record_telemetry(self, response: AIResponse) -> None:
+        """Record one AI response to the telemetry store (best effort)."""
+        if self._telemetry_store is not None:
+            with contextlib.suppress(Exception):
+                self._telemetry_store.record(response)

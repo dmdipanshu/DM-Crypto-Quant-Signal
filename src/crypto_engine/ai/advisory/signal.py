@@ -284,6 +284,7 @@ def apply_ai_context(
         generated_at=explanation.generated_at or None,
         expiry=expiry,
         note=_safe_note(note),
+        summary=_safe_note(explanation.summary or ""),
     )
     updated = record.model_copy(update={"ai_context": summary})
     if (

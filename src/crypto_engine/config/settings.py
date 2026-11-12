@@ -154,6 +154,7 @@ class AiConfig(BaseModel):
     max_response_chars: int = Field(default=4000, ge=1, le=1_000_000)
     max_output_tokens: int = Field(default=1024, ge=1, le=1_000_000)
     max_concurrent_requests: int = Field(default=1, ge=1, le=1)
+    telemetry_path: str = Field(default="data/ai_telemetry/events.jsonl")
 
 
 class SignalConfig(BaseModel):

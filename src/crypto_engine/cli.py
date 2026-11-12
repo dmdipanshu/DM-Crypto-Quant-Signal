@@ -13,6 +13,11 @@ from rich.console import Console
 from rich.table import Table
 
 from crypto_engine import __version__
+from crypto_engine.env_loader import load_env
+
+# Load .env before any command runs so AI credentials are available to the
+# gateway without manual shell exports.
+load_env()
 
 app: typer.Typer = typer.Typer(name="sf", help="SignalForge Phase 1 CLI.")
 data_app: typer.Typer = typer.Typer(help="Dataset snapshot commands.")
@@ -577,6 +582,19 @@ def signal_generate(
         typer.echo(f"warning: history append refused ({exc}); signal NOT recorded.", err=True)
 
     typer.echo(record.model_dump_json(indent=2))
+
+    if ai == "explain":
+        ac = record.ai_context
+        if ac and ac.status == "ok":
+            typer.echo("")
+            typer.echo("=== AI Advisory Explanation ===")
+            typer.echo(f"Provider: {ac.provider_id}")
+            typer.echo(f"Model: {ac.model_id}")
+            typer.echo(f"Status: {ac.status}")
+            if ac.summary:
+                typer.echo(f"Explanation: {ac.summary}")
+            if ac.evidence_ids:
+                typer.echo(f"Evidence: {', '.join(ac.evidence_ids)}")
 
 
 @signal_app.command("history")
@@ -1739,3 +1757,57 @@ def ai_test(
     console.print_json(json.dumps(payload, sort_keys=True))
     if not response.ok:
         raise typer.Exit(code=1)
+
+
+@ai_app.command("metrics")
+def ai_metrics(
+    config: Annotated[
+        Path | None, typer.Option("--config", help="Path to a TOML config file.")
+    ] = None,
+) -> None:
+    """Read-only AI observability metrics from stored telemetry (never secrets)."""
+    from crypto_engine.ai.configuration import load_settings
+    from crypto_engine.ai.telemetry import TelemetryStore
+
+    try:
+        settings = load_settings(config)
+    except (FileNotFoundError, ValueError) as exc:
+        console.print(f"[red]error: cannot load config: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+
+    ai_cfg = getattr(settings, "ai", None)
+    telemetry_path = Path("data/ai_telemetry/events.jsonl")
+    if ai_cfg is not None and hasattr(ai_cfg, "telemetry_path"):
+        telemetry_path = Path(ai_cfg.telemetry_path)
+
+    store = TelemetryStore(telemetry_path)
+    metrics = store.metrics()
+
+    table = Table(title="AI Observability Metrics (read-only, no secrets)")
+    table.add_column("Metric", style="bold")
+    table.add_column("Value", justify="right")
+
+    def _row(label: str, value: str) -> None:
+        table.add_row(label, value)
+
+    _row("Provider", ai_cfg.provider_id if hasattr(ai_cfg, "provider_id") else "n/a")
+    _row("Total requests", str(metrics.total_requests))
+    _row("Successful requests", str(metrics.successful_requests))
+    _row("Failed requests", str(metrics.failed_requests))
+    _row("Success percentage", f"{metrics.success_percentage}%")
+    _row("Failure percentage", f"{metrics.failure_percentage}%")
+    _row("Average latency (ms)", f"{metrics.average_latency_ms}")
+    _row("Median latency (ms)", f"{metrics.median_latency_ms}")
+    if metrics.p95_latency_ms is not None:
+        _row("P95 latency (ms)", f"{metrics.p95_latency_ms}")
+    _row("Total input tokens", str(metrics.total_input_tokens))
+    _row("Total output tokens", str(metrics.total_output_tokens))
+    _row("Total tokens", str(metrics.total_tokens))
+    _row("Avg tokens/request", f"{metrics.average_tokens_per_request}")
+    _row("Timeout count", str(metrics.timeout_count))
+    _row("Invalid output count", str(metrics.invalid_output_count))
+    _row("HTTP 401 count", str(metrics.http_401_count))
+    _row("HTTP 402 count", str(metrics.http_402_count))
+    _row("HTTP 429 count", str(metrics.http_429_count))
+    _row("Sample size", str(metrics.sample_size))
+    console.print(table)

@@ -474,10 +474,95 @@ def read_snapshot(roots: RepoRoots, snapshot_id: str) -> dict[str, Any]:
     raise ApiError(404, "not_found", "No snapshot with that id.")
 
 
+# -- AI status (advisory-only, read-only configuration view) ----------------
+
+
+def read_ai_status() -> dict[str, Any]:
+    """AI enablement, registry counts and bounded limits (never secrets).
+
+    Reads configuration only; no network call, no provider invocation. Returns
+    an ``error`` entry when the registry is invalid, and ``available: False``
+    when AI is disabled. This is the data backing the dashboard AI status
+    panel (failure states visible, never authoritative).
+    """
+    from crypto_engine.ai.configuration import build_registry, load_ai_config
+    from crypto_engine.ai.errors import AIError
+
+    try:
+        cfg = load_ai_config()
+    except Exception as exc:  # configuration load failure
+        return {
+            "available": False,
+            "enabled": False,
+            "valid": False,
+            "providers": 0,
+            "models": 0,
+            "routes": 0,
+            "error": {"code": "configuration_error", "message": str(exc)},
+        }
+
+    try:
+        snapshot = build_registry(cfg).snapshot()
+        error = None
+    except AIError as exc:
+        snapshot = None
+        error = {"code": exc.status.value, "message": exc.message}
+
+    return {
+        "available": cfg.enabled,
+        "enabled": cfg.enabled,
+        "valid": error is None,
+        "providers": len(snapshot["providers"]) if snapshot else 0,
+        "models": len(snapshot["models"]) if snapshot else 0,
+        "routes": len(snapshot["routes"]) if snapshot else 0,
+        "max_concurrent_requests": cfg.max_concurrent_requests,
+        "max_retries": cfg.max_retries,
+        "timeout_s": cfg.timeout_s,
+        "max_request_chars": cfg.max_request_chars,
+        "max_response_chars": cfg.max_response_chars,
+        "max_output_tokens": cfg.max_output_tokens,
+        "error": error,
+    }
+
+
+def read_ai_metrics(roots: RepoRoots) -> dict[str, Any]:
+    """AI observability metrics from stored telemetry (read-only, no secrets)."""
+    from crypto_engine.ai.telemetry import TelemetryStore
+
+    store = TelemetryStore(roots.progress_dir / "ai_telemetry" / "events.jsonl")
+    try:
+        metrics = store.metrics()
+    except Exception:
+        return unavailable("missing", "AI telemetry store unreadable.")
+    return {
+        "available": True,
+        "total_requests": metrics.total_requests,
+        "successful_requests": metrics.successful_requests,
+        "failed_requests": metrics.failed_requests,
+        "success_percentage": metrics.success_percentage,
+        "failure_percentage": metrics.failure_percentage,
+        "average_latency_ms": metrics.average_latency_ms,
+        "median_latency_ms": metrics.median_latency_ms,
+        "p95_latency_ms": metrics.p95_latency_ms,
+        "total_input_tokens": metrics.total_input_tokens,
+        "total_output_tokens": metrics.total_output_tokens,
+        "total_tokens": metrics.total_tokens,
+        "average_tokens_per_request": metrics.average_tokens_per_request,
+        "timeout_count": metrics.timeout_count,
+        "invalid_output_count": metrics.invalid_output_count,
+        "http_401_count": metrics.http_401_count,
+        "http_402_count": metrics.http_402_count,
+        "http_429_count": metrics.http_429_count,
+        "sample_size": metrics.sample_size,
+    }
+
+
 __all__ = [
     "RepoRoots",
     "clamp_limit",
     "paginate",
+    "read_ai_metrics",
+    "read_ai_status",
     "read_backtest",
     "read_backtest_slice",
     "read_backtests",

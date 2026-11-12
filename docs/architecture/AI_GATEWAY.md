@@ -327,7 +327,6 @@ An adapter must not:
 | `anthropic` | Anthropic messages | Structured output via schema-constrained JSON |
 | `google` | Gemini | Current code passes the key as a query parameter; prefer a header transport if the vendor offers one |
 | `meta` | Meta/partner-hosted Llama endpoints | Meta does not operate a single first-party general chat API; the slot covers Meta-hosted or partner endpoints and must declare its real dialect |
-| `nvidia` | NVIDIA NIM (OpenAI-compatible) | Treated as a first-class provider slot, implemented over the compatible dialect |
 | `custom` | OpenAI-compatible | Any base URL + model id + auth mechanism (see §9) |
 
 Current adapters `deepseek`, `openrouter`, `groq` and `ollama` map onto the
@@ -349,7 +348,7 @@ The registry is metadata. It contains no credential values.
 
 | Field | Meaning |
 |---|---|
-| `provider_id` | Stable key (`openai`, `anthropic`, `google`, `meta`, `nvidia`, `custom`) |
+| `provider_id` | Stable key (`openai`, `anthropic`, `google`, `meta`, `custom`) |
 | `display_name` | Human label for CLI/dashboard |
 | `dialect` | Adapter dialect the provider uses |
 | `endpoint` | Base URL where applicable; null for fixed-endpoint providers |

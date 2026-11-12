@@ -267,6 +267,7 @@ class AiContextSummary(BaseModel):
     generated_at: str | None = None
     expiry: str | None = None
     note: str = ""
+    summary: str = ""
 
     @field_validator("note")
     @classmethod
@@ -277,6 +278,17 @@ class AiContextSummary(BaseModel):
         for banned in ("prompt", "secret", "api_key", "apikey", "bearer"):
             if banned in lowered:
                 raise ValueError(f"note must not contain prompts/secrets (found {banned!r}).")
+        return v
+
+    @field_validator("summary")
+    @classmethod
+    def _check_summary(cls, v: str) -> str:
+        if len(v) > 2000:
+            raise ValueError(f"summary must be <= 2000 chars (got {len(v)}).")
+        lowered = v.lower()
+        for banned in ("prompt", "secret", "api_key", "apikey", "bearer"):
+            if banned in lowered:
+                raise ValueError(f"summary must not contain prompts/secrets (found {banned!r}).")
         return v
 
 

@@ -217,7 +217,6 @@ src/crypto_engine/
     providers/anthropic/                   OPTIONAL
     providers/google/                      OPTIONAL
     providers/meta/                        OPTIONAL
-    providers/nvidia/                      OPTIONAL
     providers/custom/                      OPTIONAL   OpenAI-compatible endpoint
     analysts/                              OPTIONAL
     context.py                             OPTIONAL

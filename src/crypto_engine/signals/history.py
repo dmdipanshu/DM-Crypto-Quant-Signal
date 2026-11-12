@@ -210,12 +210,12 @@ class SignalHistory:
             if entry.get("prev_hash") != prev:
                 errors.append(f"line {lineno}: chain break (prev_hash mismatch)")
             try:
-                record = SignalRecord.model_validate(entry["record"])
+                SignalRecord.model_validate(entry["record"])
             except ValueError as exc:
                 errors.append(f"line {lineno}: schema violation: {exc}")
                 prev = str(entry.get("record_hash", prev))
                 continue
-            expected = _record_hash(str(entry["prev_hash"]), record.model_dump(mode="json"))
+            expected = _record_hash(str(entry["prev_hash"]), entry["record"])
             if expected != entry.get("record_hash"):
                 errors.append(f"line {lineno}: record_hash mismatch (tamper-evident)")
             prev = str(entry.get("record_hash"))

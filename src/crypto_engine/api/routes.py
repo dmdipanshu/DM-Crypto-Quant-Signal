@@ -420,5 +420,16 @@ def register(router: Any, roots: Any, settings: Any) -> None:
     def data_snapshot_by_id(snapshot_id: str) -> dict[str, Any]:
         return ok(R.read_snapshot(_roots(), snapshot_id))
 
+    # -- AI status (advisory-only, read-only configuration view) ------------
+    @router.get(f"{V1}/ai/status")
+    def ai_status() -> dict[str, Any]:
+        """AI enablement and bounded limits (advisory only, no secrets)."""
+        return ok(R.read_ai_status())
+
+    @router.get(f"{V1}/ai/metrics")
+    def ai_metrics() -> dict[str, Any]:
+        """AI observability metrics from stored telemetry (read-only, no secrets)."""
+        return ok(R.read_ai_metrics(_roots()))
+
 
 __all__ = ["V1", "register"]

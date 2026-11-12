@@ -24,6 +24,7 @@ from crypto_engine.ai.contracts import (
 from crypto_engine.ai.errors import AIError, AIStatus
 from crypto_engine.ai.gateway import AIGateway
 from crypto_engine.ai.registry import AIModelRef, AIRegistry
+from crypto_engine.ai.telemetry import TelemetryStore
 from crypto_engine.config.settings import (
     AiConfig,
     AiModelConfig,
@@ -150,6 +151,7 @@ def build_gateway(
     environ: Mapping[str, str] | None = None,
     clock: Callable[[], float] | None = None,
     sleeper: Callable[[float], None] | None = None,
+    telemetry_store: TelemetryStore | None = None,
 ) -> AIGateway:
     """Composition helper: registry + limits + injected adapters."""
     return AIGateway(
@@ -159,6 +161,7 @@ def build_gateway(
         environ=environ,
         clock=clock,
         sleeper=sleeper,
+        telemetry_store=telemetry_store,
     )
 
 

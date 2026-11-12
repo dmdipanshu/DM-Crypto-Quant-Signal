@@ -1,23 +1,25 @@
-# AGENTS.md — SignalForge Operating Rules (Phase 7 authorized)
+# AGENTS.md — SignalForge Operating Rules (Phase 10 authorized)
 
 Read this file and `memory/` before any work. It overrides any conflicting assumption.
 
-## 1. Scope: Phase 7 Only
+## 1. Scope: Phase 10 Only
 
-SignalForge Phase 7 = read-only FastAPI (`/api/v1`, GET-only), read-only
-repository adapters over canonical stores, lightweight server-rendered
-dashboard, `sf serve` (loopback-only default), security tests, operational
-docs, final verification. Phases 1–6 are done — extend, do not rewrite.
-**Not implemented in Phase 7:** live orders, real-money trading, order
-placement/cancellation, deposits/withdrawals/leverage, paper-state mutation
-via API, training/retraining endpoints, signal/backtest triggers via API,
-public exposure by default, architecture rewrites. No Phase 8 exists.
+SignalForge Phase 10 = frozen-model forward validation on a genuinely new
+BTC/USDT hourly period (public fetch, immutable new snapshot, no retraining,
+no tuning, no calibration, validation-only comparison, reproducible report).
+Phases 1–9 are done — extend, do not rewrite.
+**Not implemented in Phase 10:** live orders, real-money trading, model
+retraining/refitting/calibration/tuning, threshold selection, feature
+selection, backtest execution, paper trading, portfolio accounting,
+API/dashboard write endpoints, public exposure, architecture rewrites.
+No Phase 11 exists; anything beyond Phase 10 needs explicit approval.
 
 ## 2. Resource Constraint: 4 GB Laptop (mandatory)
 
 - One training job / one process by default; `n_jobs=1` everywhere.
 - Bounded chunks, column/row-group Parquet reads, no full-matrix copies.
-- No PyTorch/TF/Transformers/LLMs, no GPU, no pretrained downloads in Phase 7.
+- No PyTorch/TF/Transformers/LLMs, no GPU, no pretrained downloads in Phase 8.
+- Training is single-process, one snapshot at a time; fixtures ≤400 rows.
 - API/dashboard: single process, loopback-only default, bounded pagination, no polling loops.
 - AI concurrency default 1; all provider SDKs optional; ordinary tests offline.
 - Signal generation single-process, one symbol/timeframe at a time by default.
@@ -94,10 +96,10 @@ Load the matching skill before doing domain work.
 
 ## 9. Phase Authorization
 
-- Approved: Phase 7 (read-only API + dashboard + `sf serve` + security tests +
-  operational docs + final verification). This is the final authorized phase;
-  anything beyond it requires explicit user approval. Default answer to
-  out-of-scope requests: stop and ask.
+- Approved: Phase 10 (frozen-model forward validation on new public data;
+  no retraining, tuning, calibration, or trading). This is the final
+  authorized phase; anything beyond it requires explicit user approval.
+  Default answer to out-of-scope requests: stop and ask.
 
 ## 10. Risk / Security Rules
 
@@ -120,3 +122,80 @@ Load the matching skill before doing domain work.
   pass/fail/skip counts), risks, next gate.
 - Never count skips as passes. Never report unexecuted checks as complete.
 - Reproduce defects before claiming fixes; separate new failures from pre-existing ones.
+
+
+# AUTONOMOUS EXECUTION POLICY
+
+For every coding task I give you, work autonomously from start to finish.
+
+## Execution Rules
+
+1. First inspect the relevant project files and understand the existing architecture.
+2. Identify the root cause or exact implementation requirement.
+3. Create the implementation plan internally.
+4. Implement the complete solution yourself.
+5. Do not stop after planning or after making only partial changes.
+6. Run all relevant tests, lint, type checks, builds, and verification commands.
+7. If any command or test fails, investigate the failure yourself.
+8. Fix the problem and rerun the failed checks.
+9. Continue iterating until the requested task is actually completed and verified.
+10. Do not ask me "What should I do next?" during normal coding work.
+11. Do not ask for confirmation for normal file edits, terminal commands, testing, debugging, or reversible development actions.
+12. Make reasonable implementation decisions yourself based on the existing codebase and project rules.
+13. Preserve existing functionality, architecture, safety constraints, and project conventions.
+14. Never declare a task complete merely because code was changed. Verify the result first.
+
+## When You MAY Ask Me
+
+Ask me only when:
+
+- A required piece of information cannot be determined from the repository.
+- A genuine product/business decision requires my choice.
+- An action is destructive or irreversible and requires explicit user authorization.
+- Existing project rules explicitly require user approval.
+
+For ordinary implementation decisions, do not interrupt the workflow.
+
+## Automatic Error Recovery
+
+If you encounter an error:
+
+1. Read the complete error.
+2. Identify the likely root cause.
+3. Inspect the relevant code/configuration.
+4. Apply the appropriate fix.
+5. Rerun the failed command or test.
+6. Repeat until resolved or until a genuine external blocker remains.
+
+Do not immediately report an error and wait for my instructions.
+
+## Required Execution Loop
+
+INSPECT
+→ PLAN
+→ IMPLEMENT
+→ RUN
+→ TEST
+→ DEBUG
+→ VERIFY
+→ COMPLETE
+
+## Final Response
+
+Only report back after completing and verifying the task.
+
+Your final response should briefly include:
+
+- What was changed
+- Files changed
+- Tests/checks executed
+- Verification result
+- Any genuine remaining blocker
+
+Do not ask what I want to do next unless the completed task genuinely requires a new decision from me.
+
+## Priority
+
+These autonomous execution rules must NOT override existing project safety rules, security requirements, architectural constraints, or explicit instructions already defined in this AGENTS.md file.
+
+When this policy conflicts with a more specific project safety rule, follow the more specific safety rule.
