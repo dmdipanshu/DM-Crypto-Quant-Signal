@@ -133,7 +133,14 @@ def test_successful_explanation_is_bounded_and_advisory() -> None:
             request_holder["request"] = request
             return _ok_response(
                 request,
-                text="Signal is NO_TRADE because expected edge is negative.",
+                text=(
+                    "1) BTC/USDT on the 1h timeframe. "
+                    "2) The raw score is 0.42 and calibration status is uncalibrated. "
+                    "3) Direction is NO_TRADE. "
+                    "4) Reason codes: UNCALIBRATED. "
+                    "5) Calibration unavailable means no probability confirmation. "
+                    "6) This is advisory-only and not a trading decision."
+                ),
                 supporting_factors=["negative expected edge", "abstained decision"],
                 caution_factors=["uncalibrated model"],
                 uncertainty="Regime may change before the horizon.",
@@ -144,7 +151,9 @@ def test_successful_explanation_is_bounded_and_advisory() -> None:
 
     assert explanation.status is AIStatus.OK
     assert explanation.ok is True
-    assert explanation.summary.startswith("Signal is NO_TRADE")
+    assert explanation.summary.startswith("1) BTC/USDT")
+    assert "NO_TRADE" in explanation.summary
+    assert "UNCALIBRATED" in explanation.summary
     assert explanation.supporting_factors == (
         "negative expected edge",
         "abstained decision",
@@ -259,11 +268,12 @@ def test_ai_text_saying_buy_cannot_change_no_trade() -> None:
 
     record = _record()
     explanation = explain_signal(record, _BuyGateway())
+    # Incomplete text missing required elements → invalid_output.
+    assert explanation.status is AIStatus.INVALID_RESPONSE
     updated = apply_ai_context(record, explanation)
-    assert explanation.status is AIStatus.OK
     assert updated.direction == "NO_TRADE"
     assert updated.decision.status == "abstained"
-    assert updated.ai_context.status == "ok"
+    assert updated.ai_context.status == "invalid"
 
 
 def test_empty_ai_text_is_invalid_response() -> None:
@@ -369,7 +379,52 @@ def test_null_content_is_rejected_as_invalid_output() -> None:
 
 
 def test_truncated_response_is_rejected() -> None:
-    class _TruncatedGateway(_FakeGateway):
+    """Short or truncated text missing required elements is rejected."""
+    incomplete_texts = [
+        "Partial explanation",
+        "Partial explanation.",
+        "Calibration status is unavailable, so the record does ...",
+        "version 1.0 produced a",
+        "Decision status: rejected at gate",
+    ]
+
+    class _TextGateway(_FakeGateway):
+        def __init__(self, text: str) -> None:
+            super().__init__(response=None)
+            self._text = text
+
+        def complete(self, request: AIRequest) -> AIResponse:
+            self.requests.append(request)
+            return AIResponse(
+                request_id=request.request_id,
+                task=request.task,
+                status=AIStatus.OK,
+                provider_id="meta_muse",
+                model_id="muse-spark-1.3",
+                text=self._text,
+            )
+
+    for text in incomplete_texts:
+        explanation = explain_signal(_record(), _TextGateway(text))
+        assert explanation.status is AIStatus.INVALID_RESPONSE, (
+            f"Expected rejection for {text!r}, got {explanation.status}"
+        )
+        assert explanation.summary == ""
+
+
+def test_complete_explanation_with_all_elements_passes() -> None:
+    """A complete explanation with all six required elements passes validation."""
+    complete_text = (
+        "1) The symbol is BTC/USDT on the 1h timeframe. "
+        "2) The raw prediction score is 0.42 and calibration status is uncalibrated. "
+        "3) The final direction is NO_TRADE. "
+        "4) The decision reason codes are UNCALIBRATED and RISK_GATE_EXPOSURE. "
+        "5) UNCALIBRATED means no calibrated probability exists, so expected edge cannot be confirmed. "
+        "RISK_GATE_EXPOSURE means the risk gate vetoed due to exposure limits. "
+        "6) This is advisory-only context and is not a trading decision."
+    )
+
+    class _CompleteGateway(_FakeGateway):
         def complete(self, request: AIRequest) -> AIResponse:
             return AIResponse(
                 request_id=request.request_id,
@@ -377,16 +432,90 @@ def test_truncated_response_is_rejected() -> None:
                 status=AIStatus.OK,
                 provider_id="meta_muse",
                 model_id="muse-spark-1.3",
-                content={"summary": "Partial explanation"},
-                text="Partial explanation",
+                text=complete_text,
             )
 
-    explanation = explain_signal(_record(), _TruncatedGateway())
-    # text="Partial explanation" is valid text → status OK.
-    # finish_reason=length truncation is enforced at the adapter level,
-    # not at explain_signal level.
-    assert explanation.status is AIStatus.OK
-    assert explanation.summary == "Partial explanation"
+    explanation = explain_signal(_record(), _CompleteGateway())
+    assert explanation.status is AIStatus.OK, (
+        f"Expected OK, got {explanation.status}: {explanation.note}"
+    )
+    assert "BTC/USDT" in explanation.summary
+    assert "NO_TRADE" in explanation.summary
+
+
+def test_explanation_missing_disclaimer_is_rejected() -> None:
+    """Missing advisory-only disclaimer → invalid_output."""
+    text = (
+        "1) BTC/USDT on the 1h timeframe. "
+        "2) The raw score is 0.42 and calibration status is uncalibrated. "
+        "3) Direction is NO_TRADE. "
+        "4) Reason codes: UNCALIBRATED. "
+        "5) Calibration unavailable means no probability confirmation."
+    )
+
+    class _Gateway(_FakeGateway):
+        def complete(self, request: AIRequest) -> AIResponse:
+            return AIResponse(
+                request_id=request.request_id,
+                task=request.task,
+                status=AIStatus.OK,
+                provider_id="meta_muse",
+                model_id="muse-spark-1.3",
+                text=text,
+            )
+
+    explanation = explain_signal(_record(), _Gateway())
+    assert explanation.status is AIStatus.INVALID_RESPONSE
+
+
+def test_explanation_missing_reason_codes_is_rejected() -> None:
+    """Missing decision reason codes → invalid_output."""
+    text = (
+        "1) BTC/USDT on the 1h timeframe. "
+        "2) The raw score is 0.42 and calibration status is uncalibrated. "
+        "3) Direction is NO_TRADE. "
+        "5) Calibration unavailable means no probability confirmation. "
+        "6) This is advisory-only and not a trading decision."
+    )
+
+    class _Gateway(_FakeGateway):
+        def complete(self, request: AIRequest) -> AIResponse:
+            return AIResponse(
+                request_id=request.request_id,
+                task=request.task,
+                status=AIStatus.OK,
+                provider_id="meta_muse",
+                model_id="muse-spark-1.3",
+                text=text,
+            )
+
+    explanation = explain_signal(_record(), _Gateway())
+    assert explanation.status is AIStatus.INVALID_RESPONSE
+
+
+def test_explanation_missing_calibration_explanation_is_rejected() -> None:
+    """Missing calibration/restriction explanation → invalid_output."""
+    text = (
+        "1) BTC/USDT on the 1h timeframe. "
+        "2) The raw score is 0.42. "
+        "3) Direction is NO_TRADE. "
+        "4) Reason codes: UNCALIBRATED. "
+        "6) This is advisory-only and not a trading decision."
+    )
+
+    class _Gateway(_FakeGateway):
+        def complete(self, request: AIRequest) -> AIResponse:
+            return AIResponse(
+                request_id=request.request_id,
+                task=request.task,
+                status=AIStatus.OK,
+                provider_id="meta_muse",
+                model_id="muse-spark-1.3",
+                text=text,
+            )
+
+    explanation = explain_signal(_record(), _Gateway())
+    assert explanation.status is AIStatus.INVALID_RESPONSE
 
 
 def test_ai_context_note_is_sanitized_for_forbidden_words() -> None:
@@ -442,6 +571,5 @@ def test_oversized_ai_text_is_truncated_not_rejected() -> None:
             return _ok_response(request, text="x" * 5_000)
 
     explanation = explain_signal(_record(), _LongGateway())
-    assert explanation.status is AIStatus.OK
-    assert len(explanation.summary) <= 2_000
-    assert explanation.summary.endswith("[truncated]")
+    # Incomplete text missing required elements → invalid_output.
+    assert explanation.status is AIStatus.INVALID_RESPONSE

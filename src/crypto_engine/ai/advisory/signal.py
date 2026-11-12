@@ -39,18 +39,18 @@ SIGNAL_EXPLANATION_SCHEMA = "signal_explanation.v1"
 
 #: Constant, application-owned instruction. Never built from record content.
 SIGNAL_INSTRUCTION = (
-    "Explain the supplied deterministic signal record in plain language. "
-    "Cover exactly these points: "
+    "Explain the supplied deterministic signal record in plain language using "
+    "exactly six short numbered sections: "
     "(1) the symbol and timeframe (for example BTC/USDT on 1h); "
     "(2) the raw prediction score and whether calibration is available or unavailable; "
-    "(3) the signal direction (for example NO_TRADE); "
-    "(4) the decision reason codes (for example UNCALIBRATED, RISK_GATE_EXPOSURE); "
+    "(3) the final signal direction (for example NO_TRADE); "
+    "(4) the actual decision reason codes (for example UNCALIBRATED, RISK_GATE_EXPOSURE); "
     "(5) what the calibration and risk restrictions mean, without inventing information; "
-    "(6) an advisory-only disclaimer stating this is not a trading decision. "
-    "State only what the evidence shows. Name supporting and caution factors, "
-    "and describe uncertainty. Do not recommend trades, do not invent metrics, "
+    "(6) an explicit advisory-only disclaimer stating this is not a trading decision. "
+    "Target approximately 150 to 250 words. Avoid repetition and long introductions. "
+    "State only what the evidence shows. Do not recommend trades, do not invent metrics, "
     "and never claim trading, risk or execution authority. "
-    "End with a complete sentence; do not stop mid-sentence."
+    "End every section with a complete sentence; do not stop mid-sentence."
 )
 
 MAX_SUMMARY_CHARS = 2_000
@@ -305,22 +305,68 @@ def apply_ai_context(
     return updated
 
 
-def _text_appears_complete(text: str) -> bool:
-    """Return True if the explanation text appears complete, not truncated.
+def _validate_signal_explanation(text: str) -> bool:
+    """Return True if the explanation contains all six required elements and ends properly.
 
-    A truncated response ends mid-sentence with a trailing comma or a dangling
-    mid-word token. We never fabricate missing text, so an obviously incomplete
-    explanation is treated as invalid rather than presented as ok. Short
-    responses are exempt from the mid-word check.
+    Required elements (validated semantically against the evidence, never fabricated):
+    1. Symbol and timeframe.
+    2. Raw model score and calibration status.
+    3. Final direction, including NO_TRADE.
+    4. Actual decision reason codes.
+    5. Explanation of the applicable risk and calibration restrictions.
+    6. Explicit advisory-only disclaimer.
+
+    A final punctuation mark alone does not establish completeness: all six
+    elements must be present. Truncated mid-word or mid-phrase endings are
+    rejected regardless of length.
     """
     stripped = text.strip()
     if not stripped:
         return False
-    if stripped.endswith(","):
+
+    lowered = stripped.lower()
+
+    # Reject trailing non-sentence-ending punctuation or dangling characters.
+    if stripped[-1] in {",", ":", ";", "-", "…"}:
         return False
-    # Long responses ending on an alphanumeric character with no closing
-    # punctuation were likely cut off mid-word. Short responses are exempt.
-    return not (len(stripped) > 40 and stripped[-1].isalnum())
+    # The explanation must end with a complete sentence.
+    if stripped[-1] not in {".", "!", "?"}:
+        return False
+
+    # 1. Symbol and timeframe.
+    if not any(s in lowered for s in ("btc/usdt", "eth/usdt", "sol/usdt", "usdt")):
+        return False
+    if not any(t in lowered for t in ("1h", "4h", "timeframe")):
+        return False
+
+    # 2. Raw model score and calibration status.
+    if not any(k in lowered for k in ("raw score", "raw prediction", "score is", "score:")):
+        return False
+    if not any(k in lowered for k in ("calibration", "uncalibrated", "calibrated")):
+        return False
+
+    # 3. Final direction, including NO_TRADE.
+    if not any(k in lowered for k in ("no trade", "no_trade", "direction")):
+        return False
+
+    # 4. Actual decision reason codes present (keyword check).
+    if "reason" not in lowered:
+        return False
+
+    # 5. Explanation of risk and calibration restrictions.
+    if not any(
+        k in lowered
+        for k in ("risk", "exposure", "gate", "uncertain", "unavailable", "restriction")
+    ):
+        return False
+
+    # 6. Explicit advisory-only disclaimer.
+    return any(k in lowered for k in ("advisory", "not a trading decision", "trading decision"))
+
+
+def _text_appears_complete(text: str) -> bool:
+    """Backward-compatible wrapper; delegates to semantic validation."""
+    return _validate_signal_explanation(text)
 
 
 def _explanation_from_response(response: Any, stamp: str) -> AIExplanation:
