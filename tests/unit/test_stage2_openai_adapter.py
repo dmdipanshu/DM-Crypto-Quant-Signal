@@ -467,6 +467,23 @@ def test_max_output_tokens_passed_to_provider() -> None:
     assert body["max_completion_tokens"] == 256
 
 
+def test_default_max_output_tokens_from_model_reaches_provider() -> None:
+    """When the request carries no max_output_tokens, the model's configured
+    value (1024) is sent to the provider as max_completion_tokens.
+
+    This guards the configuration-to-provider propagation path:
+    config [ai] max_output_tokens -> AiModelConfig.max_output_tokens ->
+    AIModel.max_output_tokens -> request payload max_completion_tokens.
+    """
+    transport = FakeTransport(_json_response({"choices": [{"message": {"content": "ok"}}]}))
+    adapter = _adapter(transport)
+    model = _model(max_output_tokens=1024)
+    adapter.complete(_request(), model=model, timeout_s=5.0)
+    call = transport.calls[0]
+    body = json.loads(call["body"])
+    assert body["max_completion_tokens"] == 1024
+
+
 def test_complete_ai_explanation_not_truncated() -> None:
     """With sufficient max_output_tokens, the model can return a complete
     explanation instead of being truncated mid-sentence."""

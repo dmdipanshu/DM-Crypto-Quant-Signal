@@ -61,7 +61,7 @@ Stage 12 (Documentation and verification) — done:
   11 tests enforcing DR-1..DR-17 dependency rules.
 - A8 (Telemetry path resolution & provider metrics): canonical get_telemetry_store(config)
   resolution across CLI, API, and dashboard; TelemetryStore.metrics() provider derivation;
-  	est_ai_metrics_shows_provider_id_from_telemetry and regression suite passing.
+	test_ai_metrics_shows_provider_id_from_telemetry and regression suite passing.
 
 ## Gates met (verified 2026-11-12)
 

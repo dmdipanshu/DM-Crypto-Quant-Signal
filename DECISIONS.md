@@ -194,4 +194,3 @@ Append-only. Never rewrite history; supersede with new dated entries.
 - **Flexible record ingestion**: `TelemetryStore.record()` accepts `AIResponse`, `TelemetryRecord`, or dictionaries without silent drops.
 - **Isolated resolution**: No global cached store singleton is retained across invocations, guaranteeing test isolation and avoiding state leakage across tests or environments.
 - **RepoRoots inclusion**: `RepoRoots` includes `ai_telemetry_path` defaulting to `data/ai_telemetry/events.jsonl` and forwarded consistently through API and dashboard router factories.
-

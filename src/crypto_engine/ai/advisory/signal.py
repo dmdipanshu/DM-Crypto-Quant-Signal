@@ -40,9 +40,17 @@ SIGNAL_EXPLANATION_SCHEMA = "signal_explanation.v1"
 #: Constant, application-owned instruction. Never built from record content.
 SIGNAL_INSTRUCTION = (
     "Explain the supplied deterministic signal record in plain language. "
-    "State only what the evidence shows, name supporting and caution factors, "
+    "Cover exactly these points: "
+    "(1) the symbol and timeframe (for example BTC/USDT on 1h); "
+    "(2) the raw prediction score and whether calibration is available or unavailable; "
+    "(3) the signal direction (for example NO_TRADE); "
+    "(4) the decision reason codes (for example UNCALIBRATED, RISK_GATE_EXPOSURE); "
+    "(5) what the calibration and risk restrictions mean, without inventing information; "
+    "(6) an advisory-only disclaimer stating this is not a trading decision. "
+    "State only what the evidence shows. Name supporting and caution factors, "
     "and describe uncertainty. Do not recommend trades, do not invent metrics, "
-    "and never claim trading, risk or execution authority."
+    "and never claim trading, risk or execution authority. "
+    "End with a complete sentence; do not stop mid-sentence."
 )
 
 MAX_SUMMARY_CHARS = 2_000
@@ -297,6 +305,24 @@ def apply_ai_context(
     return updated
 
 
+def _text_appears_complete(text: str) -> bool:
+    """Return True if the explanation text appears complete, not truncated.
+
+    A truncated response ends mid-sentence with a trailing comma or a dangling
+    mid-word token. We never fabricate missing text, so an obviously incomplete
+    explanation is treated as invalid rather than presented as ok. Short
+    responses are exempt from the mid-word check.
+    """
+    stripped = text.strip()
+    if not stripped:
+        return False
+    if stripped.endswith(","):
+        return False
+    # Long responses ending on an alphanumeric character with no closing
+    # punctuation were likely cut off mid-word. Short responses are exempt.
+    return not (len(stripped) > 40 and stripped[-1].isalnum())
+
+
 def _explanation_from_response(response: Any, stamp: str) -> AIExplanation:
     content = dict(response.content or {})
     _reject_authority_keys(content)
@@ -308,6 +334,13 @@ def _explanation_from_response(response: Any, stamp: str) -> AIExplanation:
         raise AIError(
             AIStatus.INVALID_RESPONSE,
             "AI response carried no bounded explanation text",
+            provider_id=response.provider_id,
+            model_id=response.model_id,
+        )
+    if not _text_appears_complete(summary):
+        raise AIError(
+            AIStatus.INVALID_RESPONSE,
+            "AI explanation appears incomplete or truncated",
             provider_id=response.provider_id,
             model_id=response.model_id,
         )
