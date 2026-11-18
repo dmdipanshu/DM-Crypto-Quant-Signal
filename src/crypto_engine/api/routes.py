@@ -2,8 +2,8 @@
 
 Every route is registered with ``methods=["GET"]`` explicitly; the app
 build asserts no other method exists anywhere (docs routes excepted).
-Handlers are thin: validate query params → call a repo reader → envelope.
-No handler writes, trains, fetches, backtests, or trades — verified by
+Handlers are thin: validate query params â†' call a repo reader â†' envelope.
+No handler writes, trains, fetches, backtests, or trades â€” verified by
 reading the code (all repo readers are pure reads) and by route-table tests.
 """
 
@@ -38,11 +38,20 @@ def register(router: Any, roots: Any, settings: Any) -> None:
             paper_path=_resolve(roots.paper_path),
             experiments_path=_resolve(roots.experiments_path),
             holdout_ledger_path=_resolve(roots.holdout_ledger_path),
+            research_release_path=_resolve(
+                getattr(
+                    roots,
+                    "research_release_path",
+                    Path("docs/validation/results/quantitative_release_q4.json"),
+                )
+            ),
             progress_dir=_resolve(getattr(roots, "progress_dir", Path("data/project_progress"))),
             ai_telemetry_path=_resolve(
                 getattr(roots, "ai_telemetry_path", Path("data/ai_telemetry/events.jsonl"))
             ),
             scan_cap=int(api.ledger_scan_cap),
+            health_checker=roots.health_checker,
+            metrics_registry=roots.metrics_registry,
         )
 
     def _resolve(path: Any) -> Path:
@@ -54,12 +63,36 @@ def register(router: Any, roots: Any, settings: Any) -> None:
     def health() -> dict[str, Any]:
         from crypto_engine import __version__
 
+        checker = roots.health_checker
+        if checker is None:
+            results: dict[str, Any] = {}
+            overall_value = "ok"
+            uptime_seconds = 0.0
+        else:
+            results = checker.run_checks()
+            overall = checker.overall_status()
+            overall_value = overall.value
+            uptime_seconds = checker.uptime_seconds
         return ok(
             {
                 "status": "ok",
                 "package_version": __version__,
                 "read_only": True,
                 "trading_enabled": False,
+                "checks": {
+                    "status": overall_value,
+                    "uptime_seconds": uptime_seconds,
+                    "components": {
+                        name: {
+                            "status": ch.status.value,
+                            "message": ch.message,
+                            "last_check_utc": ch.last_check_utc,
+                            "check_duration_ms": ch.check_duration_ms,
+                            "details": ch.details,
+                        }
+                        for name, ch in results.items()
+                    },
+                },
             }
         )
 
@@ -84,7 +117,63 @@ def register(router: Any, roots: Any, settings: Any) -> None:
         checks["paper_initialized"] = bool(paper.get("available"))
         audit = R.verify_signals(_roots())
         checks["audit_ok"] = bool(audit.get("available")) and bool(audit.get("ok", False))
+        # Component health from observability checker.
+        checker = roots.health_checker
+        if checker is None:
+            checks["status"] = "ok"
+            checks["uptime_seconds"] = 0.0
+            checks["components"] = {}
+        else:
+            results = checker.run_checks()
+            overall = checker.overall_status()
+            checks["status"] = overall.value
+            checks["uptime_seconds"] = checker.uptime_seconds
+            checks["components"] = {
+                name: {
+                    "status": ch.status.value,
+                    "message": ch.message,
+                    "last_check_utc": ch.last_check_utc,
+                    "check_duration_ms": ch.check_duration_ms,
+                    "details": ch.details,
+                }
+                for name, ch in results.items()
+            }
         return ok(checks)
+
+    # -- metrics ------------------------------------------------------------
+    @router.get(f"{V1}/metrics")
+    @router.get("/metrics")
+    def metrics() -> Any:
+        """Prometheus text exposition format metrics endpoint."""
+        from fastapi import Response
+
+        registry = roots.metrics_registry
+        payload = registry.render_prometheus() if registry is not None else ""
+        return Response(content=payload, media_type="text/plain; version=0.0.4; charset=utf-8")
+
+    # -- health components --------------------------------------------------
+    @router.get(f"{V1}/health/components")
+    def health_components() -> dict[str, Any]:
+        """Component-level health summary."""
+        checker = roots.health_checker
+        if checker is None:
+            return ok({"status": "ok", "uptime_seconds": 0.0, "components": {}})
+        results = checker.run_checks()
+        overall = checker.overall_status()
+        return ok({
+            "status": overall.value,
+            "uptime_seconds": checker.uptime_seconds,
+            "components": {
+                name: {
+                    "status": ch.status.value,
+                    "message": ch.message,
+                    "last_check_utc": ch.last_check_utc,
+                    "check_duration_ms": ch.check_duration_ms,
+                    "details": ch.details,
+                }
+                for name, ch in results.items()
+            },
+        })
 
     # -- signals ----------------------------------------------------------
     @router.get(f"{V1}/signals/latest")
@@ -206,6 +295,10 @@ def register(router: Any, roots: Any, settings: Any) -> None:
                 "note": "Full report bodies live in docs/; the API surfaces recorded metrics only.",
             }
         )
+
+    @router.get(f"{V1}/research/release")
+    def research_release() -> dict[str, Any]:
+        return ok(R.read_research_release(_roots()))
 
     @router.get(f"{V1}/validation/holdout")
     def holdout() -> dict[str, Any]:
@@ -434,6 +527,46 @@ def register(router: Any, roots: Any, settings: Any) -> None:
     def ai_metrics() -> dict[str, Any]:
         """AI observability metrics from stored telemetry (read-only, no secrets)."""
         return ok(R.read_ai_metrics(_roots()))
+
+    # -- Q5 prospective collection (read-only) --------------------------------
+    @router.get(f"{V1}/q5/collection/status")
+    def q5_collection_status() -> dict[str, Any]:
+        """Q5 prospective collection status (read-only, no secrets)."""
+        return ok(R.read_q5_collection_status(_roots()))
+
+    @router.get(f"{V1}/q5/prospective/governance")
+    def q5_prospective_governance() -> dict[str, Any]:
+        """Q5 prospective holdout governance state (read-only, no secrets)."""
+        return ok(R.read_q5_prospective_governance(_roots()))
+
+    # -- Q6 prospective strategy evaluation (read-only) -----------------------
+    @router.get(f"{V1}/q6/evaluation")
+    def q6_evaluation() -> dict[str, Any]:
+        """Q6 prospective evaluation status (read-only, no secrets)."""
+        return ok(R.read_q6_evaluation(_roots()))
+
+    # -- Q6 historical validation (read-only) ---------------------------------
+    @router.get(f"{V1}/historical-validation/status")
+    def h_validation_status() -> dict[str, Any]:
+        """Historical validation status (read-only, no secrets)."""
+        return ok(R.read_historical_validation_status())
+
+    @router.get(f"{V1}/historical-validation/manifest")
+    def h_validation_manifest() -> dict[str, Any]:
+        """Historical validation manifest (read-only, no secrets)."""
+        import json as _json
+
+        from crypto_engine.research.q6.historical_manifest import (
+            DEFAULT_HISTORICAL_MANIFEST_PATH,
+        )
+
+        path = DEFAULT_HISTORICAL_MANIFEST_PATH
+        if not path.is_file():
+            return ok({"available": False, "reason": "manifest not found", "read_only": True})
+        data = _json.loads(path.read_text(encoding="utf-8"))
+        data["available"] = True
+        data["read_only"] = True
+        return ok(data)
 
 
 __all__ = ["V1", "register"]

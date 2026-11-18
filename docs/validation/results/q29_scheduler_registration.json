@@ -1,0 +1,108 @@
+﻿{
+  "phase": "Q29",
+  "title": "Scheduler Approval and Registration",
+  "version": "0.1.0",
+  "timestamp_utc": "2026-11-18T14:20:09.1065764+00:00",
+  "execution_time_minutes": 25,
+
+  "collection_id": "collect-52cefa0dda64",
+  "freeze_id": "freeze-aaa4dd57057a",
+  "task_name": "SignalForge-Q20-Prospective-Collection",
+
+  "approval_records": {
+    "collection_continuation": {
+      "file": "docs/validation/approvals/q5_2_collection_continuation_approval.json",
+      "approval_id": "sha256:bdc76f074baee24c13b1aea1b033b686e224ff093a085d7f576ba9c42188094b",
+      "approved_at_utc": "2026-11-17T12:24:08.386668+00:00",
+      "approval_source": "human_project_owner",
+      "status": "active",
+      "revoked_at_utc": null,
+      "unmodified": true
+    },
+    "scheduler_authorization": {
+      "file": "docs/validation/approvals/q5_2_scheduler_authorization_approval.json",
+      "approval_id": "sha256:bea5fb3b9197c1636cf2c42e6f04829217bcd29a2cf8bd9e2ce1f0a4fe823eaf",
+      "approved_at_utc": "2026-11-18T14:08:42.138781+00:00",
+      "approval_source": "human_project_owner",
+      "status": "active",
+      "scheduler_authorized": true,
+      "collection_authorized": true
+    }
+  },
+
+  "registration": {
+    "task_registered": true,
+    "task_enabled": true,
+    "task_exists": true,
+    "registration_command": "schtasks /Create /TN \"SignalForge-Q20-Prospective-Collection\" /TR \"powershell.exe -NoProfile -ExecutionPolicy Bypass -File \\\"D:\\\\DM-Crypto-Quant-Signal\\\\scripts\\\\q20_prospective_scheduler.ps1\\\"\" /SC MINUTE /MO 1 /RU \"dm\\\\dmcom\" /F",
+    "schtasks_create_exit_code": 0,
+    "run_as_user": "dm\\dmcom",
+    "schedule": "Every minute, internal UTC window selection (primary HH:08, retry HH:12)",
+    "script_path": "D:\\DM-Crypto-Quant-Signal\\scripts\\q20_prospective_scheduler.ps1",
+    "single_instance_protection": true,
+    "elevated_privileges": false,
+    "duplicate_tasks": false
+  },
+
+  "verification": {
+    "collection_authorization_code_verified": true,
+    "collection_authorized": true,
+    "scheduler_authorization_code_verified": true,
+    "scheduler_authorized": true,
+    "ids_match": true,
+    "collection_approval_unmodified": true,
+    "first_collection_execution_utc": "2026-11-18T15:08:00Z",
+    "first_collection_execution_status": "PENDING",
+    "first_successful_ingestion_status": "PENDING"
+  },
+
+  "status_flags": {
+    "COLLECTION_AUTHORIZED": true,
+    "SCHEDULER_AUTHORIZED": true,
+    "SCHEDULER_REGISTERED": true,
+    "SCHEDULER_ENABLED": true,
+    "FIRST_COLLECTION_EXECUTION": "PENDING",
+    "FIRST_SUCCESSFUL_INGESTION": "PENDING",
+    "Q5_2_PROSPECTIVE_VALIDATED": false,
+    "STRATEGY_EVALUATION_AUTHORIZED": false,
+    "PAPER_TRADING_AUTHORIZED": false,
+    "LIVE_TRADING_AUTHORIZED": false
+  },
+
+  "governance_preserved": {
+    "q4_decision": "NO_STRATEGY_ELIGIBLE",
+    "ai_can_promote": false,
+    "production_ready": false,
+    "live_trading_authorized": false,
+    "paper_trading_authorized": false,
+    "scheduler_authorized_previous": false,
+    "scheduler_authorized_current": true
+  },
+
+  "safety_checks": {
+    "no_prospective_backfill": true,
+    "no_collection_reset": true,
+    "no_threshold_changes": true,
+    "no_fabricated_observations": true,
+    "no_strategy_evaluation": true,
+    "no_candidate_promotion": true,
+    "no_paper_trading": true,
+    "no_live_orders": true,
+    "no_credential_exposure": true
+  },
+
+  "test_results": {
+    "q6_frozen_inference_integrity": "37 passed",
+    "q6_prospective_evaluation": "53 passed",
+    "q6_historical_multi_candidate": "15 passed",
+    "q6_statistical_robustness": "all passed",
+    "ruff": "All checks passed"
+  },
+
+  "warnings": [
+    "First collection execution is PENDING — no valid collection window (HH:08 UTC primary / HH:12 UTC retry) has occurred during this task",
+    "schtasks Next Run Time displays in local time; script internally uses UTC for HH:08/HH:12 window selection",
+    "Working directory /WD parameter not supported by schtasks on this host; script uses absolute path resolution",
+    "Q5.2 prospective collection remains at 0 observations, below 168 minimum — Q5_2_PROSPECTIVE_VALIDATED remains false"
+  ]
+}

@@ -41,7 +41,15 @@ def _config(tmp_path: Path) -> Path:
     return config
 
 
-def _generate(model_dir: Path, snap_dir: Path, config: Path, hist: Path, at: str = AT):
+def _generate(
+    monkeypatch: pytest.MonkeyPatch,
+    model_dir: Path,
+    snap_dir: Path,
+    config: Path,
+    hist: Path,
+    at: str = AT,
+):
+    monkeypatch.setenv("SIGNALFORGE_ALLOW_FAIL_OPEN", "1")
     return runner.invoke(
         app,
         [
@@ -64,27 +72,27 @@ def _generate(model_dir: Path, snap_dir: Path, config: Path, hist: Path, at: str
     )
 
 
-def test_replay_identical_id_and_record(tmp_path: Path) -> None:
+def test_replay_identical_id_and_record(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     snap_dir, _ = make_snapshot_dir(tmp_path / "storage", n=5)
     model_dir, _, _ = make_registry_model_dir(tmp_path / "registry")
     config = _config(tmp_path)
-    first = _generate(model_dir, snap_dir, config, tmp_path / "h1")
+    first = _generate(monkeypatch, model_dir, snap_dir, config, tmp_path / "h1")
     assert first.exit_code == 0, first.output
-    second = _generate(model_dir, snap_dir, config, tmp_path / "h2")
+    second = _generate(monkeypatch, model_dir, snap_dir, config, tmp_path / "h2")
     assert second.exit_code == 0, second.output
     a, b = json.loads(first.output), json.loads(second.output)
     assert a["signal_id"] == b["signal_id"]
     assert a == b
 
 
-def test_tail_perturbation_changes_id(tmp_path: Path) -> None:
+def test_tail_perturbation_changes_id(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     from crypto_engine.data.validation import normalize_candles
     from crypto_engine.datasets.snapshots import save_snapshot
 
     snap_dir, _ = make_snapshot_dir(tmp_path / "storage", n=5)
     model_dir, _, _ = make_registry_model_dir(tmp_path / "registry")
     config = _config(tmp_path)
-    base = _generate(model_dir, snap_dir, config, tmp_path / "h1")
+    base = _generate(monkeypatch, model_dir, snap_dir, config, tmp_path / "h1")
     assert base.exit_code == 0, base.output
     base_id = json.loads(base.output)["signal_id"]
 
@@ -103,7 +111,7 @@ def test_tail_perturbation_changes_id(tmp_path: Path) -> None:
         symbol="BTC/USDT",
         timeframe="1h",
     )
-    alt = _generate(model_dir, snap2, config, tmp_path / "h2")
+    alt = _generate(monkeypatch, model_dir, snap2, config, tmp_path / "h2")
     assert alt.exit_code == 0, alt.output
     assert json.loads(alt.output)["signal_id"] != base_id
 
@@ -139,3 +147,5 @@ def test_multi_row_input_rejected_explicitly() -> None:
         require_single_row_inputs(pd.DataFrame([{"a": 1.0}, {"a": 2.0}]))
     with pytest.raises(TypeError, match="exactly one row"):
         require_single_row_inputs([{"a": 1.0}])
+
+

@@ -1,0 +1,22 @@
+{
+  "config_version": "q2.2.1",
+  "created_at_utc": "2026-11-12T19:11:47.293700+00:00",
+  "dataset_end": "2026-11-12T13:00:00+00:00",
+  "dataset_hashes": {
+    "binance-BTC-USDT-1h-candles": "675d4302072552c90af253baf43f6555674ab4343088001ba15052c5f12e2790"
+  },
+  "dataset_ids": [
+    "binance-BTC-USDT-1h-candles"
+  ],
+  "dataset_start": "2024-11-01T00:00:00+00:00",
+  "feature_config_hash": "b8ba6b2b6efa16ca5a1992f31b941919abf65b0e845b755c517c2948fd48bfb5",
+  "first_seen_at": null,
+  "freeze_id": "freeze-aaa4dd57057a",
+  "model_config_hash": "97937273e53e99a77a316a09884362d591e071bfedba0aa0be98eae1ed9e6440",
+  "repository_commit_sha": "8d7beb729d5f326c14700713f76fe1b858e348db",
+  "schema_version": "research-freeze-manifest.v1",
+  "strategy_config_hash": "a1038802474979f6a606e93712ba1a1f187b46024059003714dc5f3dc031dfe8",
+  "target_config_hash": "030771fa1d10bf219fc7ab3b7eb5215070bb07429f8b70f4bbc3946c77ad7ece",
+  "thresholds_config_hash": "fbecbd45339f65bd1b843e2ede58bc001765fbd6dc065464fc803b26c683c163",
+  "transaction_cost_config_hash": "40325325495fd47c065434d27122e7c70760446ddeff06e4523bcb6762175176"
+}

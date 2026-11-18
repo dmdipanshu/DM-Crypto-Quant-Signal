@@ -150,7 +150,7 @@ def test_registry_no_overwrite_and_reload(tmp_path: Path) -> None:
     summary = train_model(_request(tmp_path, snap), _settings())
     model_dir = Path(summary["artifact"]["model_dir"])
     assert (model_dir / "record.json").is_file()
-    assert (model_dir / "artifact.pkl").is_file() or any(model_dir.iterdir())
+    assert (model_dir / "artifact.json").is_file() or any(model_dir.iterdir())
     record = json.loads((model_dir / "record.json").read_text(encoding="utf-8"))
     assert record["dataset_snapshot_id"] == summary["snapshot"]["snapshot_id"]
     assert record["label_hash"] == summary["artifact"]["label_hash"]
@@ -198,3 +198,5 @@ def test_snapshot_discovery_missing_is_actionable(tmp_path: Path) -> None:
     )
     with pytest.raises(FileNotFoundError, match="no snapshot matches"):
         train_model(req, _settings())
+
+

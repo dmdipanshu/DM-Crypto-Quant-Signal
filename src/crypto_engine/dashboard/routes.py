@@ -30,6 +30,15 @@ def register(router: Any, roots: Any, settings: Any) -> None:
             paper_path=Path(str(roots.paper_path)),
             experiments_path=Path(str(roots.experiments_path)),
             holdout_ledger_path=Path(str(roots.holdout_ledger_path)),
+            research_release_path=Path(
+                str(
+                    getattr(
+                        roots,
+                        "research_release_path",
+                        "docs/validation/results/quantitative_release_q4.json",
+                    )
+                )
+            ),
             progress_dir=Path(str(getattr(roots, "progress_dir", "data/project_progress"))),
             ai_telemetry_path=Path(
                 str(getattr(roots, "ai_telemetry_path", "data/ai_telemetry/events.jsonl"))
@@ -87,7 +96,64 @@ def register(router: Any, roots: Any, settings: Any) -> None:
             "holdout": holdout,
             "note": "Exploratory vs confirmatory grading lives in memory/NEXT_STEPS.md; no profitability claim.",
         }
-        return P.research_page(summary, entries)
+        release_payload = R.read_research_release(roots_)
+        return P.research_page(summary, entries, release_payload)
+
+    @router.get("/dashboard/q5", response_class=HTMLResponse)
+    def dash_q5() -> str:
+        roots_ = _roots()
+        q5_collection = R.read_q5_collection_status(roots_)
+        q5_governance = R.read_q5_prospective_governance(roots_)
+        return P.q5_page(q5_collection, q5_governance)
+
+    @router.get("/dashboard/q6", response_class=HTMLResponse)
+    def dash_q6() -> str:
+        roots_ = _roots()
+        q6_collection = R.read_q5_collection_status(roots_)
+        q6_governance = R.read_q5_prospective_governance(roots_)
+        q6_evaluation = R.read_q6_evaluation(roots_)
+        return P.q6_page(q6_collection, q6_governance, q6_evaluation)
+
+    @router.get("/dashboard/historical-validation", response_class=HTMLResponse)
+    def dash_historical_validation() -> str:
+        roots_ = _roots()
+        h_collection = R.read_historical_validation_status()
+        # Governance for historical track: fail-closed, never prospective/Q5.2 eligible.
+        h_governance = {
+            "historical_holdout_state": "CONTAMINATED",
+            "prospective_state": "NOT_APPLICABLE_HISTORICAL_ACCELERATED",
+            "eligible_for_evaluation": bool(h_collection.get("manifest_valid"))
+            and bool(h_collection.get("ledger_valid"))
+            and int(h_collection.get("observation_count", 0)) >= 168
+            and int(h_collection.get("conflicting_count", 0)) == 0,
+            "q5_2_eligible": False,
+            "evaluation_blocked": not (
+                bool(h_collection.get("manifest_valid"))
+                and bool(h_collection.get("ledger_valid"))
+                and int(h_collection.get("observation_count", 0)) >= 168
+                and int(h_collection.get("conflicting_count", 0)) == 0
+            ),
+        }
+        h_evaluation = R.read_q6_evaluation(
+            roots_
+        )  # prospective Q6 artifact, shown read-only if present
+        h_comparison = {"available": False, "reason": "no comparison file"}
+        from pathlib import Path
+
+        _cmp_path = Path("docs/validation/results/historical_validation_comparison.json")
+        if _cmp_path.is_file():
+            try:
+                import json as _json
+
+                _cmp_data = _json.loads(_cmp_path.read_text(encoding="utf-8"))
+                _cmp_data["available"] = True
+                h_comparison = _cmp_data
+            except (_json.JSONDecodeError, OSError) as exc:
+                h_comparison = {
+                    "available": False,
+                    "reason": f"cannot read comparison: {exc}",
+                }
+        return P.q6_historical_page(h_collection, h_governance, h_evaluation, h_comparison)
 
     @router.get("/dashboard/backtests", response_class=HTMLResponse)
     def dash_backtests(limit: int = 50, offset: int = 0) -> str:

@@ -1,0 +1,1258 @@
+{
+  "abstain_count": 119,
+  "audit_id": "audit-logistic-ee482c-2bf522fab97f11c9",
+  "candidate_id": "logistic-ee482c",
+  "candidate_lock_hash": "4c96f4c1b658a9a70ccdc93cb2245f65f86e100432a8def0fa5a2eb0e59b0ec4",
+  "dataset_id": "hist-accel-7c0a166d4f93",
+  "dataset_type": "HISTORICAL_ACCELERATED_VALIDATION",
+  "eligible_prediction_count": 50,
+  "excluded_observations": [
+    {
+      "index": 0,
+      "open_time": "2026-11-06T00:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 1,
+      "open_time": "2026-11-06T01:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 2,
+      "open_time": "2026-11-06T02:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 3,
+      "open_time": "2026-11-06T03:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 4,
+      "open_time": "2026-11-06T04:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 5,
+      "open_time": "2026-11-06T05:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 6,
+      "open_time": "2026-11-06T06:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 7,
+      "open_time": "2026-11-06T07:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 8,
+      "open_time": "2026-11-06T08:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 9,
+      "open_time": "2026-11-06T09:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 10,
+      "open_time": "2026-11-06T10:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 11,
+      "open_time": "2026-11-06T11:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 12,
+      "open_time": "2026-11-06T12:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 13,
+      "open_time": "2026-11-06T13:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 14,
+      "open_time": "2026-11-06T14:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 15,
+      "open_time": "2026-11-06T15:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 16,
+      "open_time": "2026-11-06T16:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 17,
+      "open_time": "2026-11-06T17:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 18,
+      "open_time": "2026-11-06T18:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 19,
+      "open_time": "2026-11-06T19:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 20,
+      "open_time": "2026-11-06T20:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 21,
+      "open_time": "2026-11-06T21:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 22,
+      "open_time": "2026-11-06T22:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 23,
+      "open_time": "2026-11-06T23:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 24,
+      "open_time": "2026-11-07T00:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 25,
+      "open_time": "2026-11-07T01:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 26,
+      "open_time": "2026-11-07T02:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 27,
+      "open_time": "2026-11-07T03:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 28,
+      "open_time": "2026-11-07T04:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 29,
+      "open_time": "2026-11-07T05:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 30,
+      "open_time": "2026-11-07T06:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 31,
+      "open_time": "2026-11-07T07:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 32,
+      "open_time": "2026-11-07T08:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 33,
+      "open_time": "2026-11-07T09:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 34,
+      "open_time": "2026-11-07T10:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 35,
+      "open_time": "2026-11-07T11:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 36,
+      "open_time": "2026-11-07T12:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 37,
+      "open_time": "2026-11-07T13:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 38,
+      "open_time": "2026-11-07T14:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 39,
+      "open_time": "2026-11-07T15:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 40,
+      "open_time": "2026-11-07T16:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 41,
+      "open_time": "2026-11-07T17:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 42,
+      "open_time": "2026-11-07T18:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 43,
+      "open_time": "2026-11-07T19:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 44,
+      "open_time": "2026-11-07T20:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 45,
+      "open_time": "2026-11-07T21:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 46,
+      "open_time": "2026-11-07T22:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 47,
+      "open_time": "2026-11-07T23:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 48,
+      "open_time": "2026-11-08T00:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 49,
+      "open_time": "2026-11-08T01:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 50,
+      "open_time": "2026-11-08T02:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 51,
+      "open_time": "2026-11-08T03:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 52,
+      "open_time": "2026-11-08T04:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 53,
+      "open_time": "2026-11-08T05:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 54,
+      "open_time": "2026-11-08T06:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 55,
+      "open_time": "2026-11-08T07:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 56,
+      "open_time": "2026-11-08T08:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 57,
+      "open_time": "2026-11-08T09:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 58,
+      "open_time": "2026-11-08T10:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 59,
+      "open_time": "2026-11-08T11:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 60,
+      "open_time": "2026-11-08T12:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 61,
+      "open_time": "2026-11-08T13:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 62,
+      "open_time": "2026-11-08T14:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 63,
+      "open_time": "2026-11-08T15:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 64,
+      "open_time": "2026-11-08T16:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 65,
+      "open_time": "2026-11-08T17:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 66,
+      "open_time": "2026-11-08T18:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 67,
+      "open_time": "2026-11-08T19:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 68,
+      "open_time": "2026-11-08T20:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 69,
+      "open_time": "2026-11-08T21:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 70,
+      "open_time": "2026-11-08T22:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 71,
+      "open_time": "2026-11-08T23:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 72,
+      "open_time": "2026-11-09T00:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 73,
+      "open_time": "2026-11-09T01:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 74,
+      "open_time": "2026-11-09T02:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 75,
+      "open_time": "2026-11-09T03:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 76,
+      "open_time": "2026-11-09T04:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 77,
+      "open_time": "2026-11-09T05:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 78,
+      "open_time": "2026-11-09T06:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 79,
+      "open_time": "2026-11-09T07:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 80,
+      "open_time": "2026-11-09T08:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 81,
+      "open_time": "2026-11-09T09:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 82,
+      "open_time": "2026-11-09T10:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 83,
+      "open_time": "2026-11-09T11:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 84,
+      "open_time": "2026-11-09T12:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 85,
+      "open_time": "2026-11-09T13:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 86,
+      "open_time": "2026-11-09T14:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 87,
+      "open_time": "2026-11-09T15:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 88,
+      "open_time": "2026-11-09T16:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 89,
+      "open_time": "2026-11-09T17:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 90,
+      "open_time": "2026-11-09T18:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 91,
+      "open_time": "2026-11-09T19:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 92,
+      "open_time": "2026-11-09T20:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 93,
+      "open_time": "2026-11-09T21:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 94,
+      "open_time": "2026-11-09T22:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 95,
+      "open_time": "2026-11-09T23:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 96,
+      "open_time": "2026-11-10T00:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 97,
+      "open_time": "2026-11-10T01:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 98,
+      "open_time": "2026-11-10T02:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 99,
+      "open_time": "2026-11-10T03:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 100,
+      "open_time": "2026-11-10T04:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 101,
+      "open_time": "2026-11-10T05:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 102,
+      "open_time": "2026-11-10T06:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 103,
+      "open_time": "2026-11-10T07:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 104,
+      "open_time": "2026-11-10T08:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 105,
+      "open_time": "2026-11-10T09:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 106,
+      "open_time": "2026-11-10T10:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 107,
+      "open_time": "2026-11-10T11:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 108,
+      "open_time": "2026-11-10T12:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 109,
+      "open_time": "2026-11-10T13:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 110,
+      "open_time": "2026-11-10T14:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 111,
+      "open_time": "2026-11-10T15:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 112,
+      "open_time": "2026-11-10T16:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 113,
+      "open_time": "2026-11-10T17:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 114,
+      "open_time": "2026-11-10T18:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 115,
+      "open_time": "2026-11-10T19:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 116,
+      "open_time": "2026-11-10T20:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 117,
+      "open_time": "2026-11-10T21:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    },
+    {
+      "index": 118,
+      "open_time": "2026-11-10T22:00:00+00:00",
+      "reason": "warmup_or_invalid_features"
+    }
+  ],
+  "generated_at_utc": "2026-11-13T14:12:51.661808+00:00",
+  "inference_errors": [],
+  "inference_implementation": "frozen_inference.v1 (logistic)",
+  "long_count": 5,
+  "model_artifact_hash": "logistic-ee482c-3e3324f2-20261028T132236",
+  "model_name": "logistic",
+  "n_candles": 169,
+  "n_predictions": 169,
+  "official_prospective_evidence": false,
+  "prediction_counts": {
+    "-1": 45,
+    "0": 119,
+    "1": 5
+  },
+  "prediction_provenance": {
+    "candle_count": 169,
+    "collection_id": "collect-52cefa0dda64",
+    "dataset_hash": "2d66e31e11e808331a39332e3c6a89c2bc3e65117e40655907f6c7c042e79707",
+    "freeze_id": "freeze-aaa4dd57057a",
+    "generated_at_utc": "2026-11-13T14:12:51.661808+00:00",
+    "source": "historical_accelerated_storage",
+    "storage_root": "data\\historical_accelerated"
+  },
+  "prediction_timestamps": [
+    "2026-11-06T00:00:00+00:00",
+    "2026-11-06T01:00:00+00:00",
+    "2026-11-06T02:00:00+00:00",
+    "2026-11-06T03:00:00+00:00",
+    "2026-11-06T04:00:00+00:00",
+    "2026-11-06T05:00:00+00:00",
+    "2026-11-06T06:00:00+00:00",
+    "2026-11-06T07:00:00+00:00",
+    "2026-11-06T08:00:00+00:00",
+    "2026-11-06T09:00:00+00:00",
+    "2026-11-06T10:00:00+00:00",
+    "2026-11-06T11:00:00+00:00",
+    "2026-11-06T12:00:00+00:00",
+    "2026-11-06T13:00:00+00:00",
+    "2026-11-06T14:00:00+00:00",
+    "2026-11-06T15:00:00+00:00",
+    "2026-11-06T16:00:00+00:00",
+    "2026-11-06T17:00:00+00:00",
+    "2026-11-06T18:00:00+00:00",
+    "2026-11-06T19:00:00+00:00",
+    "2026-11-06T20:00:00+00:00",
+    "2026-11-06T21:00:00+00:00",
+    "2026-11-06T22:00:00+00:00",
+    "2026-11-06T23:00:00+00:00",
+    "2026-11-07T00:00:00+00:00",
+    "2026-11-07T01:00:00+00:00",
+    "2026-11-07T02:00:00+00:00",
+    "2026-11-07T03:00:00+00:00",
+    "2026-11-07T04:00:00+00:00",
+    "2026-11-07T05:00:00+00:00",
+    "2026-11-07T06:00:00+00:00",
+    "2026-11-07T07:00:00+00:00",
+    "2026-11-07T08:00:00+00:00",
+    "2026-11-07T09:00:00+00:00",
+    "2026-11-07T10:00:00+00:00",
+    "2026-11-07T11:00:00+00:00",
+    "2026-11-07T12:00:00+00:00",
+    "2026-11-07T13:00:00+00:00",
+    "2026-11-07T14:00:00+00:00",
+    "2026-11-07T15:00:00+00:00",
+    "2026-11-07T16:00:00+00:00",
+    "2026-11-07T17:00:00+00:00",
+    "2026-11-07T18:00:00+00:00",
+    "2026-11-07T19:00:00+00:00",
+    "2026-11-07T20:00:00+00:00",
+    "2026-11-07T21:00:00+00:00",
+    "2026-11-07T22:00:00+00:00",
+    "2026-11-07T23:00:00+00:00",
+    "2026-11-08T00:00:00+00:00",
+    "2026-11-08T01:00:00+00:00",
+    "2026-11-08T02:00:00+00:00",
+    "2026-11-08T03:00:00+00:00",
+    "2026-11-08T04:00:00+00:00",
+    "2026-11-08T05:00:00+00:00",
+    "2026-11-08T06:00:00+00:00",
+    "2026-11-08T07:00:00+00:00",
+    "2026-11-08T08:00:00+00:00",
+    "2026-11-08T09:00:00+00:00",
+    "2026-11-08T10:00:00+00:00",
+    "2026-11-08T11:00:00+00:00",
+    "2026-11-08T12:00:00+00:00",
+    "2026-11-08T13:00:00+00:00",
+    "2026-11-08T14:00:00+00:00",
+    "2026-11-08T15:00:00+00:00",
+    "2026-11-08T16:00:00+00:00",
+    "2026-11-08T17:00:00+00:00",
+    "2026-11-08T18:00:00+00:00",
+    "2026-11-08T19:00:00+00:00",
+    "2026-11-08T20:00:00+00:00",
+    "2026-11-08T21:00:00+00:00",
+    "2026-11-08T22:00:00+00:00",
+    "2026-11-08T23:00:00+00:00",
+    "2026-11-09T00:00:00+00:00",
+    "2026-11-09T01:00:00+00:00",
+    "2026-11-09T02:00:00+00:00",
+    "2026-11-09T03:00:00+00:00",
+    "2026-11-09T04:00:00+00:00",
+    "2026-11-09T05:00:00+00:00",
+    "2026-11-09T06:00:00+00:00",
+    "2026-11-09T07:00:00+00:00",
+    "2026-11-09T08:00:00+00:00",
+    "2026-11-09T09:00:00+00:00",
+    "2026-11-09T10:00:00+00:00",
+    "2026-11-09T11:00:00+00:00",
+    "2026-11-09T12:00:00+00:00",
+    "2026-11-09T13:00:00+00:00",
+    "2026-11-09T14:00:00+00:00",
+    "2026-11-09T15:00:00+00:00",
+    "2026-11-09T16:00:00+00:00",
+    "2026-11-09T17:00:00+00:00",
+    "2026-11-09T18:00:00+00:00",
+    "2026-11-09T19:00:00+00:00",
+    "2026-11-09T20:00:00+00:00",
+    "2026-11-09T21:00:00+00:00",
+    "2026-11-09T22:00:00+00:00",
+    "2026-11-09T23:00:00+00:00",
+    "2026-11-10T00:00:00+00:00",
+    "2026-11-10T01:00:00+00:00",
+    "2026-11-10T02:00:00+00:00",
+    "2026-11-10T03:00:00+00:00",
+    "2026-11-10T04:00:00+00:00",
+    "2026-11-10T05:00:00+00:00",
+    "2026-11-10T06:00:00+00:00",
+    "2026-11-10T07:00:00+00:00",
+    "2026-11-10T08:00:00+00:00",
+    "2026-11-10T09:00:00+00:00",
+    "2026-11-10T10:00:00+00:00",
+    "2026-11-10T11:00:00+00:00",
+    "2026-11-10T12:00:00+00:00",
+    "2026-11-10T13:00:00+00:00",
+    "2026-11-10T14:00:00+00:00",
+    "2026-11-10T15:00:00+00:00",
+    "2026-11-10T16:00:00+00:00",
+    "2026-11-10T17:00:00+00:00",
+    "2026-11-10T18:00:00+00:00",
+    "2026-11-10T19:00:00+00:00",
+    "2026-11-10T20:00:00+00:00",
+    "2026-11-10T21:00:00+00:00",
+    "2026-11-10T22:00:00+00:00",
+    "2026-11-10T23:00:00+00:00",
+    "2026-11-11T00:00:00+00:00",
+    "2026-11-11T01:00:00+00:00",
+    "2026-11-11T02:00:00+00:00",
+    "2026-11-11T03:00:00+00:00",
+    "2026-11-11T04:00:00+00:00",
+    "2026-11-11T05:00:00+00:00",
+    "2026-11-11T06:00:00+00:00",
+    "2026-11-11T07:00:00+00:00",
+    "2026-11-11T08:00:00+00:00",
+    "2026-11-11T09:00:00+00:00",
+    "2026-11-11T10:00:00+00:00",
+    "2026-11-11T11:00:00+00:00",
+    "2026-11-11T12:00:00+00:00",
+    "2026-11-11T13:00:00+00:00",
+    "2026-11-11T14:00:00+00:00",
+    "2026-11-11T15:00:00+00:00",
+    "2026-11-11T16:00:00+00:00",
+    "2026-11-11T17:00:00+00:00",
+    "2026-11-11T18:00:00+00:00",
+    "2026-11-11T19:00:00+00:00",
+    "2026-11-11T20:00:00+00:00",
+    "2026-11-11T21:00:00+00:00",
+    "2026-11-11T22:00:00+00:00",
+    "2026-11-11T23:00:00+00:00",
+    "2026-11-12T00:00:00+00:00",
+    "2026-11-12T01:00:00+00:00",
+    "2026-11-12T02:00:00+00:00",
+    "2026-11-12T03:00:00+00:00",
+    "2026-11-12T04:00:00+00:00",
+    "2026-11-12T05:00:00+00:00",
+    "2026-11-12T06:00:00+00:00",
+    "2026-11-12T07:00:00+00:00",
+    "2026-11-12T08:00:00+00:00",
+    "2026-11-12T09:00:00+00:00",
+    "2026-11-12T10:00:00+00:00",
+    "2026-11-12T11:00:00+00:00",
+    "2026-11-12T12:00:00+00:00",
+    "2026-11-12T13:00:00+00:00",
+    "2026-11-12T14:00:00+00:00",
+    "2026-11-12T15:00:00+00:00",
+    "2026-11-12T16:00:00+00:00",
+    "2026-11-12T17:00:00+00:00",
+    "2026-11-12T18:00:00+00:00",
+    "2026-11-12T19:00:00+00:00",
+    "2026-11-12T20:00:00+00:00",
+    "2026-11-12T21:00:00+00:00",
+    "2026-11-12T22:00:00+00:00",
+    "2026-11-12T23:00:00+00:00",
+    "2026-11-13T00:00:00+00:00"
+  ],
+  "promotion_eligible": false,
+  "promotion_gate": "BLOCKED",
+  "promotion_gate_details": {
+    "checks": {
+      "holdout_eligible": false,
+      "preflight": true
+    },
+    "eligible_for_human_review": false,
+    "execution_authorized": false,
+    "human_authorized": false,
+    "reasons": [
+      "Prospective holdout not ELIGIBLE_FOR_EVALUATION"
+    ],
+    "status": "BLOCKED"
+  },
+  "q4_decision": "NO_STRATEGY_ELIGIBLE",
+  "q4_decision_preserved": true,
+  "q5_2_eligible": false,
+  "q6_evaluation": {
+    "account_return_pct": -2.981736882788864,
+    "average_trade_return_bp": -149.84699860670133,
+    "bars_held_total": 38,
+    "candidate_id": "logistic-ee482c",
+    "candidate_lock_hash": "4c96f4c1b658a9a70ccdc93cb2245f65f86e100432a8def0fa5a2eb0e59b0ec4",
+    "cost_stress": [
+      {
+        "average_trade_return_bp": -149.84699860670133,
+        "cost_multiplier": 1.0,
+        "expectancy_bp": -149.84699860670133,
+        "gross_loss_bp": 229.69399721340267,
+        "gross_profit_bp": 0.0,
+        "gross_profit_factor": 0.0,
+        "max_drawdown_bp": 298.1736882788864,
+        "net_loss_bp": 299.69399721340267,
+        "net_profit_bp": 0.0,
+        "net_profit_factor": 0.0,
+        "profit_factor": 0.0,
+        "round_trip_cost_bp": 35.0,
+        "total_gross_return_bp": -229.69399721340267,
+        "total_net_return_bp": -299.69399721340267,
+        "total_trading_costs_bp": 70.0,
+        "trade_count": 2,
+        "win_rate": 0.0
+      },
+      {
+        "average_trade_return_bp": -167.34699860670133,
+        "cost_multiplier": 1.5,
+        "expectancy_bp": -167.34699860670133,
+        "gross_loss_bp": 229.69399721340267,
+        "gross_profit_bp": 0.0,
+        "gross_profit_factor": 0.0,
+        "max_drawdown_bp": 332.61859878376345,
+        "net_loss_bp": 334.69399721340267,
+        "net_profit_bp": 0.0,
+        "net_profit_factor": 0.0,
+        "profit_factor": 0.0,
+        "round_trip_cost_bp": 52.5,
+        "total_gross_return_bp": -229.69399721340267,
+        "total_net_return_bp": -334.69399721340267,
+        "total_trading_costs_bp": 105.0,
+        "trade_count": 2,
+        "win_rate": 0.0
+      },
+      {
+        "average_trade_return_bp": -184.84699860670133,
+        "cost_multiplier": 2.0,
+        "expectancy_bp": -184.84699860670133,
+        "gross_loss_bp": 229.69399721340267,
+        "gross_profit_bp": 0.0,
+        "gross_profit_factor": 0.0,
+        "max_drawdown_bp": 367.00225928863983,
+        "net_loss_bp": 369.69399721340267,
+        "net_profit_bp": 0.0,
+        "net_profit_factor": 0.0,
+        "profit_factor": 0.0,
+        "round_trip_cost_bp": 70.0,
+        "total_gross_return_bp": -229.69399721340267,
+        "total_net_return_bp": -369.69399721340267,
+        "total_trading_costs_bp": 140.0,
+        "trade_count": 2,
+        "win_rate": 0.0
+      }
+    ],
+    "evaluated_at_utc": "2026-11-13T14:12:51.640862+00:00",
+    "evaluation_id": "eval-d741c0e784cde571",
+    "expectancy_bp": -149.84699860670133,
+    "exposure_fraction": 0.2638888888888889,
+    "fees_bp": 40.0,
+    "final_equity": 9701.826311721114,
+    "funding_bp": 0.0,
+    "gross_loss_bp": 229.69399721340267,
+    "gross_profit_bp": 0.0,
+    "gross_profit_factor": 0.0,
+    "gross_return_bp": -229.69399721340267,
+    "max_drawdown_bp": 298.1736882788864,
+    "max_drawdown_bp_account": 235.00000000000017,
+    "max_drawdown_pct": 2.981736882788864,
+    "net_loss_bp": 299.69399721340267,
+    "net_profit_bp": 0.0,
+    "net_profit_factor": 0.0,
+    "net_return_bp": -299.69399721340267,
+    "profit_factor": 0.0,
+    "prospective_dataset": {
+      "candle_ids": [
+        "candle-79c2afbbf93839c7",
+        "candle-ab52680617100671",
+        "candle-e5079f59c0d1439c",
+        "candle-bba490f3724c5436",
+        "candle-ec9424a2708d664a",
+        "candle-15b68e23fefda8ce",
+        "candle-fb08cf55ba0e30f4",
+        "candle-7889b9b03d9a882a",
+        "candle-ff94a0a5cb31c4e9",
+        "candle-93ce31de7cd41478",
+        "candle-69c4f02983cf8d74",
+        "candle-95b371d91e1c561d",
+        "candle-4f1a5833fa96d3c2",
+        "candle-adccef54a71574d5",
+        "candle-77f08be4214c47bb",
+        "candle-e08035fa801f4abc",
+        "candle-6836d53be635b422",
+        "candle-22a9676d6e49ae18",
+        "candle-09cff680701cd777",
+        "candle-0ee5df2eaee96dd0",
+        "candle-f036b5638d98daaf",
+        "candle-7d34f93ab7ea5d4b",
+        "candle-385b77cb34287f6f",
+        "candle-cfd777f03256af28",
+        "candle-645c3f0572369ef2",
+        "candle-9f692a992cd7f630",
+        "candle-5b8958e915ab2a8b",
+        "candle-b717ef32826d4351",
+        "candle-1ad8b0dee0a99c26",
+        "candle-91ad237a606745bb",
+        "candle-9fb9624772b7ae4c",
+        "candle-5c3d74d2fe99d135",
+        "candle-5a3a19349ff271af",
+        "candle-8a63bb829d8f52ff",
+        "candle-49b970af1b1f7a40",
+        "candle-4d6af3c583428a15",
+        "candle-dcc3a7893ec1f262",
+        "candle-81392de82a88e7ea",
+        "candle-73d262a62e6b28b5",
+        "candle-0f6072457888f544",
+        "candle-7af98c75a8e203d8",
+        "candle-7f52e88a46b90402",
+        "candle-83c0c2be364be68e",
+        "candle-a8bc75f3ffb487b0",
+        "candle-a113f980936aa02a",
+        "candle-3acf860e441c3fcf",
+        "candle-45292163653d902f",
+        "candle-305d245b740750be",
+        "candle-aaecbd40d827ea23",
+        "candle-4c6d29744a1963ae",
+        "candle-1829de149a006554",
+        "candle-711012576a861e7b",
+        "candle-b29f2d221fe7ccf0",
+        "candle-5194d9cc2cc7d01e",
+        "candle-e2a10308fbe195e3",
+        "candle-fb075d02734fa368",
+        "candle-ebde0093fe18152c",
+        "candle-03d9dfc19730bef3",
+        "candle-26231cab51f6a866",
+        "candle-122c15a9ea7e095a",
+        "candle-2f4ddb83d4ebb724",
+        "candle-98dbc3dc2162a81d",
+        "candle-29f641104044414a",
+        "candle-67a39dc76b5f3679",
+        "candle-c21de03c858f9bac",
+        "candle-22bd36a95274bff0",
+        "candle-ac3a8ead875fcee0",
+        "candle-0c5205f630944486",
+        "candle-d85963513780572b",
+        "candle-10c0b629265683ba",
+        "candle-4e795a343b9cb44c",
+        "candle-8cde6e3435ce5f1c",
+        "candle-c9176d8cef8403e7",
+        "candle-f584282901e43436",
+        "candle-7aa3ec93f8a9ec47",
+        "candle-6db1109360438288",
+        "candle-8e49ff224a606551",
+        "candle-5f1322daf8c0f7a1",
+        "candle-40f38359147631fa",
+        "candle-8b724a553387b7b0",
+        "candle-5aed4a2cd5b503be",
+        "candle-8c289a916631126f",
+        "candle-6356dfc5af2d3200",
+        "candle-dfa4983c9958016d",
+        "candle-316a6cd9f3b81d90",
+        "candle-3defbf9a4a4b8065",
+        "candle-d1865c1bc97c00fd",
+        "candle-e273937e5bc7410d",
+        "candle-ea7815e9c1c49989",
+        "candle-d6e4c1056d6db5e5",
+        "candle-16638e8da8423241",
+        "candle-1de7f10ed1d54692",
+        "candle-2806143cf1440c4a",
+        "candle-d9e6bfce7a433719",
+        "candle-3d3b50e3565da3db",
+        "candle-df3a88baa173f9b0",
+        "candle-5d701a4da3172b65",
+        "candle-11d91f9ac8901341",
+        "candle-ce2ffc6d6247bbd8",
+        "candle-3796d2a397f8ff98",
+        "candle-aec7bdc9a1ef6a40",
+        "candle-b44d09628b34f974",
+        "candle-4d4cc3b62c123c2a",
+        "candle-f588246c970a293f",
+        "candle-2675376e328cd2ec",
+        "candle-bb3df46f841b1cc2",
+        "candle-7e3e91332928b1d2",
+        "candle-0b858557f77548fd",
+        "candle-fc9b3562d65efc7d",
+        "candle-e05c92f8e52de1cf",
+        "candle-d9d11398bea1cb26",
+        "candle-4ad327ea07b406b5",
+        "candle-df2f79dabce15f83",
+        "candle-663a4b18e0a31c25",
+        "candle-bedbabfa888cd0ad",
+        "candle-32eff4c13e2768e3",
+        "candle-93829a5074a55e81",
+        "candle-b9ace02d336d3a32",
+        "candle-6606f5e3be537813",
+        "candle-0cb3b72143315ee7",
+        "candle-3cd68fe4d2eb8531",
+        "candle-3155e2980db61789",
+        "candle-7b0fd215005462ee",
+        "candle-21f6a7d4ee0538e4",
+        "candle-81b600bd691e89ab",
+        "candle-bc0d63d011043bc5",
+        "candle-39e246f90f51029d",
+        "candle-5c6ce5363802080a",
+        "candle-5d5482c33cbf495d",
+        "candle-5d84673037444795",
+        "candle-baf85046a124c914",
+        "candle-0c790c83fbce3ea2",
+        "candle-9b1c36d5da276714",
+        "candle-661f40ed0d8567ce",
+        "candle-f652da77e6c8c61f",
+        "candle-83039e26e5d42d8b",
+        "candle-72150d5ce0c9cb67",
+        "candle-94fec2e00aa69ebf",
+        "candle-f7074d98b8b1f71d",
+        "candle-6deced8945eed4ba",
+        "candle-300fa77f85057301",
+        "candle-718d83ce018077fd",
+        "candle-e53f50737daafc44",
+        "candle-bcfc04040ba36a4c",
+        "candle-7faabb96059ca1bd",
+        "candle-706826c5bf4cc2e6",
+        "candle-704ce398aa71fd96",
+        "candle-652a79d2abbefa87",
+        "candle-90b81380d14baf90",
+        "candle-ff9a9dfcb9a8a362",
+        "candle-2615407b9de4e569",
+        "candle-4290e34af63c90bf",
+        "candle-5522b73ab342cce0",
+        "candle-7bbae29ee205f7cc",
+        "candle-f17a7f393be86624",
+        "candle-60163265f2fb0610",
+        "candle-8eef6d95fac66d74",
+        "candle-b209ff482d0e9264",
+        "candle-b4c80aeb383edbdf",
+        "candle-373228ab74156d0e",
+        "candle-1b6f1ab4afd64631",
+        "candle-b0b76719fc2b9283",
+        "candle-3859f5bf8bd3db17",
+        "candle-51af67d1dcac0d53",
+        "candle-f3c903ced9b0cc39",
+        "candle-9bec5c6071a237e0",
+        "candle-5cb9fa4232683916",
+        "candle-e77e80ca09d4edf8",
+        "candle-0d6e4aecb0a66fee"
+      ],
+      "first_open_time": "2026-11-06T00:00:00+00:00",
+      "last_close_time": "2026-11-13T01:00:00+00:00",
+      "observation_count": 169,
+      "storage_root": "data\\historical_accelerated"
+    },
+    "reason": null,
+    "schema": "q6-evaluation-result.v1",
+    "simulation": {
+      "account_return_pct": -2.981736882788864,
+      "average_trade_return_bp": -149.84699860670133,
+      "bars_held_total": 38,
+      "cost_inputs": {
+        "fee_bp": 10.0,
+        "funding_bp_per_bar": 0.0,
+        "slippage_bp": 5.0,
+        "spread_bp": 5.0
+      },
+      "cost_stress": [
+        {
+          "average_trade_return_bp": -149.84699860670133,
+          "cost_multiplier": 1.0,
+          "expectancy_bp": -149.84699860670133,
+          "gross_loss_bp": 229.69399721340267,
+          "gross_profit_bp": 0.0,
+          "gross_profit_factor": 0.0,
+          "max_drawdown_bp": 298.1736882788864,
+          "net_loss_bp": 299.69399721340267,
+          "net_profit_bp": 0.0,
+          "net_profit_factor": 0.0,
+          "profit_factor": 0.0,
+          "round_trip_cost_bp": 35.0,
+          "total_gross_return_bp": -229.69399721340267,
+          "total_net_return_bp": -299.69399721340267,
+          "total_trading_costs_bp": 70.0,
+          "trade_count": 2,
+          "win_rate": 0.0
+        },
+        {
+          "average_trade_return_bp": -167.34699860670133,
+          "cost_multiplier": 1.5,
+          "expectancy_bp": -167.34699860670133,
+          "gross_loss_bp": 229.69399721340267,
+          "gross_profit_bp": 0.0,
+          "gross_profit_factor": 0.0,
+          "max_drawdown_bp": 332.61859878376345,
+          "net_loss_bp": 334.69399721340267,
+          "net_profit_bp": 0.0,
+          "net_profit_factor": 0.0,
+          "profit_factor": 0.0,
+          "round_trip_cost_bp": 52.5,
+          "total_gross_return_bp": -229.69399721340267,
+          "total_net_return_bp": -334.69399721340267,
+          "total_trading_costs_bp": 105.0,
+          "trade_count": 2,
+          "win_rate": 0.0
+        },
+        {
+          "average_trade_return_bp": -184.84699860670133,
+          "cost_multiplier": 2.0,
+          "expectancy_bp": -184.84699860670133,
+          "gross_loss_bp": 229.69399721340267,
+          "gross_profit_bp": 0.0,
+          "gross_profit_factor": 0.0,
+          "max_drawdown_bp": 367.00225928863983,
+          "net_loss_bp": 369.69399721340267,
+          "net_profit_bp": 0.0,
+          "net_profit_factor": 0.0,
+          "profit_factor": 0.0,
+          "round_trip_cost_bp": 70.0,
+          "total_gross_return_bp": -229.69399721340267,
+          "total_net_return_bp": -369.69399721340267,
+          "total_trading_costs_bp": 140.0,
+          "trade_count": 2,
+          "win_rate": 0.0
+        }
+      ],
+      "costs_total_bp": 70.0,
+      "execution_rule": "decision at close t; fill at open t+1; barriers evaluated on bars t+1..t+max_horizon_bars; +1=LONG (TP upper/SL lower), -1=SHORT (TP lower/SL upper); same-bar touch -> stop first; max holding-period exit at close",
+      "expectancy_bp": -149.84699860670133,
+      "exposure_fraction": 0.2638888888888889,
+      "fees_bp": 40.0,
+      "final_equity": 9701.826311721114,
+      "funding_bp": 0.0,
+      "gross_loss_bp": 229.69399721340267,
+      "gross_profit_bp": 0.0,
+      "gross_profit_factor": 0.0,
+      "gross_return_bp": -229.69399721340267,
+      "horizon_bars": 24,
+      "max_drawdown_bp_account": 235.00000000000017,
+      "max_drawdown_pct": 2.981736882788864,
+      "maximum_drawdown": 298.1736882788864,
+      "net_loss_bp": 299.69399721340267,
+      "net_profit_bp": 0.0,
+      "net_profit_factor": 0.0,
+      "position_overlap": "not allowed; next decision only after previous exit bar",
+      "position_pct": 1.0,
+      "profit_factor": 0.0,
+      "simulation": "research_triple_barrier_next_open_v1",
+      "skipped": {
+        "insufficient_future_bars": 12,
+        "missing_or_invalid_vol": 0,
+        "overlapping_signals": 36
+      },
+      "slippage_bp": 20.0,
+      "spread_bp": 10.0,
+      "starting_equity": 10000.0,
+      "total_net_return_bp": -299.69399721340267,
+      "total_trading_costs_bp": 70.0,
+      "trade_count": 2,
+      "trades": [
+        {
+          "barrier": "timeout",
+          "bars_held": 24,
+          "decision_at": "2026-11-11T00:00:00+00:00",
+          "decision_bar_open_at": "2026-11-10T23:00:00+00:00",
+          "entry_at": "2026-11-11T00:00:00+00:00",
+          "entry_price": 73796.06,
+          "exit_at": "2026-11-11T23:00:00+00:00",
+          "exit_price": 74015.19,
+          "gross_return_bp": -29.69399721340249,
+          "net_return_bp": -64.6939972134025,
+          "side": "SHORT"
+        },
+        {
+          "barrier": "stop_loss",
+          "bars_held": 14,
+          "decision_at": "2026-11-12T00:00:00+00:00",
+          "decision_bar_open_at": "2026-11-11T23:00:00+00:00",
+          "entry_at": "2026-11-12T00:00:00+00:00",
+          "entry_price": 74015.2,
+          "exit_at": "2026-11-12T13:00:00+00:00",
+          "exit_price": 72534.896,
+          "gross_return_bp": -200.00000000000017,
+          "net_return_bp": -235.00000000000017,
+          "side": "LONG"
+        }
+      ],
+      "turnover_equity_turns": 14.781126,
+      "win_rate": 0.0
+    },
+    "skipped": {
+      "insufficient_future_bars": 12,
+      "missing_or_invalid_vol": 0,
+      "overlapping_signals": 36
+    },
+    "slippage_bp": 20.0,
+    "spread_bp": 10.0,
+    "status": "EVALUATED",
+    "total_trading_costs_bp": 70.0,
+    "trade_count": 2,
+    "trades": [
+      {
+        "barrier": "timeout",
+        "bars_held": 24,
+        "decision_at": "2026-11-11T00:00:00+00:00",
+        "decision_bar_open_at": "2026-11-10T23:00:00+00:00",
+        "entry_at": "2026-11-11T00:00:00+00:00",
+        "entry_price": 73796.06,
+        "exit_at": "2026-11-11T23:00:00+00:00",
+        "exit_price": 74015.19,
+        "gross_return_bp": -29.69399721340249,
+        "net_return_bp": -64.6939972134025,
+        "side": "SHORT"
+      },
+      {
+        "barrier": "stop_loss",
+        "bars_held": 14,
+        "decision_at": "2026-11-12T00:00:00+00:00",
+        "decision_bar_open_at": "2026-11-11T23:00:00+00:00",
+        "entry_at": "2026-11-12T00:00:00+00:00",
+        "entry_price": 74015.2,
+        "exit_at": "2026-11-12T13:00:00+00:00",
+        "exit_price": 72534.896,
+        "gross_return_bp": -200.00000000000017,
+        "net_return_bp": -235.00000000000017,
+        "side": "LONG"
+      }
+    ],
+    "turnover_equity_turns": 14.781126,
+    "win_rate": 0.0
+  },
+  "schema_version": "prediction_audit.v1",
+  "short_count": 45,
+  "status": "EVALUATED"
+}

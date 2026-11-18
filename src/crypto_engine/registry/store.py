@@ -1,14 +1,11 @@
 """Lightweight local model registry (Phase 2).
 
-Security note (pickle): ``sklearn``-family artifacts are serialized with
-:mod:`pickle`. Pickle can execute arbitrary code on load, so ONLY load
-artifacts from trusted local registry directories created by
-:func:`save_model`. Never load ``artifact.pkl`` received from untrusted
-sources. Rule-based models (``trend``/``majority``) use plain JSON and do
-not carry this risk. Corrupt or tampered files are rejected with
-:exc:`CorruptArtifactError` (checksum mismatch) before deserialization
-where detectable; checksum verification cannot make untrusted pickle
-safe, it only detects accidental corruption/tampering of trusted files.
+All artifacts are serialized with JSON only; pickle is no longer used.
+Pickle can execute arbitrary code on load and is considered unsafe for
+deserialization, so no artifact family uses it. Corrupt or tampered files
+are rejected with :exc:`CorruptArtifactError` (checksum mismatch) before
+deserialization where detectable; checksum verification only detects
+accidental corruption/tampering of trusted files.
 
 Conventions mirror Phase 1 snapshots: atomic writes (tmp file +
 ``os.replace``), deterministic ids, no overwrite of existing ids.
@@ -40,6 +37,8 @@ from crypto_engine.models.base import (
 RECORD_FILENAME = "record.json"
 JSON_ARTIFACT = "artifact.json"
 PICKLE_ARTIFACT = "artifact.pkl"
+#: Deprecated: kept for backward compatibility only. Pickle is no longer used;
+#: all artifacts are JSON (see module docstring). Do not use for new code.
 
 #: Families serialized as plain JSON (no pickle involved).
 JSON_FAMILIES = ("trend", "majority")
@@ -112,41 +111,30 @@ def _atomic_write_bytes(target: Path, payload: bytes) -> None:
 
 
 def _serialize_model(model: BaseModel) -> tuple[str, bytes]:
-    """Return ``(filename, payload)``; JSON for rule-based, pickle otherwise."""
-    if model.family in JSON_FAMILIES:
-        payload = json.dumps(model.to_dict(), indent=2, sort_keys=True).encode("utf-8")
-        return JSON_ARTIFACT, payload
-    import pickle
-
-    payload = pickle.dumps(model.to_dict(), protocol=4)
-    return PICKLE_ARTIFACT, payload
+    """Return ``(filename, payload)``; JSON for all model families."""
+    payload = json.dumps(model.to_dict(), indent=2, sort_keys=True).encode("utf-8")
+    return JSON_ARTIFACT, payload
 
 
 def _deserialize_model(family: str, blob: bytes) -> BaseModel:
     from crypto_engine.models.baselines import MajorityBaseline, TrendBaseline
     from crypto_engine.models.sklearn_wrappers import SklearnLogistic
 
-    if family in JSON_FAMILIES:
-        try:
-            data = json.loads(blob.decode("utf-8"))
-        except (ValueError, UnicodeDecodeError) as exc:
-            raise CorruptArtifactError(f"JSON artifact decode failed: {exc}") from exc
-        if family == "trend":
-            return TrendBaseline.from_dict(data)
-        return MajorityBaseline.from_dict(data)
-    import pickle
-
     try:
-        data = pickle.loads(blob)
-    except Exception as exc:
-        raise CorruptArtifactError(f"pickle artifact decode failed: {exc}") from exc
+        data = json.loads(blob.decode("utf-8"))
+    except (ValueError, UnicodeDecodeError) as exc:
+        raise CorruptArtifactError(f"JSON artifact decode failed: {exc}") from exc
     if not isinstance(data, dict):
-        raise CorruptArtifactError("pickle artifact payload is not a model dict.")
+        raise CorruptArtifactError("JSON artifact payload is not a model dict.")
     fam = str(data.get("family", family))
     if fam == "lightgbm":
         from crypto_engine.models.sklearn_wrappers import LightGBMModel
 
         return LightGBMModel.from_dict(data)
+    if fam == "trend":
+        return TrendBaseline.from_dict(data)
+    if fam == "majority":
+        return MajorityBaseline.from_dict(data)
     return SklearnLogistic.from_dict(data)
 
 
@@ -245,7 +233,7 @@ def load_model(model_dir: Path | str) -> tuple[BaseModel, ModelRecord]:
     except ValueError as exc:
         raise CorruptArtifactError(f"record.json invalid in {path}: {exc}") from exc
 
-    artifact_path = path / (record.artifact_path or PICKLE_ARTIFACT)
+    artifact_path = path / (record.artifact_path or JSON_ARTIFACT)
     if not artifact_path.is_file():
         raise CorruptArtifactError(f"Missing artifact {artifact_path} in {path}")
     blob = artifact_path.read_bytes()

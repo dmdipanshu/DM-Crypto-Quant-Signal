@@ -1,0 +1,192 @@
+# SignalForge production environment config (Phase Q15 deployment infrastructure).
+# Base: config/default.toml values with fail-closed production overrides,
+# plus [deployment] section.
+# Production: allow_remote=false, cors_origins=[], console_enabled=false, file_enabled=true.
+# No secrets, no real API keys, trading never authorized.
+
+[exchange]
+name = "binance"        # ccxt exchange id for public market data
+timeout_ms = 10000      # per-request timeout
+max_retries = 3         # bounded retries with backoff (see tenacity policy in engine)
+rate_limit = true       # honor ccxt rate limiting
+
+[data]
+symbols = ["BTC/USDT", "ETH/USDT", "SOL/USDT"]
+timeframes = ["1h", "4h"]
+storage_path = "data"   # relative to repo root; raw/ and processed/ subdirs
+format = "parquet"      # canonical on-disk format (pyarrow)
+
+[logging]
+level = "INFO"          # DEBUG | INFO | WARNING | ERROR
+format = "json"
+console_enabled = false
+file_enabled = true
+file_path = "logs/signalforge.log"
+rotation_max_bytes = 10000000
+rotation_backup_count = 5
+include_correlation_id = true
+include_run_id = true
+
+# Phase 2 model training bounds (4 GB laptop: single process, bounded rows).
+[model]
+default_family = "logistic"  # logistic | trend | majority (lightgbm optional)
+random_state = 42            # fixed seed for deterministic training
+max_rows_train = 2000        # explicit sample cap; log whenever applied, never silently drop
+chunk_rows = 5000            # row-chunk bound for feature/label prep before training
+n_jobs = 1                   # always 1 on 4GB laptop; do not raise
+
+# Local model registry (atomic writes, no overwrite, checksum-verified).
+[registry]
+path = "models/artifacts"  # relative to repo root; git-ignored
+allow_overwrite = false    # never overwrite an existing model_id dir
+
+# Phase 3 probability calibration (Track A). 4GB: calibration splits are
+# small (default floor 20 rows); isotonic needs materially more samples
+# than sigmoid to avoid overfitting the calibration split.
+[calibration]
+method = "sigmoid"      # sigmoid (Platt) | isotonic
+min_cal_samples = 20    # floor on chronologically-later calibration rows
+
+# Phase 3 walk-forward / holdout / cost validation (Track B engine).
+# 4GB: keep windows small, n_jobs = 1, bounded bootstraps.
+[validation]
+n_folds = 3             # 1..10 purged walk-forward folds
+train_window = 200      # bars per training window
+val_window = 50         # bars per validation window
+embargo_bars = 24       # gap between train end and val start
+purge_overlaps = true   # drop overlapping train/val rows
+holdout_frac = 0.15     # 0..0.4 locked final-holdout fraction
+min_fold_samples = 30   # floor on rows per fold
+max_bootstrap = 200     # 1..1000 bounded bootstrap draws
+block_bootstrap_len = 20  # block length for time-series bootstrap
+fee_bp = 10.0           # explicit cost model (basis points)
+slippage_bp = 5.0       # explicit cost model (basis points)
+random_state = 42       # fixed seed for deterministic validation
+
+# Phase 4 AI provider interface (Track A). All providers DISABLED by default;
+# secrets live in env/.env only, never here. Adapters use stdlib urllib;
+# provider SDKs are bring-your-own (pip install openai/anthropic/etc.) —
+# there are no registry-based ai-* extras (no package network in this env).
+[ai]
+enabled = true             # global AI switch; Meta Muse advisory-only
+default_provider = "none"  # reserved (legacy); routing is [ai.tasks.*] only
+fallback_order = []        # reserved (legacy); no runtime failover is implemented
+cache_ttl_s = 0            # reserved; no response cache exists
+log_prompts = false        # reserved; no prompt/response logging exists
+timeout_s = 30.0           # bounded per-request ceiling (seconds)
+max_retries = 2            # bounded retries (0..3)
+telemetry_path = "data/ai_telemetry/events.jsonl"  # append-only JSONL, bounded
+max_request_chars = 8000   # bounded request size
+max_response_chars = 4000  # bounded response size
+max_output_tokens = 1024   # bounded output ceiling
+max_concurrent_requests = 1  # single-process design: exactly one in flight
+
+[ai.budgets]
+# Parsed and validated, but no budget tracker is wired yet. The [ai] limits
+# above are the enforced bounds.
+max_requests = 10          # reserved; not enforced
+max_chars = 200000         # reserved; not enforced
+
+[[ai.providers]]
+provider_id = "meta_muse"
+display_name = "Meta Muse"
+dialect = "openai_compatible"
+enabled = false
+timeout_s = 30.0
+max_retries = 2
+max_response_chars = 4000
+concurrency = 1
+base_url = "https://api.meta.ai/v1"
+api_key_env = "META_MUSE_API_KEY"
+auth_mechanism = "bearer"
+structured_output = "json_schema"
+egress_allowlist = ["api.meta.ai"]
+
+[[ai.models]]
+provider_id = "meta_muse"
+model_id = "muse-spark-1.3"
+display_name = "Meta Muse muse-spark-1.3"
+enabled = true
+context_limit = 0
+max_output_tokens = 1024
+structured_output = "json_schema"
+
+[ai.tasks.signal_explanation]
+route = ["meta_muse:muse-spark-1.3"]
+max_output_tokens = 1024
+timeout_s = 15
+
+# Phase 5 signal-generation policy (Track A). 4GB: single-process, one
+# symbol/timeframe at a time; small fixtures (<=50 rows in unit tests).
+# NO_TRADE is a valid expected output (abstain on weak evidence).
+[signal]
+horizon_bars = 24         # prediction horizon in bars (>=1)
+t_long = 0.6              # P(+1) >= t_long -> LONG (must be > 0.5)
+t_short = 0.4             # P(+1) <= t_short -> SHORT (must be < 0.5)
+threshold_version = "v1"  # recorded on every SignalRecord for audit
+calibration_required = true  # uncalibrated scores -> NO_TRADE(UNCALIBRATED)
+require_edge = true       # edge < cost+margin -> NO_TRADE(INSUFFICIENT_EDGE)
+edge_margin_bp = 0.0      # extra safety margin over costs (basis points)
+enabled_directions = ["LONG", "SHORT", "NEUTRAL", "NO_TRADE"]
+max_signal_age_min = 60   # signals older than this are stale
+staleness_limit_min = 90  # data older than this -> STALE_DATA veto
+require_ai_veto = false   # AI is advisory-only; true + unavailable AI -> veto
+history_path = "data/signals"  # persistent signal audit history root
+max_rows_signal = 500     # row cap per signal batch (4GB guard)
+
+# Phase 5 deterministic risk gates (Track B enforces; Track A declares).
+# fail_closed=true: any gate error rejects the trade (never fail-open).
+[risk]
+max_trade_risk_pct = 1.0  # max risk per trade (% of equity)
+max_position_pct = 10.0   # max position size (% of equity)
+max_drawdown_pct = 5.0     # kill-switch drawdown (%)
+fail_closed = true        # gate errors -> reject (deterministic, model/AI cannot override)
+enabled = true            # master switch for risk gates
+
+# Phase 6 event-safe backtesting (Track A). 4GB: single-process, one
+# symbol/timeframe, bounded bars. Costs come from a Phase 5 CostEstimate
+# passed to the engine (never duplicated here). No live orders.
+[backtest]
+symbol = "BTC/USDT"       # single backtest symbol
+timeframe = "1h"          # single backtest timeframe
+starting_equity = 10000.0 # starting cash (quote currency, > 0)
+position_pct = 10.0       # % of equity per position (> 0)
+max_holding_bars = 24     # timeout: exit at next open when bars_held exceeds this
+require_levels = false    # true -> LONG/SHORT without valid stop+take skipped
+max_bars = 5000           # 4GB cap: explicit error over this many bars
+
+# Phase 6 advisory-only paper trading (Track B engine). No live orders
+# anywhere; paper state is advisory only.
+[paper]
+account_path = "data/paper"  # persistent paper state root (relative to repo)
+poll_bars = 1                # bars per paper poll step
+max_pending_signals = 100    # cap on queued advisory signals
+fail_closed = true           # state/ledger errors -> halt (never fail-open)
+
+# Phase 7 read-only API + dashboard server. Loopback-only by default;
+# no trading, training, fetching, or mutation through HTTP.
+[api]
+host = "127.0.0.1"  # bind address; non-loopback requires allow_remote = true
+port = 8000            # conservative default port
+allow_remote = false  # never expose to LAN/internet automatically
+cors_origins = []     # explicit origins only; no wildcard credentials
+page_size_default = 50  # default list page size
+page_size_max = 500    # hard cap enforced on every list endpoint
+ledger_scan_cap = 5000 # max JSONL lines scanned per read (4GB guard)
+backtest_dir = "data/backtests"  # persisted sf backtest run dirs
+experiments_path = "reports/experiments.jsonl"  # Phase 3 experiment registry
+holdout_ledger_path = "reports/holdout.json"     # Phase 3 holdout ledger
+research_release_path = "docs/validation/results/quantitative_release_q4.json" # Q4 read-only release
+progress_dir = "data/project_progress"           # append-only progress ledger (read-only API)
+
+
+# Phase D disaster-recovery backup destination.
+[backup]
+path = "backups"  # backup/restore destination root (relative to repo root)
+
+[deployment]
+environment = "production"
+trading_authorized = false
+live_orders_enabled = false
+retraining_enabled = false
+fail_closed_defaults = true

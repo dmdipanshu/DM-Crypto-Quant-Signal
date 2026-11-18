@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import time
 from datetime import UTC, datetime
 from typing import Any
 
@@ -172,3 +173,86 @@ def test_empty_result_warns() -> None:
     result = adapter.fetch_range(_params())
     assert result.row_count == 0
     assert any("no rows" in w.lower() for w in result.warnings)
+
+
+class FakeRateLimitThenOk:
+    """Raises ccxt.RateLimitExceeded once, then succeeds."""
+
+    def __init__(self, rows: list[list[Any]]) -> None:
+        self._rows = sorted(rows, key=lambda r: int(r[0]))
+        self.attempts = 0
+
+    @property
+    def has_fetch_ohlcv(self) -> bool:
+        return True
+
+    def fetch_ohlcv(
+        self, symbol: str, timeframe: str, since: int | None = None, limit: int | None = None
+    ) -> list[list[Any]]:
+        _ = (symbol, timeframe)
+        self.attempts += 1
+        if self.attempts == 1:
+            import ccxt
+
+            raise ccxt.RateLimitExceeded("rate limited")
+        return [r for r in self._rows if since is None or int(r[0]) >= since][: (limit or len(self._rows))]
+
+
+class FakeAlwaysDownTransient:
+    """Always raises a transient error."""
+
+    def __init__(self) -> None:
+        self.attempts = 0
+
+    @property
+    def has_fetch_ohlcv(self) -> bool:
+        return True
+
+    def fetch_ohlcv(
+        self, symbol: str, timeframe: str, since: int | None = None, limit: int | None = None
+    ) -> list[list[Any]]:
+        _ = (symbol, timeframe)
+        self.attempts += 1
+        raise _transient_exc_type()("persistent outage")
+
+
+def test_max_duration_param_default() -> None:
+    """Default max_duration_ms is 60000 (1 minute)."""
+    adapter = CcxtAdapter(exchange_name="binance", max_retries=0, client=FakeAlwaysDownTransient())
+    assert adapter.max_duration_ms == 60000
+
+
+def test_max_duration_bounds_retries(raw_rows: list[list[Any]]) -> None:
+    """Duration bound stops retries well before attempt bound is reached."""
+    client = FakeAlwaysDownTransient()
+    adapter = CcxtAdapter(
+        exchange_name="binance", max_retries=100, max_duration_ms=1000, client=client
+    )
+    start = time.perf_counter()
+    with pytest.raises(DataFetchError):
+        adapter.fetch_range(_params())
+    elapsed = time.perf_counter() - start
+    assert elapsed < 10.0, f"duration bound did not kick in: {elapsed:.2f}s elapsed"
+
+
+def test_rate_limit_exceeded_is_retried(raw_rows: list[list[Any]]) -> None:
+    """ccxt.RateLimitExceeded is treated as transient and retried."""
+    pytest.importorskip("ccxt")
+    client = FakeRateLimitThenOk(raw_rows)
+    adapter = CcxtAdapter(exchange_name="binance", max_retries=3, client=client)
+    result = adapter.fetch_range(_params())
+    assert result.row_count == len(raw_rows)
+    assert client.attempts >= 2
+
+
+def test_combined_stop_attempts_wins_first(raw_rows: list[list[Any]]) -> None:
+    """Attempt bound wins over duration bound when retries exhaust quickly."""
+    client = FakeAlwaysDownTransient()
+    adapter = CcxtAdapter(
+        exchange_name="binance", max_retries=1, max_duration_ms=600000, client=client
+    )
+    with pytest.raises(DataFetchError):
+        adapter.fetch_range(_params())
+    assert client.attempts == 2, f"expected 2 attempts (1 initial + 1 retry), got {client.attempts}"
+
+

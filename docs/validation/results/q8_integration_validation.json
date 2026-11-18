@@ -1,0 +1,208 @@
+{
+  "phase": "Q8",
+  "phase_name": "End-to-End Integration & Reliability Validation",
+  "generated_at": "2026-11-14T07:49:00Z",
+  "status": "PASSED_WITH_WARNINGS",
+  "total_time_consumed_minutes": 180,
+  "time_allocation": {
+    "integration_audit_minutes": 20,
+    "pipeline_integration_minutes": 60,
+    "failure_recovery_testing_minutes": 45,
+    "end_to_end_testing_minutes": 40,
+    "final_verification_reporting_minutes": 15
+  },
+  "inspected_components": {
+    "market_data": {
+      "file": "src/crypto_engine/data/",
+      "status": "INSPECTED",
+      "connections": ["CcxtAdapter.fetch_range -> save_snapshot -> load_snapshot -> compute_features"]
+    },
+    "features": {
+      "file": "src/crypto_engine/features/engineering.py",
+      "status": "INSPECTED",
+      "connections": ["compute_features(df) -> feature DataFrame -> select_decision_row -> PolicyInputs.feature_row"]
+    },
+    "models": {
+      "file": "src/crypto_engine/models/",
+      "status": "INSPECTED",
+      "frozen_artifact": "models/artifacts/logistic-ee482c-3e3324f2-20261028T132236/record.json",
+      "connections": ["SklearnLogistic.from_dict -> LogisticProducer.produce -> PolicyInputs.model"]
+    },
+    "signals": {
+      "file": "src/crypto_engine/signals/",
+      "status": "INSPECTED",
+      "connections": ["decide() -> run_gates() -> SignalRecord -> SignalHistory.append"]
+    },
+    "risk": {
+      "file": "src/crypto_engine/risk/gates.py",
+      "status": "INSPECTED",
+      "connections": ["run_gates(record, ctx, artifact_hash, feature_schema) -> gated SignalRecord + GateTrace"]
+    },
+    "paper_trading_state": {
+      "file": "src/crypto_engine/paper_trading/state.py",
+      "status": "INSPECTED",
+      "connections": ["PaperAccount -> init_account/save_account/load_account -> step() mutation"]
+    },
+    "paper_trading_loop": {
+      "file": "src/crypto_engine/paper_trading/loop.py",
+      "status": "INSPECTED",
+      "connections": ["step(account, signal, bar, gates_ctx_fn, cost) -> (PaperAccount, StepResult)"]
+    },
+    "paper_trading_orders": {
+      "file": "src/crypto_engine/paper_trading/orders.py",
+      "status": "INSPECTED",
+      "connections": ["OrderManager lifecycle (SUBMITTED->ACCEPTED->FILLED) -> Simulator.fill matching"]
+    },
+    "paper_trading_simulator": {
+      "file": "src/crypto_engine/paper_trading/simulator.py",
+      "status": "INSPECTED",
+      "connections": ["Simulator.run(bars) -> SimulatorResult (fills, trades, equity_curve, drawdown)"]
+    },
+    "paper_trading_risk_extensions": {
+      "file": "src/crypto_engine/paper_trading/risk_extensions.py",
+      "status": "INSPECTED",
+      "connections": ["DailyLossTracker/DailyLossLimitCheck/AbnormalSlippageCheck/InvalidPriceCheck -> fail-closed checks"]
+    },
+    "paper_trading_resilience": {
+      "file": "src/crypto_engine/paper_trading/resilience.py",
+      "status": "INSPECTED",
+      "connections": ["CheckpointManager/EventLedger/RecoveryManager/deterministic_replay -> crash recovery"]
+    },
+    "paper_trading_strategy_adapters": {
+      "file": "src/crypto_engine/paper_trading/strategy_adapters.py",
+      "status": "INSPECTED",
+      "connections": ["SignalProducer (majority/trend/logistic/lightgbm) -> CandidateIsolationManager -> Simulator"]
+    },
+    "backtesting": {
+      "file": "src/crypto_engine/backtesting/",
+      "status": "INSPECTED",
+      "connections": ["run_backtest(bars, signals, config, cost) -> BacktestResult -> compare.py divergence"]
+    },
+    "cli": {
+      "file": "src/crypto_engine/cli.py",
+      "status": "INSPECTED",
+      "commands": ["sf paper init/status/step/flatten/verify/compare/run/simulator"]
+    },
+    "api": {
+      "file": "src/crypto_engine/api/",
+      "status": "INSPECTED",
+      "connections": ["GET-only FastAPI routes over filesystem repos (read-only)"]
+    }
+  },
+  "verified_connections": [
+    "signal_adapter -> signal_record (LogisticProducer.produce returns SignalRecord)",
+    "signal_record -> risk_gate (run_gates veto pipeline, fail-closed)",
+    "risk_gate -> order_fill (step() fills at bar open, SL/TP monitoring)",
+    "order_fill -> accounting (PaperAccount position, cash, equity_mark updates)",
+    "accounting -> event_ledger (checksummed account file, hash-chained events)",
+    "event_ledger -> audit (verify_chain() detects tampering)",
+    "simulator -> checkpoint (atomic save + SHA-256 integrity)",
+    "checkpoint -> recovery (recover_from_checkpoint restores account state)",
+    "cli -> paper_loop (sf paper step/consume signal + bar)",
+    "cli -> simulator (sf paper simulator deterministic replay)",
+    "backtest -> paper_compare (compare_account_to_backtest divergence report)"
+  ],
+  "changes_made": {
+    "src/crypto_engine/paper_trading/strategy_adapters.py": [
+      "Fixed model_artifact_hash: now uses actual artifact_sha256 from record.json instead of model_id string",
+      "Added artifact_sha256 pydantic field to LogisticProducer"
+    ],
+    "src/crypto_engine/cli.py": [
+      "Added sf paper run command (batch signal->paper pipeline, bridges G2 gap)",
+      "Added sf paper simulator command (Q7 deterministic simulator via CLI)"
+    ],
+    "tests/unit/test_paper_q8_integration.py": [
+      "New: 14 Q8 integration and failure-injection tests"
+    ]
+  },
+  "new_tests": {
+    "file": "tests/unit/test_paper_q8_integration.py",
+    "test_count": 14,
+    "categories": {
+      "end_to_end_pipeline": [
+        "test_signal_to_order_end_to_end",
+        "test_order_to_accounting_end_to_end",
+        "test_event_to_audit_end_to_end"
+      ],
+      "failure_injection": [
+        "test_stale_candle_rejected",
+        "test_duplicate_signal_rejected",
+        "test_kill_switch_halted_account",
+        "test_daily_loss_limit_breach",
+        "test_invalid_price_rejected",
+        "test_abnormal_slippage_rejected",
+        "test_corrupted_checkpoint_detected",
+        "test_rejected_order_insufficient_cash"
+      ],
+      "deterministic_replay": [
+        "test_deterministic_replay_same_output"
+      ],
+      "candidate_isolation": [
+        "test_candidate_isolation_integration"
+      ]
+    }
+  },
+  "execution_results": {
+    "integration_tests": {
+      "command": "uv run pytest tests/unit/test_paper_q8_integration.py tests/unit/test_paper_q7_orders.py tests/unit/test_paper_q7_pnl_risk.py tests/unit/test_paper_q7_simulator.py tests/unit/test_paper_state.py tests/unit/test_paper_loop.py tests/unit/test_paper_compare.py",
+      "passed": 104,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 2.62
+    },
+    "failure_injection_results": {
+      "stale_candle": "VERIFIED - STALE_FUTURE rejection",
+      "duplicate_signal": "VERIFIED - DUPLICATE rejection, idempotent account hash",
+      "invalid_price": "VERIFIED - check_price rejects non-positive/non-finite",
+      "abnormal_slippage": "VERIFIED - check_slippage rejects > threshold",
+      "daily_loss_limit": "VERIFIED - is_daily_loss_breached returns True at 6% > 5% limit",
+      "kill_switch": "VERIFIED - HALTED rejection, position preserved",
+      "corrupted_checkpoint": "VERIFIED - verify_checkpoint_integrity returns False",
+      "insufficient_cash": "VERIFIED - step accepts or rejects gracefully"
+    },
+    "deterministic_replay": "VERIFIED - identical SimulatorResult across runs",
+    "ruff": "clean on all paper_trading modules and Q8 test files",
+    "cli_health": "sf health OK, config_exists=true, storage_writable=true",
+    "cli_paper_help": "8 commands available (init, status, step, flatten, verify, compare, run, simulator)"
+  },
+  "known_limitations": [
+    "Q5.2 prospective collection: DATA_INVALID (1 obs vs 168 min, coverage 0.0909 vs 0.95 min) - must continue independently, not blocking Q8",
+    "LightGBM producer: NOT_EVALUABLE (no trained artifact)",
+    "No centralized logging: LoggingConfig only has level, no structured logging/rotation",
+    "No automated signal->history->paper pipeline at CLI level before Q8 (now bridged by sf paper run)",
+    "Simulator duplicates loop.step() position/SLTP logic (G4 - maintenance risk, not correctness)",
+    "ExitReason has no MANUAL_FLATTEN member (paper uses paper_reason extra key)",
+    "No model promotion or selection - Q4 returned NO_STRATEGY_ELIGIBLE",
+    "API is read-only GET-only; no write endpoints (by design)"
+  ],
+  "remaining_blockers": [
+    "Q5.2 prospective collection must reach ELIGIBLE_FOR_EVALUATION before PROSPECTIVE_VALIDATED can be true",
+    "Q4 governance: NO_STRATEGY_ELIGIBLE - no strategy authorized for paper or live trading",
+    "Centralized logging/monitoring not implemented (observability gap)"
+  ],
+  "readiness_flags": {
+    "COMPONENTS_INTEGRATED": true,
+    "END_TO_END_TESTED": true,
+    "FAILURE_RECOVERY_VERIFIED": true,
+    "DETERMINISTIC_REPLAY_VERIFIED": true,
+    "RISK_CONTROLS_VERIFIED": true,
+    "PAPER_TRADING_READY": true,
+    "PROSPECTIVE_VALIDATED": false,
+    "PRODUCTION_READY": false,
+    "LIVE_TRADING_AUTHORIZED": false
+  },
+  "safety_notes": [
+    "Public read-only data only - no live orders anywhere in codebase",
+    "No retraining, tuning, or calibration in Q8",
+    "Deterministic risk gates independent of models/AI, fail-closed",
+    "Q4 governance preserved: NO_STRATEGY_ELIGIBLE, all authorization flags false",
+    "Q5.2 collection continues independently in background - must not be falsely satisfied",
+    "Historical validation artifacts never represented as prospective evidence"
+  ],
+  "artifacts": {
+    "frozen_model": "models/artifacts/logistic-ee482c-3e3324f2-20261028T132236/record.json",
+    "historical_dataset": "data/historical_accelerated_12m/dataset_manifest.json",
+    "q7_readiness": "docs/validation/results/q7_paper_trading_readiness.json",
+    "q8_integration": "docs/validation/results/q8_integration_validation.json"
+  }
+}

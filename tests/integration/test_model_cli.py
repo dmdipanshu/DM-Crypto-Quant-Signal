@@ -96,7 +96,7 @@ def test_model_train_end_to_end(tmp_path: Path) -> None:
     assert "profitab" in summary["disclaimer"]
     model_dir = Path(summary["artifact"]["model_dir"])
     assert (model_dir / "record.json").is_file()
-    assert (model_dir / "artifact.pkl").is_file()
+    assert (model_dir / "artifact.json").is_file()
     assert summary["holdout_final"]["n"] >= 5
     assert summary["split"]["train_observable_max"] <= summary["split"]["train_cutoff"]
 
@@ -175,3 +175,5 @@ def test_model_train_single_class_fails_cleanly(tmp_path: Path) -> None:
     )
     assert result.exit_code != 0
     assert "single-class" in result.output.lower()
+
+

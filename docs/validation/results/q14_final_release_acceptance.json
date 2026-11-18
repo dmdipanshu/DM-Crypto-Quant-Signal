@@ -1,0 +1,146 @@
+{
+  "phase": "Q14",
+  "title": "Final Release Acceptance & Deployment Gate",
+  "status": "ACCEPTED_WITH_WARNINGS",
+  "timestamp_utc": "2026-11-15T13:37:00Z",
+  "execution_time_minutes": 120,
+  "scope": "Final independent release acceptance review of SignalForge after Q13. Evaluates software release readiness only — does not authorize trading or production operation.",
+  "credential_rotation": {
+    "status": "REVOCATION_REQUIRED",
+    "classification": "EXPOSURE_NOT_CONFIRMED",
+    "reason": "META_MUSE_API_KEY real value was never committed to git (verified via git log --all -p). .env was never tracked. No external provider rotation performed — no provider console access available. Rotation is a precautionary manual action, not a confirmed breach.",
+    "runbook": "docs/operations/CREDENTIAL_ROTATION_RUNBOOK.md",
+    "external_rotation_verified": false,
+    "credential_rotation_verified": false
+  },
+  "evidence_audit": {
+    "milestones_audited": ["Q10", "Q11", "Q12", "Q13"],
+    "all_reports_exist": true,
+    "contradictions_found": false,
+    "inconsistencies_noted": [
+      "Q10 exposes different governance flag surface area than Q11-Q13 (no contradictions in substance)",
+      "Meta Muse provider disabled but model enabled and task route references disabled provider (provider disabled = no egress possible)"
+    ],
+    "governance_flags": {
+      "q4_no_strategy_eligible": true,
+      "ai_can_promote": false,
+      "all_authorization_flags_false": true,
+      "no_live_orders": true,
+      "no_retraining": true,
+      "q5_2_prospective_validated": false,
+      "live_trading_authorized": false
+    }
+  },
+  "release_manifest": {
+    "path": "docs/validation/results/release_candidate_manifest.json",
+    "files_included": 190,
+    "files_verified_ok": 190,
+    "files_missing": 0,
+    "hash_mismatches": 0,
+    "all_hashes_match": true,
+    "excluded_paths": [
+      ".env",
+      "artifact.pkl",
+      "__pycache__/",
+      ".venv/",
+      ".pytest_cache/",
+      ".ruff_cache/",
+      "data/",
+      "backups/",
+      "logs/",
+      "reports/",
+      "models/artifacts/*/artifact.pkl",
+      "SignalForge_Q2_to_Q4_Build/",
+      ".git/"
+    ],
+    "security_verification_flags_all_true": true
+  },
+  "security_verification": {
+    "no_pickle_imports_in_src": true,
+    "no_hardcoded_api_keys": true,
+    "env_gitignored": true,
+    "ci_secret_scanning": true,
+    "api_auth_fail_closed": true,
+    "metric_label_redaction": true,
+    "backup_tamper_detection": true,
+    "unsafe_deserialization_absent": true
+  },
+  "clean_installation": {
+    "sf_health": "PASS — exit code 0, valid JSON output",
+    "sf_config_show": "PASS — valid JSON config output",
+    "sf_backup_create": "PASS — exit code 0, backup created successfully",
+    "sf_backup_list": "PASS — lists backups correctly",
+    "ruff_check": "2 pre-existing errors (unrelated to Q14): RUF001 in cli.py:968, F841 in research/governance.py:503"
+  },
+  "backup_and_recovery": {
+    "backup_creation": "PASS — created backup with 91 files, 20013574 bytes",
+    "backup_integrity": "PASS — SHA-256 checksums verified",
+    "backup_list": "PASS — lists backups correctly",
+    "dry_restore_tested": true,
+    "no_user_data_overwritten": true
+  },
+  "test_results": {
+    "full_suite": {
+      "passed": 1392,
+      "failed": 0,
+      "skipped": 3,
+      "exit_code": 0
+    },
+    "q12_secret_scanning": "10 passed",
+    "q11_security": "20 passed",
+    "q10_security": "20 passed",
+    "q6_frozen_inference": "39 passed",
+    "q7_paper_trading": "Included in full suite — passing",
+    "q8_integration": "Included in full suite — passing",
+    "q9_observability": "Included in full suite — passing"
+  },
+  "governance_verification": {
+    "q4_decision": "NO_STRATEGY_ELIGIBLE",
+    "q5_2_eligible": false,
+    "promotion_eligible": false,
+    "promotion_gate": "BLOCKED",
+    "official_prospective_evidence": false,
+    "ai_can_promote": false,
+    "no_live_orders": true,
+    "no_retraining": true,
+    "q5_2_prospective_validated": false,
+    "live_trading_authorized": false,
+    "meta_muse_provider_disabled": true,
+    "all_checks_pass": true
+  },
+  "readiness_flags": {
+    "credential_rotation_verified": false,
+    "q4_q13_evidence_verified": true,
+    "release_manifest_verified": true,
+    "release_secret_scan_passed": true,
+    "unsafe_deserialization_absent": true,
+    "clean_install_verified": true,
+    "backup_restore_verified": true,
+    "full_regression_passed": true,
+    "governance_preserved": true,
+    "software_release_accepted": true,
+    "q5_2_prospective_validated": false,
+    "production_ready": false,
+    "live_trading_authorized": false
+  },
+  "remaining_risks": [
+    {
+      "risk": "META_MUSE_API_KEY may exist locally outside git",
+      "severity": "HIGH",
+      "status": "REVOCATION_REQUIRED",
+      "mitigation": "Rotate through Meta provider console; store new key in gitignored .env",
+      "owner": "Security team",
+      "runbook": "docs/operations/CREDENTIAL_ROTATION_RUNBOOK.md"
+    },
+    {
+      "risk": "artifact.pkl files remain on disk (2 copies)",
+      "severity": "MEDIUM",
+      "status": "ACCEPTED",
+      "mitigation": "Not loaded by any active code path; JSON replacements exist",
+      "owner": "Platform team"
+    }
+  ],
+  "files_changed": [],
+  "conclusion": "Q14 final release acceptance complete. Software release is accepted with warnings. All Q4-Q13 evidence verified, release manifest integrity confirmed (190/190 files, all hashes match), full regression suite passes (1392 passed, 0 failed), clean installation verified, backup/recovery verified, all governance invariants preserved. Credential rotation remains pending (REVOCATION_REQUIRED — precautionary, not a confirmed breach). PRODUCTION_READY is false. LIVE_TRADING_AUTHORIZED is false.",
+  "final_decision": "Q14_RELEASE_ACCEPTED_WITH_WARNINGS"
+}

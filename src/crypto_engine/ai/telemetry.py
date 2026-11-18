@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import contextlib
 import json
+import os
 import threading
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -307,6 +308,12 @@ def resolve_telemetry_path(
 
     if raw_path is None:
         raw_path = default_path
+
+    if isinstance(raw_path, str) and os.name != "nt":
+        # Accept Windows-style backslash separators on non-Windows hosts so
+        # telemetry_path values written with backslashes (e.g. from Windows)
+        # resolve correctly on Linux/macOS containers.
+        raw_path = raw_path.replace("\\", "/")
 
     target = Path(raw_path)
     if target.is_absolute():

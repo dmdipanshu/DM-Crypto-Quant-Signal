@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
 from typer.testing import CliRunner
 
 from crypto_engine.cli import app
@@ -76,7 +77,8 @@ def test_signal_generate_corrupt_model(tmp_path: Path) -> None:
     assert "cannot load model" in result.output.lower()
 
 
-def test_signal_generate_stub_model_json_valid(tmp_path: Path) -> None:
+def test_signal_generate_stub_model_json_valid(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("SIGNALFORGE_ALLOW_FAIL_OPEN", "1")
     snap_dir, model_dir, config = _setup_dirs(tmp_path)
     hist_dir = tmp_path / "history"
 
@@ -113,8 +115,9 @@ def test_signal_generate_stub_model_json_valid(tmp_path: Path) -> None:
     assert (hist_dir / "signals.jsonl").is_file()
 
 
-def test_signal_generate_ai_explain_shows_summary(tmp_path: Path) -> None:
+def test_signal_generate_ai_explain_shows_summary(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """AI explanation summary must appear in CLI output when AI returns OK."""
+    monkeypatch.setenv("SIGNALFORGE_ALLOW_FAIL_OPEN", "1")
     snap_dir, model_dir, config = _setup_dirs(tmp_path)
     hist_dir = tmp_path / "history"
 
@@ -177,7 +180,8 @@ def test_signal_generate_ai_explain_shows_summary(tmp_path: Path) -> None:
     assert "AI gateway is not configured" in result.output or payload["ai_context"]["note"]
 
 
-def test_signal_history_and_verify(tmp_path: Path) -> None:
+def test_signal_history_and_verify(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("SIGNALFORGE_ALLOW_FAIL_OPEN", "1")
     snap_dir, model_dir, config = _setup_dirs(tmp_path)
     hist_dir = tmp_path / "history"
     base = [

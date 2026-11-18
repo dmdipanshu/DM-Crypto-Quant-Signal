@@ -27,9 +27,22 @@ class DataConfig(BaseModel):
 
 
 class LoggingConfig(BaseModel):
-    """Logging configuration."""
+    """Logging configuration.
+
+    Centralized structured logging for observability. JSON format by default,
+    UTC timestamps, correlation IDs, run IDs, secret redaction, and optional
+    rotating file output.
+    """
 
     level: str = "INFO"
+    format: Literal["text", "json"] = "json"
+    console_enabled: bool = True
+    file_enabled: bool = False
+    file_path: str = "logs/signalforge.log"
+    rotation_max_bytes: int = Field(default=10_000_000, gt=0)  # 10 MB
+    rotation_backup_count: int = Field(default=5, ge=0)
+    include_correlation_id: bool = True
+    include_run_id: bool = True
 
 
 class ModelConfig(BaseModel):
@@ -212,13 +225,29 @@ class PaperConfig(BaseModel):
     """Phase 6 advisory-only paper trading bounds (Track B owns engine).
 
     Declared here so Track B never edits ``settings.py``; no live orders
-    anywhere — paper state is advisory only.
+    anywhere -- paper state is advisory only.
     """
 
     account_path: str = "data/paper"
     poll_bars: int = Field(default=1, ge=1)
     max_pending_signals: int = Field(default=100, ge=1)
     fail_closed: bool = True
+
+
+class BackupConfig(BaseModel):
+    """Phase D disaster-recovery backup destination."""
+
+    path: str = Field(default="backups")
+
+
+class DeploymentConfig(BaseModel):
+    """Phase Q15 deployment environment markers."""
+
+    environment: str = Field(default="development")
+    trading_authorized: bool = Field(default=False)
+    live_orders_enabled: bool = Field(default=False)
+    retraining_enabled: bool = Field(default=False)
+    fail_closed_defaults: bool = Field(default=True)
 
 
 class ApiConfig(BaseModel):
@@ -238,6 +267,7 @@ class ApiConfig(BaseModel):
     backtest_dir: str = "data/backtests"
     experiments_path: str = "reports/experiments.jsonl"
     holdout_ledger_path: str = "reports/holdout.json"
+    research_release_path: str = "docs/validation/results/quantitative_release_q4.json"
     progress_dir: str = "data/project_progress"
 
 
@@ -256,6 +286,8 @@ class Settings(BaseModel):
     risk: RiskConfig = Field(default_factory=RiskConfig)
     backtest: BacktestConfig = Field(default_factory=BacktestConfig)
     paper: PaperConfig = Field(default_factory=PaperConfig)
+    backup: BackupConfig = Field(default_factory=BackupConfig)
+    deployment: DeploymentConfig = Field(default_factory=DeploymentConfig)
     api: ApiConfig = Field(default_factory=ApiConfig)
 
     @classmethod
@@ -276,6 +308,20 @@ def _discover_repo_root(start: Path) -> Path:
         "Could not locate repo root (no pyproject.toml found walking up from "
         f"{start}). Pass an explicit toml_path to load_settings()."
     )
+
+
+def validate_deployment_safety(settings: Settings) -> list[str]:
+    violations: list[str] = []
+    d = settings.deployment
+    if d.trading_authorized:
+        violations.append("deployment.trading_authorized must be false")
+    if d.live_orders_enabled:
+        violations.append("deployment.live_orders_enabled must be false")
+    if d.retraining_enabled:
+        violations.append("deployment.retraining_enabled must be false")
+    if not d.fail_closed_defaults:
+        violations.append("deployment.fail_closed_defaults must be true")
+    return violations
 
 
 def default_config_path() -> Path:
@@ -317,8 +363,10 @@ __all__ = [
     "AiTaskRouteConfig",
     "ApiConfig",
     "BacktestConfig",
+    "BackupConfig",
     "CalibrationConfig",
     "DataConfig",
+    "DeploymentConfig",
     "ExchangeConfig",
     "LoggingConfig",
     "ModelConfig",
@@ -330,4 +378,5 @@ __all__ = [
     "ValidationConfig",
     "default_config_path",
     "load_settings",
+    "validate_deployment_safety",
 ]

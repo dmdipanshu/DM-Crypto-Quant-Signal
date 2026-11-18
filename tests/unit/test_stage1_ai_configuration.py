@@ -252,7 +252,7 @@ def test_repository_default_config_is_enabled_and_parses() -> None:
     assert meta_muse.base_url == "https://api.meta.ai/v1"
     assert meta_muse.api_key_env == "META_MUSE_API_KEY"
     assert meta_muse.auth_mechanism == "bearer"
-    assert meta_muse.enabled is True
+    assert meta_muse.enabled is False
     assert len(config.models) == 1
     model_keys = {(m.provider_id, m.model_id) for m in config.models}
     assert model_keys == {("meta_muse", "muse-spark-1.3")}
@@ -260,3 +260,4 @@ def test_repository_default_config_is_enabled_and_parses() -> None:
     assert len(config.tasks["signal_explanation"].route) == 1
     route_keys = {tuple(r.split(":")) for r in config.tasks["signal_explanation"].route}
     assert route_keys == {("meta_muse", "muse-spark-1.3")}
+

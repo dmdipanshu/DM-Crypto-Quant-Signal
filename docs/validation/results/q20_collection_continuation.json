@@ -1,0 +1,123 @@
+{
+  "phase": "Q20",
+  "topic": "Extended Prospective Collection Continuation & Governance",
+  "decision": "Q20_CONTINUATION_READY_WITH_WARNINGS",
+  "collection_id": "collect-52cefa0dda64",
+  "freeze_id": "freeze-aaa4dd57057a",
+  "collection_started_at_utc": "2026-11-13T06:15:46.915986+00:00",
+  "seven_day_deadline_utc": "2026-11-20T06:15:46.915986+00:00",
+  "assessment_time_utc": "2026-11-15T19:28:13Z",
+  "governance": {
+    "seven_days_is_minimum_floor": true,
+    "collection_can_continue_beyond_seven_days": true,
+    "freeze_remains_valid": true,
+    "accumulating_is_allowed_state": true,
+    "data_invalid_is_recoverable": true,
+    "no_governance_rule_prohibits_extension": true,
+    "q6_preflight_is_final_eligibility_gate": true,
+    "human_continuation_approval": "PENDING_HUMAN_APPROVAL"
+  },
+  "current_state": {
+    "accepted_observations": 15,
+    "expected_intervals": 69,
+    "coverage_fraction": 0.2174,
+    "raw_ingestion_events": 17,
+    "normalized_events": 17,
+    "unique_observations": 15,
+    "duplicate_count": 2,
+    "conflict_count": 0,
+    "rejection_count": 70,
+    "ledger_integrity": {"valid": true, "event_count": 17},
+    "provenance_status": "HEALTHY",
+    "ingestion_status": "HEALTHY",
+    "collection_status": "ACCUMULATING",
+    "evaluation_blocked": true,
+    "seven_day_threshold_elapsed": false,
+    "remaining_duration_days": 4.06
+  },
+  "feasibility_recalculated": {
+    "remaining_observations_to_168": 153,
+    "n_coverage": 1011,
+    "n_required": 1011,
+    "hours_needed": 1011,
+    "days_needed": 42.1,
+    "earliest_eligibility_date_utc": "2026-12-28T07:51:53+00:00",
+    "missed_interval_effect": "T >= 1011 + 20*M",
+    "extended_collection_necessary": true
+  },
+  "scheduler": {
+    "script": "scripts/q20_prospective_scheduler.ps1",
+    "task_name": "SignalForge-Q20-Prospective-Collection",
+    "primary_minute_utc": 8,
+    "retry_minute_utc": 12,
+    "single_instance_protection": true,
+    "idempotent_no_op": true,
+    "bounded_retries": 2,
+    "dry_run_tested": false,
+    "scheduler_registered": false,
+    "registration_command": "schtasks /Create /TN \"SignalForge-Q20-Prospective-Collection\" ...",
+    "removal_command": "schtasks /Delete /TN \"SignalForge-Q20-Prospective-Collection\" /F"
+  },
+  "monitoring": {
+    "script": "scripts/q20_prospective_monitor.py",
+    "metrics_count": 21,
+    "warning_conditions": 8,
+    "read_only": true,
+    "no_credential_output": true
+  },
+  "security_regression": {
+    "total_passed": 1408,
+    "total_failed": 0,
+    "total_skipped": 3,
+    "q18_adapter_tests": "12 passed",
+    "q19_feasibility_tests": "14 passed",
+    "q5_prospective_tests": "37 passed",
+    "nvidia_api_key_user_scope": "not_found",
+    "meta_muse_api_key_env": "not_found",
+    "credentials_in_logs": "not_inspected",
+    "deployment_config_present": true,
+    "api_auth_fail_closed": true,
+    "observability_operational": true,
+    "q18_retry_intact": true,
+    "q19_calculations_correct": true
+  },
+  "readiness_flags": {
+    "COLLECTION_CONTINUATION_GOVERNANCE_VERIFIED": true,
+    "HUMAN_CONTINUATION_APPROVAL": "PENDING_HUMAN_APPROVAL",
+    "CURRENT_EVIDENCE_RECALCULATED": true,
+    "COVERAGE_REQUIREMENT_RECALCULATED": true,
+    "ELIGIBILITY_DATE_RECALCULATED": true,
+    "SCHEDULER_DRY_RUN_PASSED": false,
+    "SCHEDULER_REGISTERED": false,
+    "COLLECTION_MONITORING_OPERATIONAL": true,
+    "COLLECTION_INTEGRITY_VERIFIED": true,
+    "Q5_2_PROSPECTIVE_VALIDATED": false,
+    "Q4_GOVERNANCE_PRESERVED": true,
+    "PRODUCTION_READY": false,
+    "LIVE_TRADING_AUTHORIZED": false
+  },
+  "warnings": [
+    "Human continuation approval is PENDING — no recorded human approval exists for extending collection beyond 7 days",
+    "Original 7-day deadline (~4.06 days remaining) cannot satisfy obs>=168 or coverage>=95%",
+    "Extended collection requires ~42 more days of near-perfect collection (1011 hourly observations)",
+    "No successful ingestion for more than two collection cycles — monitor for stalls",
+    "Storage reader shows 17 raw vs 15 unique (2 duplicates — expected dedup behavior)",
+    "70 rejected observations, all historical latency rejections",
+    "SCHEDULER_DRY_RUN_PASSED is false — PowerShell not available on this system for dry-run testing"
+  ],
+  "not_implemented": [
+    "live orders", "real-money trading", "model retraining/refitting/calibration/tuning",
+    "threshold selection", "feature selection", "backtest execution", "paper trading",
+    "portfolio accounting", "API/dashboard write endpoints", "public exposure",
+    "Windows scheduled task activation (requires explicit authorization)"
+  ],
+  "files_changed": [
+    "scripts/q20_prospective_scheduler.ps1 (Q20, new)",
+    "scripts/q20_prospective_monitor.py (Q20, new)",
+    "tests/unit/research/q19/test_q19_coverage_feasibility.py (Q19 test fixed — stale assertion corrected)",
+    "docs/validation/results/q20_collection_continuation.json (Q20, new)",
+    "docs/validation/results/q20_collection_continuation.md (Q20, new)",
+    "docs/operations/Q20_COLLECTION_CONTINUATION_RUNBOOK.md (Q20, new)",
+    "docs/operations/Q20_PROSPECTIVE_MONITORING.md (Q20, new)"
+  ]
+}

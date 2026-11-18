@@ -1,0 +1,182 @@
+{
+  "phase": "Q12",
+  "title": "Security Closure & Release Qualification",
+  "status": "QUALIFIED_WITH_WARNINGS",
+  "timestamp_utc": "2026-11-15T12:43:00Z",
+  "execution_time_minutes": 180,
+  "scope": "Complete outstanding Q11 security actions and establish a reproducible, security-verified SignalForge release package. No trading, no retraining, no live execution.",
+  "q11_findings_reverified": true,
+  "q11_baseline": {
+    "status": "PASSED_WITH_WARNINGS",
+    "critical_fixed": 2,
+    "critical_remaining": 0,
+    "high_fixed": 1,
+    "high_partially_fixed": 1,
+    "regression_passed": 1380,
+    "regression_failed": 2,
+    "regression_skipped": 3
+  },
+  "credential_exposure": {
+    "investigated": true,
+    "git_history_checked": true,
+    "meta_muse_key_in_git": false,
+    "exposure_status": "EXPOSURE_NOT_CONFIRMED",
+    "affected_files": [],
+    "affected_commits": [],
+    "reason": "META_MUSE_API_KEY real value was never committed to git. .env was never tracked. config/default.toml only contains env var name, never value."
+  },
+  "credential_rotation": {
+    "status": "REVOCATION_REQUIRED",
+    "reason": "Real key value may have existed locally outside git. Provider-side rotation required through Meta provider console. Manual rotation runbook created at docs/operations/CREDENTIAL_ROTATION_RUNBOOK.md.",
+    "verification_procedure": [
+      "Revoke old key through Meta provider console",
+      "Store new key in .env (gitignored)",
+      "Run uv run sf health to confirm app works",
+      "Run grep to confirm no secrets in logs or reports"
+    ]
+  },
+  "legacy_artifacts": {
+    "inventoried": true,
+    "total_pkl_files": 2,
+    "migrated_to_json": 2,
+    "artifacts": [
+      {
+        "path": "models/artifacts/logistic-ee482c-3e3324f2-20261028T132236/",
+        "pkl_sha256": "42a8ea4bafd248c727538e233e5335337917bcd1664d28421daa70331eccf4db",
+        "json_sha256": "81230d7a59faabf52866188297ca3995e37df61e2a3522ebb2d7bfdacadc4997",
+        "status": "MIGRATED"
+      },
+      {
+        "path": "SignalForge_Q2_to_Q4_Build/models/artifacts/logistic-ee482c-3e3324f2-20261028T132236/",
+        "pkl_sha256": "42a8ea4bafd248c727538e233e5335337917bcd1664d28421daa70331eccf4db",
+        "json_sha256": "81230d7a59faabf52866188297ca3995e37df61e2a3522ebb2d7bfdacadc4997",
+        "status": "MIGRATED"
+      }
+    ],
+    "unsafe_code_remaining": [
+      {
+        "file": "SignalForge_Q2_to_Q4_Build/src/crypto_engine/registry/store.py:140",
+        "issue": "pickle.loads(blob) active unsafe deserialization",
+        "scope": "Build directory, NOT part of release package"
+      }
+    ],
+    "migration_documented": "docs/operations/MODEL_ARTIFACT_MIGRATION.md"
+  },
+  "ci_secret_scanning": {
+    "implemented": true,
+    "scanner": "scripts/security_scan.py",
+    "tests": "tests/unit/test_security_scan.py (10 tests, all passing)",
+    "ci_workflow": ".github/workflows/security-scan.yml",
+    "documentation": "docs/operations/CI_SECRET_SCANDING.md",
+    "scanner_exit_code_on_clean_release": 0,
+    "scanner_detections_on_full_repo": 44,
+    "detection_nature": "All 44 detections are false positives — test fixtures (sk-test-, sk-live-secret), documentation patterns, and code implementing Bearer token auth. No real credentials detected. Scanner correctly does not print secret values."
+  },
+  "release_package": {
+    "manifest": "docs/validation/results/release_candidate_manifest.json",
+    "files_included": 186,
+    "files_excluded": [
+      ".env",
+      "artifact.pkl",
+      "__pycache__/",
+      ".venv/",
+      ".pytest_cache/",
+      ".ruff_cache/",
+      "data/",
+      "backups/",
+      "logs/",
+      "reports/",
+      "SignalForge_Q2_to_Q4_Build/",
+      ".git/"
+    ],
+    "security_verification": {
+      "no_pickle_imports_in_src": true,
+      "no_hardcoded_api_keys": true,
+      "env_gitignored": true,
+      "ci_secret_scanning": true,
+      "api_auth_fail_closed": true,
+      "metric_label_redaction": true,
+      "backup_tamper_detection": true
+    }
+  },
+  "test_results": {
+    "q12_security_tests": {
+      "file": "tests/unit/test_security_scan.py",
+      "count": 10,
+      "passing": 10
+    },
+    "q11_security_regression": {
+      "file": "tests/unit/test_security_q11.py",
+      "count": 20,
+      "passing": 20
+    },
+    "q10_security_regression": {
+      "file": "tests/unit/test_security_q10.py",
+      "count": 20,
+      "passing": 20
+    },
+    "q6_frozen_inference_regression": {
+      "file": "tests/unit/research/q6/test_q6_frozen_inference_integrity.py",
+      "count": 39,
+      "passing": 39
+    },
+    "full_suite": {
+      "passed": 1390,
+      "failed": 2,
+      "skipped": 3,
+      "exit_code": 1,
+      "pre_existing_failures": [
+        {
+          "test": "tests/architecture/test_dependency_rules.py::test_presentation_does_not_import_infrastructure",
+          "error": "routes.py imports forbidden crypto_engine.observability.metrics",
+          "pre_existing": true,
+          "related_to_q12": false
+        },
+        {
+          "test": "tests/integration/test_ai_cli.py::test_ai_test_without_live_flag_makes_no_call",
+          "error": "AI CLI returns exit code 1 when no provider configured",
+          "pre_existing": true,
+          "related_to_q12": false
+        }
+      ]
+    }
+  },
+  "readiness_flags": {
+    "q11_findings_reverified": true,
+    "credential_exposure_investigated": true,
+    "meta_muse_key_rotated": false,
+    "legacy_artifacts_inventoried": true,
+    "legacy_artifact_migration_verified": true,
+    "ci_secret_scanning": true,
+    "release_secret_scan_passed": true,
+    "release_installation_verified": true,
+    "release_manifest_generated": true,
+    "q7_q8_q9_q10_q11_regression_tested": true,
+    "q5_2_prospective_validated": false,
+    "production_ready": false,
+    "live_trading_authorized": false
+  },
+  "remaining_manual_actions": [
+    {
+      "action": "Rotate META_MUSE_API_KEY through Meta provider console",
+      "reason": "Real key may have existed locally outside git. Provider-side rotation required.",
+      "owner": "Security team",
+      "status": "PENDING",
+      "runbook": "docs/operations/CREDENTIAL_ROTATION_RUNBOOK.md"
+    },
+    {
+      "action": "Review SignalForge_Q2_to_Q4_Build/store.py:140 pickle.loads()",
+      "reason": "Active unsafe deserialization in build directory (not part of release package)",
+      "owner": "Platform team",
+      "status": "PENDING",
+      "documentation": "docs/operations/MODEL_ARTIFACT_MIGRATION.md"
+    },
+    {
+      "action": "Fix pre-existing test failures (architecture dependency rule, AI CLI config)",
+      "reason": "Pre-existing failures unrelated to Q12 security work",
+      "owner": "Platform team",
+      "status": "PENDING"
+    }
+  ],
+  "conclusion": "Q12 release qualification complete. All Q11 outstanding actions addressed: credential exposure investigated (not confirmed in git), legacy artifacts migrated to JSON, CI secret scanning implemented. Release manifest generated with 186 files. All security verification flags true except META_MUSE_KEY_ROTATED (requires manual provider action). Full suite: 1390 passed, 2 pre-existing failures unrelated to Q12. Release does NOT authorize live trading or real-money orders."
+}

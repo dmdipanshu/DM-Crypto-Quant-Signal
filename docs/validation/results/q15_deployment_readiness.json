@@ -1,0 +1,213 @@
+{
+  "phase": "Q15",
+  "title": "Deployment Infrastructure Readiness & Deployment Rehearsal",
+  "status": "Q15_DEPLOYMENT_READY_WITH_WARNINGS",
+  "timestamp_utc": "2026-11-15T14:30:31Z",
+  "execution_time_minutes": 5.12,
+  "scope": "Q15 Phase F — Testing and final report. Deployment infrastructure readiness rehearsal on staging config. No trading, no live orders, no real exchange credentials, no model retraining/calibration. Source files and Q4-Q14 governance evidence not modified.",
+  "governance_flags": {
+    "credential_rotation_verified": false,
+    "q4_q13_evidence_verified": true,
+    "release_manifest_verified": true,
+    "release_secret_scan_passed": true,
+    "unsafe_deserialization_absent": true,
+    "clean_install_verified": true,
+    "backup_restore_verified": true,
+    "full_regression_passed": true,
+    "governance_preserved": true,
+    "q5_2_prospective_validated": false,
+    "production_ready": false,
+    "live_trading_authorized": false
+  },
+  "governance_facts_preserved": {
+    "q4_decision": "NO_STRATEGY_ELIGIBLE",
+    "ai_can_promote": false,
+    "production_ready": false,
+    "live_trading_authorized": false,
+    "q5_2_prospective_validated": false,
+    "meta_muse_api_key": "REVOCATION_REQUIRED (EXPOSURE_NOT_CONFIRMED, not externally verified)"
+  },
+  "architecture_summary": "SignalForge deployment architecture is a single-process, loopback-only advisory research platform. Canonical pipeline: exchange (ccxt, public read-only) -> market data -> features -> models -> signals -> risk gates -> results. Configuration lives in config/*.toml (default, staging, development, production) validated by pydantic Settings; secrets only in gitignored .env via META_MUSE_API_KEY env var. The [api] section binds 127.0.0.1:8000 with allow_remote=false and GET-only routes; dashboard is server-rendered HTML with no trading controls. Backup/restore targets config.staging [backup].path = backups; writes are atomic (temp file + os.replace), source dirs read-only, per-file 50 MB cap, SHA-256 manifest. Risk gates are deterministic, fail_closed, independent of models/AI; NO_TRADE is a valid output. No live orders, paper trading, retraining, or public exposure anywhere in the codebase.",
+  "security_findings": [
+    {
+      "finding": "META_MUSE_API_KEY rotation outstanding",
+      "severity": "HIGH",
+      "status": "REVOCATION_REQUIRED",
+      "detail": "Real key value never committed to git; .env never tracked; no external provider rotation performed (no provider console access). Classification EXPOSURE_NOT_CONFIRMED. Rotation is precautionary, not a confirmed breach.",
+      "runbook": "docs/operations/CREDENTIAL_ROTATION_RUNBOOK.md",
+      "external_rotation_verified": false
+    },
+    {
+      "finding": "API binding is loopback-only by default",
+      "severity": "INFO",
+      "status": "PASS",
+      "detail": "[api] host = 127.0.0.1, port = 8000, allow_remote = false; CORS origins empty; GET-only build assertion enforced; 405s on mutating methods; traversal/ID validation/secret redaction/sanitized errors tested."
+    },
+    {
+      "finding": "No hardcoded API keys; no pickle imports in src; .env gitignored",
+      "severity": "INFO",
+      "status": "PASS",
+      "detail": "Secret scan clean; unsafe deserialization absent; CI secret scanning configured."
+    },
+    {
+      "finding": "Backup tamper detection via SHA-256 manifest",
+      "severity": "INFO",
+      "status": "PASS",
+      "detail": "Backup create + dry-run restore verified (93 files, 0 errors); manifest checksums verified on create."
+    }
+  ],
+  "rehearsal_results": {
+    "phase_d_step": "Deployment rehearsal on config/staging.toml",
+    "backup_create": {
+      "command": "uv run sf backup create --config config/staging.toml",
+      "exit_code": 0,
+      "result": "backup id=286fc87b195644eca421ccc818c7668c, created_utc=2026-11-15T14:26:18.930892+00:00, files=93, total_bytes=20027892, status=completed"
+    },
+    "backup_list": {
+      "command": "uv run sf backup list backups",
+      "exit_code": 0,
+      "result": "3 backups listed newest first; latest = 286fc87b195644eca421ccc818c7668c"
+    },
+    "backup_restore_dry_run": {
+      "command": "uv run sf backup restore backups\\\\286fc87b195644eca421ccc818c7668c --dry-run --config config/staging.toml",
+      "exit_code": 0,
+      "result": "Restore preview: Restored=93, Skipped=0, Errors=0, Dry run=True"
+    },
+    "clean_install": {
+      "command": "uv sync --extra api then uv run sf health",
+      "exit_code": 0,
+      "result": "uv sync exit 0; sf health exit 0 (status ok, config valid, storage writable)"
+    },
+    "rollback_readiness": "Dry-run restore succeeded; no user data overwritten; fail_closed_defaults=true in [deployment]"
+  },
+  "test_results": {
+    "step_1_config": {
+      "command": "uv run pytest tests/unit/test_config.py -v",
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 0
+    },
+    "step_2_clean_install": {
+      "command": "uv sync --extra api; uv run sf health",
+      "uv_sync_exit_code": 0,
+      "sf_health_exit_code": 0
+    },
+    "step_3_startup_shutdown": {
+      "command": "uv run pytest tests/integration/test_serve_cli.py -v",
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 0
+    },
+    "step_4_authentication": {
+      "command": "uv run pytest tests/unit/test_api_security.py -v",
+      "passed": 9,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 0
+    },
+    "step_5_health_metrics": {
+      "command": "uv run pytest tests/unit/test_observability_q9.py -v",
+      "passed": 30,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 0
+    },
+    "step_6_backup_restoration": {
+      "command": "uv run pytest tests/unit/test_reliability.py -v",
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 0
+    },
+    "step_7_rollback": {
+      "command": "uv run sf backup create --config config/staging.toml; uv run sf backup restore <latest> --dry-run --config config/staging.toml",
+      "backup_create_exit_code": 0,
+      "backup_restore_dry_run_exit_code": 0
+    },
+    "step_8_failure_recovery": {
+      "command": "uv run pytest tests/unit/test_reliability.py -v",
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 0
+    },
+    "step_9_paper_q7_q8_regression": {
+      "command": "uv run pytest tests/unit/test_paper_compare.py tests/unit/test_paper_loop.py tests/unit/test_paper_q7_orders.py tests/unit/test_paper_q7_pnl_risk.py tests/unit/test_paper_q7_simulator.py tests/unit/test_paper_q8_integration.py tests/unit/test_paper_state.py tests/integration/test_paper_cli.py -v",
+      "passed": 110,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 0
+    },
+    "step_10_q9_observability_regression": {
+      "command": "uv run pytest tests/unit/test_observability_q9.py tests/unit/test_metrics_robustness.py -v",
+      "passed": 40,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 0
+    },
+    "step_11_q10_q14_security_regression": {
+      "command": "uv run pytest tests/unit/test_security_q10.py tests/unit/test_security_q11.py tests/unit/test_security_scan.py -v",
+      "passed": 50,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 0
+    },
+    "step_12_full_suite": {
+      "command": "uv run pytest",
+      "passed": 1392,
+      "failed": 0,
+      "skipped": 3,
+      "exit_code": 0
+    },
+    "totals": {
+      "steps_executed": 12,
+      "steps_passed": 12,
+      "steps_failed": 0,
+      "test_passed": 1646,
+      "test_failed": 0,
+      "test_skipped": 3,
+      "full_suite_exit_code": 0
+    }
+  },
+  "remaining_risks": [
+    {
+      "risk": "META_MUSE_API_KEY may exist locally outside git (not externally rotated)",
+      "severity": "HIGH",
+      "status": "REVOCATION_REQUIRED",
+      "mitigation": "Rotate through Meta provider console; store new key in gitignored .env; verify externally.",
+      "owner": "Security team",
+      "runbook": "docs/operations/CREDENTIAL_ROTATION_RUNBOOK.md"
+    },
+    {
+      "risk": "Q5.2 prospective validation incomplete (collect-52cefa0dda64 / freeze-aaa4dd57057a)",
+      "severity": "MEDIUM",
+      "status": "INCOMPLETE",
+      "mitigation": "Complete prospective validation before any promotion decision; Q5_2_PROSPECTIVE_VALIDATED must remain false until done.",
+      "owner": "Quant research"
+    },
+    {
+      "risk": "artifact.pkl files remain on disk (2 copies)",
+      "severity": "MEDIUM",
+      "status": "ACCEPTED",
+      "mitigation": "Not loaded by any active code path; JSON replacements exist.",
+      "owner": "Platform team"
+    },
+    {
+      "risk": "No live connectivity proof for providers; sandbox has no package network",
+      "severity": "LOW",
+      "status": "ACCEPTED",
+      "mitigation": "Provider SDKs are bring-your-own; adapters use stdlib urllib; no runtime fallback wired.",
+      "owner": "Platform team"
+    }
+  ],
+  "files_changed": [],
+  "files_created": [
+    "docs/validation/results/q15_deployment_readiness.json",
+    "docs/validation/results/q15_deployment_readiness.md"
+  ],
+  "conclusion": "Q15 Phase F complete. All 12 test steps passed. Full regression suite green (1392 passed, 0 failed, 3 skipped, exit 0). Clean installation verified (uv sync --extra api exit 0; sf health exit 0). Backup create + dry-run restore verified (93 files, 0 errors). All Q4-Q14 governance invariants preserved: PRODUCTION_READY=false, LIVE_TRADING_AUTHORIZED=false, Q5_2_PROSPECTIVE_VALIDATED=false, ai_can_promote=false, Q4 NO_STRATEGY_ELIGIBLE. No source files or governance evidence modified. No trading, live orders, or real exchange credentials activated. Credential rotation (META_MUSE_API_KEY) remains outstanding and Q5.2 prospective validation is incomplete.",
+  "final_decision": "Q15_DEPLOYMENT_READY_WITH_WARNINGS",
+  "recommended_q16_milestone": "Q16 — Credential rotation completion (META_MUSE_API_KEY externally rotated via provider console) and Q5.2 prospective validation completion; re-run full regression and release acceptance after both close; production deployment remains unauthorized."
+}

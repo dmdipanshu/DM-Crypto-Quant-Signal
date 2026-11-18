@@ -152,7 +152,7 @@ max_chars = 200000         # reserved; not enforced
 provider_id = "meta_muse"
 display_name = "Meta Muse"
 dialect = "openai_compatible"
-enabled = true
+enabled = false
 timeout_s = 30.0
 max_retries = 2
 max_response_chars = 4000
@@ -161,7 +161,7 @@ base_url = "https://api.meta.ai/v1"
 api_key_env = "META_MUSE_API_KEY"
 auth_mechanism = "bearer"
 structured_output = "json_schema"
-egress_allowlist = []
+egress_allowlist = ["api.meta.ai"]
 
 [[ai.models]]
 provider_id = "meta_muse"
@@ -237,5 +237,10 @@ ledger_scan_cap = 5000 # max JSONL lines scanned per read (4GB guard)
 backtest_dir = "data/backtests"  # persisted sf backtest run dirs
 experiments_path = "reports/experiments.jsonl"  # Phase 3 experiment registry
 holdout_ledger_path = "reports/holdout.json"     # Phase 3 holdout ledger
+research_release_path = "docs/validation/results/quantitative_release_q4.json" # Q4 read-only release
 progress_dir = "data/project_progress"           # append-only progress ledger (read-only API)
 
+
+# Phase D disaster-recovery backup destination.
+[backup]
+path = "backups"  # backup/restore destination root (relative to repo root)

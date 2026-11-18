@@ -1,0 +1,40 @@
+{
+  "approval_id": "sha256:bdc76f074baee24c13b1aea1b033b686e224ff093a085d7f576ba9c42188094b",
+  "schema_version": "collection-authorization.v1",
+  "approved_at_utc": "2026-11-17T12:24:08.386668+00:00",
+  "approval_source": "human_project_owner",
+  "collection_id": "collect-52cefa0dda64",
+  "freeze_id": "freeze-aaa4dd57057a",
+  "scope": "read-only prospective market-data collection continuation",
+  "purpose": "Continue official Q5.2 collection beyond initial seven-day minimum until genuine Q5.2 eligibility requirements pass or approval is revoked",
+  "status": "active",
+  "valid_from_utc": "2026-11-17T12:24:08.386668+00:00",
+  "expires_at_utc": null,
+  "revoked_at_utc": null,
+  "revoked_by": null,
+  "restrictions": [
+    "no_strategy_evaluation",
+    "no_paper_trading",
+    "no_live_trading",
+    "no_model_promotion",
+    "no_backfill",
+    "no_fabricated_observations",
+    "no_threshold_changes",
+    "no_scheduler_registration"
+  ],
+  "expected_final_status": {
+    "collection_authorized": true,
+    "scheduler_authorized": false,
+    "strategy_evaluation_authorized": false,
+    "paper_trading_authorized": false,
+    "live_trading_authorized": false,
+    "Q5_2_PROSPECTIVE_VALIDATED": false
+  },
+  "q4_governance_preserved": {
+    "q4_decision": "NO_STRATEGY_ELIGIBLE",
+    "ai_can_promote": false,
+    "production_ready": false,
+    "live_trading_authorized": false,
+    "paper_trading_authorized": false
+  }
+}

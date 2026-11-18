@@ -14,6 +14,7 @@
 
 from __future__ import annotations
 
+import os
 from typing import Any
 
 try:
@@ -30,13 +31,20 @@ except ImportError as exc:  # pragma: no cover - exercised when extra is absent
 
 from crypto_engine.ai.env_loader import load_env
 from crypto_engine.api.schemas import fail, utc_now_iso
-from crypto_engine.api.security import ApiError
+from crypto_engine.api.security import ApiError, get_api_token, verify_api_token
 
 # Load .env at module import time so AI credentials are available when the
 # API server starts.
 load_env()
 
 DOCS_PATHS = {"/openapi.json", "/docs", "/docs/oauth2-redirect", "/redoc"}
+AUTH_SKIP_PATHS = DOCS_PATHS | {"/favicon.ico"}
+
+# Production authentication policy. When SIGNALFORGE_AUTH_REQUIRED=1, the
+# application refuses to serve unless SIGNALFORGE_API_TOKEN is configured.
+# Without this flag, development mode is assumed: auth is enforced only when
+# a token is configured, and skipped otherwise (explicit opt-in for production).
+AUTH_REQUIRED = os.environ.get("SIGNALFORGE_AUTH_REQUIRED", "").strip() == "1"
 
 
 def require_fastapi() -> None:
@@ -102,6 +110,11 @@ def create_app(roots: Any, settings: Any) -> Any:
     """Build the read-only FastAPI application (no side effects on build)."""
     require_fastapi()
 
+    from crypto_engine.config.settings import validate_deployment_safety
+    _create_app_violations = validate_deployment_safety(settings)
+    if _create_app_violations:
+        raise RuntimeError("; ".join(_create_app_violations))
+
     app: Any = FastAPI(
         title="SignalForge API",
         version="1.0.0",
@@ -153,6 +166,41 @@ def create_app(roots: Any, settings: Any) -> Any:
         return JSONResponse(
             status_code=500,
             content=fail("internal_error", f"Unexpected failure (ref {request_id}).", request_id),
+        )
+
+    try:
+        from starlette.middleware.base import BaseHTTPMiddleware
+
+        async def _auth_dispatch(request: Request, call_next):
+            token = get_api_token()
+            if request.url.path not in AUTH_SKIP_PATHS:
+                if AUTH_REQUIRED and token is None:
+                    return JSONResponse(
+                        status_code=401,
+                        content={"error": "unauthorized", "message": "API authentication required but no token configured."},
+                    )
+                if token is not None:
+                    try:
+                        verify_api_token(request.headers.get("authorization"))
+                    except ApiError:
+                        return JSONResponse(
+                            status_code=401,
+                            content={"error": "unauthorized", "message": "Missing or invalid API token."},
+                        )
+            return await call_next(request)
+
+        app.add_middleware(BaseHTTPMiddleware, dispatch=_auth_dispatch)
+    except ImportError:
+        pass  # starlette absent: auth middleware is optional
+
+    # Fail closed: when AUTH_REQUIRED is set but no API token is configured,
+    # refuse to serve. Development mode (AUTH_REQUIRED unset) allows auth to
+    # be skipped when no token is configured.
+    if AUTH_REQUIRED and get_api_token() is None:
+        raise RuntimeError(
+            "SIGNALFORGE_AUTH_REQUIRED=1 but SIGNALFORGE_API_TOKEN is not set. "
+            "Configure SIGNALFORGE_API_TOKEN or unset SIGNALFORGE_AUTH_REQUIRED "
+            "for development mode."
         )
 
     assert_get_only(app)

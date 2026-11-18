@@ -1,0 +1,4237 @@
+{
+  "conclusion": "DIAGNOSTIC_ONLY \u2014 no strategy or model promotion",
+  "dataset": {
+    "end": "2026-11-12 13:00:00+00:00",
+    "feature_count": 28,
+    "path": "data/canonical/binance/BTC-USDT/1h/candles.parquet",
+    "research_raw_rows": 15129,
+    "rows": 17798,
+    "sha256": "675d4302072552c90af253baf43f6555674ab4343088001ba15052c5f12e2790",
+    "start": "2024-11-01 00:00:00+00:00"
+  },
+  "generated_at": "2026-11-12T15:00:16.755529+00:00",
+  "holdout": {
+    "end": "2026-11-12 13:00:00+00:00",
+    "evaluated": false,
+    "integrity": {
+      "access_count": 1,
+      "holdout_start": "2026-07-24T09:00:00+00:00",
+      "model_frozen": true,
+      "parameters_frozen": true,
+      "pristine": false,
+      "reasons": [
+        "Training period overlaps or reaches the holdout boundary; the holdout is contaminated.",
+        "Holdout has already been accessed 1 time(s)."
+      ],
+      "status": "contaminated",
+      "training_end": "2026-10-01T00:00:00+00:00"
+    },
+    "note": "Q2.1 does not calculate features, labels or predictions on this tail. It overlaps the previously accessed Q2 holdout and production-model training period, so it is not pristine or promotion evidence.",
+    "rows_reserved": 2669,
+    "start": "2026-07-24 09:00:00+00:00",
+    "status": "NOT_OPENED_BY_Q2_1_BUT_PREVIOUSLY_CONTAMINATED"
+  },
+  "horizons": [
+    {
+      "best_validation_balanced_accuracy": 0.35397298972341135,
+      "best_validation_macro_f1": 0.3008167279048857,
+      "fold_plan": {
+        "embargo_bars": 24,
+        "fold_count": 5,
+        "train_window": 5976,
+        "validation_rows_per_fold": 600
+      },
+      "horizon_bars": 6,
+      "label_config": {
+        "pt_mult": 2.0,
+        "side": "both",
+        "sl_mult": 1.0
+      },
+      "label_distribution": {
+        "class_count": 3,
+        "counts": {
+          "-1": 8708,
+          "0": 2543,
+          "1": 3753
+        },
+        "fractions": {
+          "-1": 0.5803785657158091,
+          "0": 0.16948813649693414,
+          "1": 0.25013329778725674
+        },
+        "majority_fraction": 0.5803785657158091,
+        "total": 15004
+      },
+      "models": [
+        {
+          "aggregate": {
+            "accuracy": 0.593,
+            "actual_distribution": {
+              "class_count": 3,
+              "counts": {
+                "-1": 1779,
+                "0": 480,
+                "1": 741
+              },
+              "fractions": {
+                "-1": 0.593,
+                "0": 0.16,
+                "1": 0.247
+              },
+              "majority_fraction": 0.593,
+              "total": 3000
+            },
+            "balanced_accuracy": 0.3333333333333333,
+            "macro_f1": 0.2481690730278301,
+            "predicted_distribution": {
+              "class_count": 1,
+              "counts": {
+                "-1": 3000,
+                "0": 0,
+                "1": 0
+              },
+              "fractions": {
+                "-1": 1.0,
+                "0": 0.0,
+                "1": 0.0
+              },
+              "majority_fraction": 1.0,
+              "total": 3000
+            }
+          },
+          "folds": [
+            {
+              "accuracy": 0.55,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 330,
+                  "0": 97,
+                  "1": 173
+                },
+                "fractions": {
+                  "-1": 0.55,
+                  "0": 0.16166666666666665,
+                  "1": 0.28833333333333333
+                },
+                "majority_fraction": 0.55,
+                "total": 600
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 24,
+              "fold": 0,
+              "macro_f1": 0.23655913978494625,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 600,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 600
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-03-20 02:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-07-14 03:00:00+00:00",
+              "validation_end": "2026-04-15 02:00:00+00:00",
+              "validation_rows": 600,
+              "validation_start": "2026-03-21 03:00:00+00:00"
+            },
+            {
+              "accuracy": 0.5666666666666667,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 340,
+                  "0": 94,
+                  "1": 166
+                },
+                "fractions": {
+                  "-1": 0.5666666666666667,
+                  "0": 0.15666666666666668,
+                  "1": 0.27666666666666667
+                },
+                "majority_fraction": 0.5666666666666667,
+                "total": 600
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 24,
+              "fold": 1,
+              "macro_f1": 0.24113475177304966,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 600,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 600
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-04-14 02:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-08-08 03:00:00+00:00",
+              "validation_end": "2026-05-10 02:00:00+00:00",
+              "validation_rows": 600,
+              "validation_start": "2026-04-15 03:00:00+00:00"
+            },
+            {
+              "accuracy": 0.6733333333333333,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 404,
+                  "0": 89,
+                  "1": 107
+                },
+                "fractions": {
+                  "-1": 0.6733333333333333,
+                  "0": 0.14833333333333334,
+                  "1": 0.17833333333333334
+                },
+                "majority_fraction": 0.6733333333333333,
+                "total": 600
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 24,
+              "fold": 2,
+              "macro_f1": 0.2682602921646746,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 600,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 600
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-05-09 02:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-09-02 03:00:00+00:00",
+              "validation_end": "2026-06-04 02:00:00+00:00",
+              "validation_rows": 600,
+              "validation_start": "2026-05-10 03:00:00+00:00"
+            },
+            {
+              "accuracy": 0.6,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 360,
+                  "0": 104,
+                  "1": 136
+                },
+                "fractions": {
+                  "-1": 0.6,
+                  "0": 0.17333333333333334,
+                  "1": 0.22666666666666666
+                },
+                "majority_fraction": 0.6,
+                "total": 600
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 24,
+              "fold": 3,
+              "macro_f1": 0.25,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 600,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 600
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-06-03 02:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-09-27 03:00:00+00:00",
+              "validation_end": "2026-06-29 02:00:00+00:00",
+              "validation_rows": 600,
+              "validation_start": "2026-06-04 03:00:00+00:00"
+            },
+            {
+              "accuracy": 0.575,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 345,
+                  "0": 96,
+                  "1": 159
+                },
+                "fractions": {
+                  "-1": 0.575,
+                  "0": 0.16,
+                  "1": 0.265
+                },
+                "majority_fraction": 0.575,
+                "total": 600
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 24,
+              "fold": 4,
+              "macro_f1": 0.24338624338624337,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 600,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 600
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-06-28 02:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-10-22 03:00:00+00:00",
+              "validation_end": "2026-07-24 02:00:00+00:00",
+              "validation_rows": 600,
+              "validation_start": "2026-06-29 03:00:00+00:00"
+            }
+          ],
+          "model": "majority",
+          "status": "ok",
+          "validation_rows": 3000
+        },
+        {
+          "aggregate": {
+            "accuracy": 0.4256666666666667,
+            "actual_distribution": {
+              "class_count": 3,
+              "counts": {
+                "-1": 1779,
+                "0": 480,
+                "1": 741
+              },
+              "fractions": {
+                "-1": 0.593,
+                "0": 0.16,
+                "1": 0.247
+              },
+              "majority_fraction": 0.593,
+              "total": 3000
+            },
+            "balanced_accuracy": 0.35397298972341135,
+            "macro_f1": 0.3008167279048857,
+            "predicted_distribution": {
+              "class_count": 2,
+              "counts": {
+                "-1": 1350,
+                "0": 0,
+                "1": 1650
+              },
+              "fractions": {
+                "-1": 0.45,
+                "0": 0.0,
+                "1": 0.55
+              },
+              "majority_fraction": 0.55,
+              "total": 3000
+            }
+          },
+          "folds": [
+            {
+              "accuracy": 0.38333333333333336,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 330,
+                  "0": 97,
+                  "1": 173
+                },
+                "fractions": {
+                  "-1": 0.55,
+                  "0": 0.16166666666666665,
+                  "1": 0.28833333333333333
+                },
+                "majority_fraction": 0.55,
+                "total": 600
+              },
+              "balanced_accuracy": 0.3359082150989665,
+              "embargo_rows": 24,
+              "fold": 0,
+              "macro_f1": 0.27828217037943487,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 209,
+                  "0": 0,
+                  "1": 391
+                },
+                "fractions": {
+                  "-1": 0.34833333333333333,
+                  "0": 0.0,
+                  "1": 0.6516666666666666
+                },
+                "majority_fraction": 0.6516666666666666,
+                "total": 600
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-03-20 02:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-07-14 03:00:00+00:00",
+              "validation_end": "2026-04-15 02:00:00+00:00",
+              "validation_rows": 600,
+              "validation_start": "2026-03-21 03:00:00+00:00"
+            },
+            {
+              "accuracy": 0.425,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 340,
+                  "0": 94,
+                  "1": 166
+                },
+                "fractions": {
+                  "-1": 0.5666666666666667,
+                  "0": 0.15666666666666668,
+                  "1": 0.27666666666666667
+                },
+                "majority_fraction": 0.5666666666666667,
+                "total": 600
+              },
+              "balanced_accuracy": 0.3620127569099929,
+              "embargo_rows": 24,
+              "fold": 1,
+              "macro_f1": 0.3060230330991576,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 238,
+                  "0": 0,
+                  "1": 362
+                },
+                "fractions": {
+                  "-1": 0.39666666666666667,
+                  "0": 0.0,
+                  "1": 0.6033333333333334
+                },
+                "majority_fraction": 0.6033333333333334,
+                "total": 600
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-04-14 02:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-08-08 03:00:00+00:00",
+              "validation_end": "2026-05-10 02:00:00+00:00",
+              "validation_rows": 600,
+              "validation_start": "2026-04-15 03:00:00+00:00"
+            },
+            {
+              "accuracy": 0.505,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 404,
+                  "0": 89,
+                  "1": 107
+                },
+                "fractions": {
+                  "-1": 0.6733333333333333,
+                  "0": 0.14833333333333334,
+                  "1": 0.17833333333333334
+                },
+                "majority_fraction": 0.6733333333333333,
+                "total": 600
+              },
+              "balanced_accuracy": 0.3484778384380494,
+              "embargo_rows": 24,
+              "fold": 2,
+              "macro_f1": 0.3089085663935964,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 373,
+                  "0": 0,
+                  "1": 227
+                },
+                "fractions": {
+                  "-1": 0.6216666666666667,
+                  "0": 0.0,
+                  "1": 0.37833333333333335
+                },
+                "majority_fraction": 0.6216666666666667,
+                "total": 600
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-05-09 02:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-09-02 03:00:00+00:00",
+              "validation_end": "2026-06-04 02:00:00+00:00",
+              "validation_rows": 600,
+              "validation_start": "2026-05-10 03:00:00+00:00"
+            },
+            {
+              "accuracy": 0.41833333333333333,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 360,
+                  "0": 104,
+                  "1": 136
+                },
+                "fractions": {
+                  "-1": 0.6,
+                  "0": 0.17333333333333334,
+                  "1": 0.22666666666666666
+                },
+                "majority_fraction": 0.6,
+                "total": 600
+              },
+              "balanced_accuracy": 0.33916122004357296,
+              "embargo_rows": 24,
+              "fold": 3,
+              "macro_f1": 0.2897289627781751,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 305,
+                  "0": 0,
+                  "1": 295
+                },
+                "fractions": {
+                  "-1": 0.5083333333333333,
+                  "0": 0.0,
+                  "1": 0.49166666666666664
+                },
+                "majority_fraction": 0.5083333333333333,
+                "total": 600
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-06-03 02:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-09-27 03:00:00+00:00",
+              "validation_end": "2026-06-29 02:00:00+00:00",
+              "validation_rows": 600,
+              "validation_start": "2026-06-04 03:00:00+00:00"
+            },
+            {
+              "accuracy": 0.39666666666666667,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 345,
+                  "0": 96,
+                  "1": 159
+                },
+                "fractions": {
+                  "-1": 0.575,
+                  "0": 0.16,
+                  "1": 0.265
+                },
+                "majority_fraction": 0.575,
+                "total": 600
+              },
+              "balanced_accuracy": 0.3452374441709963,
+              "embargo_rows": 24,
+              "fold": 4,
+              "macro_f1": 0.28640515145541756,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 225,
+                  "0": 0,
+                  "1": 375
+                },
+                "fractions": {
+                  "-1": 0.375,
+                  "0": 0.0,
+                  "1": 0.625
+                },
+                "majority_fraction": 0.625,
+                "total": 600
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-06-28 02:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-10-22 03:00:00+00:00",
+              "validation_end": "2026-07-24 02:00:00+00:00",
+              "validation_rows": 600,
+              "validation_start": "2026-06-29 03:00:00+00:00"
+            }
+          ],
+          "model": "trend",
+          "status": "ok",
+          "validation_rows": 3000
+        },
+        {
+          "aggregate": {
+            "accuracy": 0.593,
+            "actual_distribution": {
+              "class_count": 3,
+              "counts": {
+                "-1": 1779,
+                "0": 480,
+                "1": 741
+              },
+              "fractions": {
+                "-1": 0.593,
+                "0": 0.16,
+                "1": 0.247
+              },
+              "majority_fraction": 0.593,
+              "total": 3000
+            },
+            "balanced_accuracy": 0.34349266805943385,
+            "macro_f1": 0.27371704913830724,
+            "predicted_distribution": {
+              "class_count": 3,
+              "counts": {
+                "-1": 2955,
+                "0": 40,
+                "1": 5
+              },
+              "fractions": {
+                "-1": 0.985,
+                "0": 0.013333333333333334,
+                "1": 0.0016666666666666668
+              },
+              "majority_fraction": 0.985,
+              "total": 3000
+            }
+          },
+          "folds": [
+            {
+              "accuracy": 0.5566666666666666,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 330,
+                  "0": 97,
+                  "1": 173
+                },
+                "fractions": {
+                  "-1": 0.55,
+                  "0": 0.16166666666666665,
+                  "1": 0.28833333333333333
+                },
+                "majority_fraction": 0.55,
+                "total": 600
+              },
+              "balanced_accuracy": 0.34950536290742473,
+              "embargo_rows": 24,
+              "fold": 0,
+              "macro_f1": 0.26968219573853375,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 593,
+                  "0": 7,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 0.9883333333333333,
+                  "0": 0.011666666666666667,
+                  "1": 0.0
+                },
+                "majority_fraction": 0.9883333333333333,
+                "total": 600
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-03-20 02:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-07-14 03:00:00+00:00",
+              "validation_end": "2026-04-15 02:00:00+00:00",
+              "validation_rows": 600,
+              "validation_start": "2026-03-21 03:00:00+00:00"
+            },
+            {
+              "accuracy": 0.5633333333333334,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 340,
+                  "0": 94,
+                  "1": 166
+                },
+                "fractions": {
+                  "-1": 0.5666666666666667,
+                  "0": 0.15666666666666668,
+                  "1": 0.27666666666666667
+                },
+                "majority_fraction": 0.5666666666666667,
+                "total": 600
+              },
+              "balanced_accuracy": 0.33137254901960783,
+              "embargo_rows": 24,
+              "fold": 1,
+              "macro_f1": 0.240227434257285,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 598,
+                  "0": 0,
+                  "1": 2
+                },
+                "fractions": {
+                  "-1": 0.9966666666666667,
+                  "0": 0.0,
+                  "1": 0.0033333333333333335
+                },
+                "majority_fraction": 0.9966666666666667,
+                "total": 600
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-04-14 02:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-08-08 03:00:00+00:00",
+              "validation_end": "2026-05-10 02:00:00+00:00",
+              "validation_rows": 600,
+              "validation_start": "2026-04-15 03:00:00+00:00"
+            },
+            {
+              "accuracy": 0.6733333333333333,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 404,
+                  "0": 89,
+                  "1": 107
+                },
+                "fractions": {
+                  "-1": 0.6733333333333333,
+                  "0": 0.14833333333333334,
+                  "1": 0.17833333333333334
+                },
+                "majority_fraction": 0.6733333333333333,
+                "total": 600
+              },
+              "balanced_accuracy": 0.33917380502095157,
+              "embargo_rows": 24,
+              "fold": 2,
+              "macro_f1": 0.282336917562724,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 596,
+                  "0": 4,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 0.9933333333333333,
+                  "0": 0.006666666666666667,
+                  "1": 0.0
+                },
+                "majority_fraction": 0.9933333333333333,
+                "total": 600
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-05-09 02:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-09-02 03:00:00+00:00",
+              "validation_end": "2026-06-04 02:00:00+00:00",
+              "validation_rows": 600,
+              "validation_start": "2026-05-10 03:00:00+00:00"
+            },
+            {
+              "accuracy": 0.595,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 360,
+                  "0": 104,
+                  "1": 136
+                },
+                "fractions": {
+                  "-1": 0.6,
+                  "0": 0.17333333333333334,
+                  "1": 0.22666666666666666
+                },
+                "majority_fraction": 0.6,
+                "total": 600
+              },
+              "balanced_accuracy": 0.35639768728004023,
+              "embargo_rows": 24,
+              "fold": 3,
+              "macro_f1": 0.307920564316951,
+              "predicted_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 571,
+                  "0": 26,
+                  "1": 3
+                },
+                "fractions": {
+                  "-1": 0.9516666666666667,
+                  "0": 0.043333333333333335,
+                  "1": 0.005
+                },
+                "majority_fraction": 0.9516666666666667,
+                "total": 600
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-06-03 02:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-09-27 03:00:00+00:00",
+              "validation_end": "2026-06-29 02:00:00+00:00",
+              "validation_rows": 600,
+              "validation_start": "2026-06-04 03:00:00+00:00"
+            },
+            {
+              "accuracy": 0.5766666666666667,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 345,
+                  "0": 96,
+                  "1": 159
+                },
+                "fractions": {
+                  "-1": 0.575,
+                  "0": 0.16,
+                  "1": 0.265
+                },
+                "majority_fraction": 0.575,
+                "total": 600
+              },
+              "balanced_accuracy": 0.3393115942028986,
+              "embargo_rows": 24,
+              "fold": 4,
+              "macro_f1": 0.2569216581955435,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 597,
+                  "0": 3,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 0.995,
+                  "0": 0.005,
+                  "1": 0.0
+                },
+                "majority_fraction": 0.995,
+                "total": 600
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-06-28 02:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-10-22 03:00:00+00:00",
+              "validation_end": "2026-07-24 02:00:00+00:00",
+              "validation_rows": 600,
+              "validation_start": "2026-06-29 03:00:00+00:00"
+            }
+          ],
+          "model": "logistic",
+          "status": "ok",
+          "validation_rows": 3000
+        }
+      ],
+      "promotion": "NOT_EVALUATED \u2014 diagnostics only; no production authority",
+      "research_end": "2026-07-24 02:00:00+00:00",
+      "research_rows": 15004,
+      "research_start": "2024-11-05 23:00:00+00:00"
+    },
+    {
+      "best_validation_balanced_accuracy": 0.360252241197123,
+      "best_validation_macro_f1": 0.3273725420296767,
+      "fold_plan": {
+        "embargo_bars": 24,
+        "fold_count": 5,
+        "train_window": 5976,
+        "validation_rows_per_fold": 599
+      },
+      "horizon_bars": 12,
+      "label_config": {
+        "pt_mult": 2.0,
+        "side": "both",
+        "sl_mult": 1.0
+      },
+      "label_distribution": {
+        "class_count": 3,
+        "counts": {
+          "-1": 9567,
+          "0": 1012,
+          "1": 4419
+        },
+        "fractions": {
+          "-1": 0.6378850513401787,
+          "0": 0.06747566342178957,
+          "1": 0.29463928523803173
+        },
+        "majority_fraction": 0.6378850513401787,
+        "total": 14998
+      },
+      "models": [
+        {
+          "aggregate": {
+            "accuracy": 0.6427378964941569,
+            "actual_distribution": {
+              "class_count": 3,
+              "counts": {
+                "-1": 1925,
+                "0": 181,
+                "1": 889
+              },
+              "fractions": {
+                "-1": 0.6427378964941569,
+                "0": 0.060434056761268784,
+                "1": 0.2968280467445743
+              },
+              "majority_fraction": 0.6427378964941569,
+              "total": 2995
+            },
+            "balanced_accuracy": 0.3333333333333333,
+            "macro_f1": 0.260840108401084,
+            "predicted_distribution": {
+              "class_count": 1,
+              "counts": {
+                "-1": 2995,
+                "0": 0,
+                "1": 0
+              },
+              "fractions": {
+                "-1": 1.0,
+                "0": 0.0,
+                "1": 0.0
+              },
+              "majority_fraction": 1.0,
+              "total": 2995
+            }
+          },
+          "folds": [
+            {
+              "accuracy": 0.6060100166944908,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 363,
+                  "0": 34,
+                  "1": 202
+                },
+                "fractions": {
+                  "-1": 0.6060100166944908,
+                  "0": 0.05676126878130217,
+                  "1": 0.337228714524207
+                },
+                "majority_fraction": 0.6060100166944908,
+                "total": 599
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 24,
+              "fold": 0,
+              "macro_f1": 0.2515592515592516,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 599,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-03-20 01:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-07-14 02:00:00+00:00",
+              "validation_end": "2026-04-15 00:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-03-21 02:00:00+00:00"
+            },
+            {
+              "accuracy": 0.5976627712854758,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 358,
+                  "0": 37,
+                  "1": 204
+                },
+                "fractions": {
+                  "-1": 0.5976627712854758,
+                  "0": 0.06176961602671119,
+                  "1": 0.34056761268781305
+                },
+                "majority_fraction": 0.5976627712854758,
+                "total": 599
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 24,
+              "fold": 1,
+              "macro_f1": 0.24939045628700804,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 599,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-04-14 00:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-08-08 01:00:00+00:00",
+              "validation_end": "2026-05-09 23:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-04-15 01:00:00+00:00"
+            },
+            {
+              "accuracy": 0.7445742904841403,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 446,
+                  "0": 27,
+                  "1": 126
+                },
+                "fractions": {
+                  "-1": 0.7445742904841403,
+                  "0": 0.045075125208681135,
+                  "1": 0.21035058430717862
+                },
+                "majority_fraction": 0.7445742904841403,
+                "total": 599
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 24,
+              "fold": 2,
+              "macro_f1": 0.28452950558213713,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 599,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-05-08 23:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-09-02 00:00:00+00:00",
+              "validation_end": "2026-06-03 22:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-05-10 00:00:00+00:00"
+            },
+            {
+              "accuracy": 0.66110183639399,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 396,
+                  "0": 48,
+                  "1": 155
+                },
+                "fractions": {
+                  "-1": 0.66110183639399,
+                  "0": 0.08013355592654424,
+                  "1": 0.2587646076794658
+                },
+                "majority_fraction": 0.66110183639399,
+                "total": 599
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 24,
+              "fold": 3,
+              "macro_f1": 0.26532663316582916,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 599,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-06-02 22:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-09-26 23:00:00+00:00",
+              "validation_end": "2026-06-28 21:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-06-03 23:00:00+00:00"
+            },
+            {
+              "accuracy": 0.6043405676126878,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 362,
+                  "0": 35,
+                  "1": 202
+                },
+                "fractions": {
+                  "-1": 0.6043405676126878,
+                  "0": 0.05843071786310518,
+                  "1": 0.337228714524207
+                },
+                "majority_fraction": 0.6043405676126878,
+                "total": 599
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 24,
+              "fold": 4,
+              "macro_f1": 0.2511272979535206,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 599,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-06-27 21:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-10-21 22:00:00+00:00",
+              "validation_end": "2026-07-23 20:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-06-28 22:00:00+00:00"
+            }
+          ],
+          "model": "majority",
+          "status": "ok",
+          "validation_rows": 2995
+        },
+        {
+          "aggregate": {
+            "accuracy": 0.48414023372287146,
+            "actual_distribution": {
+              "class_count": 3,
+              "counts": {
+                "-1": 1925,
+                "0": 181,
+                "1": 889
+              },
+              "fractions": {
+                "-1": 0.6427378964941569,
+                "0": 0.060434056761268784,
+                "1": 0.2968280467445743
+              },
+              "majority_fraction": 0.6427378964941569,
+              "total": 2995
+            },
+            "balanced_accuracy": 0.360252241197123,
+            "macro_f1": 0.3273725420296767,
+            "predicted_distribution": {
+              "class_count": 2,
+              "counts": {
+                "-1": 1344,
+                "0": 0,
+                "1": 1651
+              },
+              "fractions": {
+                "-1": 0.44874791318864776,
+                "0": 0.0,
+                "1": 0.5512520868113523
+              },
+              "majority_fraction": 0.5512520868113523,
+              "total": 2995
+            }
+          },
+          "folds": [
+            {
+              "accuracy": 0.4323873121869783,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 363,
+                  "0": 34,
+                  "1": 202
+                },
+                "fractions": {
+                  "-1": 0.6060100166944908,
+                  "0": 0.05676126878130217,
+                  "1": 0.337228714524207
+                },
+                "majority_fraction": 0.6060100166944908,
+                "total": 599
+              },
+              "balanced_accuracy": 0.3373701006464283,
+              "embargo_rows": 24,
+              "fold": 0,
+              "macro_f1": 0.29650979650979653,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 209,
+                  "0": 0,
+                  "1": 390
+                },
+                "fractions": {
+                  "-1": 0.34891485809682804,
+                  "0": 0.0,
+                  "1": 0.6510851419031719
+                },
+                "majority_fraction": 0.6510851419031719,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-03-20 01:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-07-14 02:00:00+00:00",
+              "validation_end": "2026-04-15 00:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-03-21 02:00:00+00:00"
+            },
+            {
+              "accuracy": 0.4707846410684474,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 358,
+                  "0": 37,
+                  "1": 204
+                },
+                "fractions": {
+                  "-1": 0.5976627712854758,
+                  "0": 0.06176961602671119,
+                  "1": 0.34056761268781305
+                },
+                "majority_fraction": 0.5976627712854758,
+                "total": 599
+              },
+              "balanced_accuracy": 0.35394530251579215,
+              "embargo_rows": 24,
+              "fold": 1,
+              "macro_f1": 0.3234147017481341,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 238,
+                  "0": 0,
+                  "1": 361
+                },
+                "fractions": {
+                  "-1": 0.3973288814691152,
+                  "0": 0.0,
+                  "1": 0.6026711185308848
+                },
+                "majority_fraction": 0.6026711185308848,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-04-14 00:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-08-08 01:00:00+00:00",
+              "validation_end": "2026-05-09 23:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-04-15 01:00:00+00:00"
+            },
+            {
+              "accuracy": 0.5792988313856428,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 446,
+                  "0": 27,
+                  "1": 126
+                },
+                "fractions": {
+                  "-1": 0.7445742904841403,
+                  "0": 0.045075125208681135,
+                  "1": 0.21035058430717862
+                },
+                "majority_fraction": 0.7445742904841403,
+                "total": 599
+              },
+              "balanced_accuracy": 0.36753505587586305,
+              "embargo_rows": 24,
+              "fold": 2,
+              "macro_f1": 0.3439603869396383,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 369,
+                  "0": 0,
+                  "1": 230
+                },
+                "fractions": {
+                  "-1": 0.6160267111853088,
+                  "0": 0.0,
+                  "1": 0.38397328881469117
+                },
+                "majority_fraction": 0.6160267111853088,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-05-08 23:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-09-02 00:00:00+00:00",
+              "validation_end": "2026-06-03 22:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-05-10 00:00:00+00:00"
+            },
+            {
+              "accuracy": 0.4757929883138564,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 396,
+                  "0": 48,
+                  "1": 155
+                },
+                "fractions": {
+                  "-1": 0.66110183639399,
+                  "0": 0.08013355592654424,
+                  "1": 0.2587646076794658
+                },
+                "majority_fraction": 0.66110183639399,
+                "total": 599
+              },
+              "balanced_accuracy": 0.34983708048224177,
+              "embargo_rows": 24,
+              "fold": 3,
+              "macro_f1": 0.31587301587301586,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 304,
+                  "0": 0,
+                  "1": 295
+                },
+                "fractions": {
+                  "-1": 0.5075125208681135,
+                  "0": 0.0,
+                  "1": 0.49248747913188645
+                },
+                "majority_fraction": 0.5075125208681135,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-06-02 22:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-09-26 23:00:00+00:00",
+              "validation_end": "2026-06-28 21:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-06-03 23:00:00+00:00"
+            },
+            {
+              "accuracy": 0.46243739565943237,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 362,
+                  "0": 35,
+                  "1": 202
+                },
+                "fractions": {
+                  "-1": 0.6043405676126878,
+                  "0": 0.05843071786310518,
+                  "1": 0.337228714524207
+                },
+                "majority_fraction": 0.6043405676126878,
+                "total": 599
+              },
+              "balanced_accuracy": 0.35279798698101855,
+              "embargo_rows": 24,
+              "fold": 4,
+              "macro_f1": 0.31750867044045245,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 224,
+                  "0": 0,
+                  "1": 375
+                },
+                "fractions": {
+                  "-1": 0.3739565943238731,
+                  "0": 0.0,
+                  "1": 0.6260434056761269
+                },
+                "majority_fraction": 0.6260434056761269,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-06-27 21:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-10-21 22:00:00+00:00",
+              "validation_end": "2026-07-23 20:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-06-28 22:00:00+00:00"
+            }
+          ],
+          "model": "trend",
+          "status": "ok",
+          "validation_rows": 2995
+        },
+        {
+          "aggregate": {
+            "accuracy": 0.6404006677796327,
+            "actual_distribution": {
+              "class_count": 3,
+              "counts": {
+                "-1": 1925,
+                "0": 181,
+                "1": 889
+              },
+              "fractions": {
+                "-1": 0.6427378964941569,
+                "0": 0.060434056761268784,
+                "1": 0.2968280467445743
+              },
+              "majority_fraction": 0.6427378964941569,
+              "total": 2995
+            },
+            "balanced_accuracy": 0.33252479803660906,
+            "macro_f1": 0.26169377373644015,
+            "predicted_distribution": {
+              "class_count": 3,
+              "counts": {
+                "-1": 2984,
+                "0": 6,
+                "1": 5
+              },
+              "fractions": {
+                "-1": 0.9963272120200334,
+                "0": 0.002003338898163606,
+                "1": 0.001669449081803005
+              },
+              "majority_fraction": 0.9963272120200334,
+              "total": 2995
+            }
+          },
+          "folds": [
+            {
+              "accuracy": 0.6060100166944908,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 363,
+                  "0": 34,
+                  "1": 202
+                },
+                "fractions": {
+                  "-1": 0.6060100166944908,
+                  "0": 0.05676126878130217,
+                  "1": 0.337228714524207
+                },
+                "majority_fraction": 0.6060100166944908,
+                "total": 599
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 24,
+              "fold": 0,
+              "macro_f1": 0.2515592515592516,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 599,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-03-20 01:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-07-14 02:00:00+00:00",
+              "validation_end": "2026-04-15 00:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-03-21 02:00:00+00:00"
+            },
+            {
+              "accuracy": 0.5943238731218697,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 358,
+                  "0": 37,
+                  "1": 204
+                },
+                "fractions": {
+                  "-1": 0.5976627712854758,
+                  "0": 0.06176961602671119,
+                  "1": 0.34056761268781305
+                },
+                "majority_fraction": 0.5976627712854758,
+                "total": 599
+              },
+              "balanced_accuracy": 0.33147113594040967,
+              "embargo_rows": 24,
+              "fold": 1,
+              "macro_f1": 0.24851657940663177,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 597,
+                  "0": 0,
+                  "1": 2
+                },
+                "fractions": {
+                  "-1": 0.996661101836394,
+                  "0": 0.0,
+                  "1": 0.00333889816360601
+                },
+                "majority_fraction": 0.996661101836394,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-04-14 00:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-08-08 01:00:00+00:00",
+              "validation_end": "2026-05-09 23:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-04-15 01:00:00+00:00"
+            },
+            {
+              "accuracy": 0.7445742904841403,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 446,
+                  "0": 27,
+                  "1": 126
+                },
+                "fractions": {
+                  "-1": 0.7445742904841403,
+                  "0": 0.045075125208681135,
+                  "1": 0.21035058430717862
+                },
+                "majority_fraction": 0.7445742904841403,
+                "total": 599
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 24,
+              "fold": 2,
+              "macro_f1": 0.28452950558213713,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 599,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-05-08 23:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-09-02 00:00:00+00:00",
+              "validation_end": "2026-06-03 22:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-05-10 00:00:00+00:00"
+            },
+            {
+              "accuracy": 0.6527545909849749,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 396,
+                  "0": 48,
+                  "1": 155
+                },
+                "fractions": {
+                  "-1": 0.66110183639399,
+                  "0": 0.08013355592654424,
+                  "1": 0.2587646076794658
+                },
+                "majority_fraction": 0.66110183639399,
+                "total": 599
+              },
+              "balanced_accuracy": 0.33174215270989466,
+              "embargo_rows": 24,
+              "fold": 3,
+              "macro_f1": 0.27145436961340624,
+              "predicted_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 590,
+                  "0": 6,
+                  "1": 3
+                },
+                "fractions": {
+                  "-1": 0.9849749582637729,
+                  "0": 0.01001669449081803,
+                  "1": 0.005008347245409015
+                },
+                "majority_fraction": 0.9849749582637729,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-06-02 22:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-09-26 23:00:00+00:00",
+              "validation_end": "2026-06-28 21:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-06-03 23:00:00+00:00"
+            },
+            {
+              "accuracy": 0.6043405676126878,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 362,
+                  "0": 35,
+                  "1": 202
+                },
+                "fractions": {
+                  "-1": 0.6043405676126878,
+                  "0": 0.05843071786310518,
+                  "1": 0.337228714524207
+                },
+                "majority_fraction": 0.6043405676126878,
+                "total": 599
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 24,
+              "fold": 4,
+              "macro_f1": 0.2511272979535206,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 599,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-06-27 21:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-10-21 22:00:00+00:00",
+              "validation_end": "2026-07-23 20:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-06-28 22:00:00+00:00"
+            }
+          ],
+          "model": "logistic",
+          "status": "ok",
+          "validation_rows": 2995
+        }
+      ],
+      "promotion": "NOT_EVALUATED \u2014 diagnostics only; no production authority",
+      "research_end": "2026-07-23 20:00:00+00:00",
+      "research_rows": 14998,
+      "research_start": "2024-11-05 23:00:00+00:00"
+    },
+    {
+      "best_validation_balanced_accuracy": 0.35532764047493126,
+      "best_validation_macro_f1": 0.33271762585408954,
+      "fold_plan": {
+        "embargo_bars": 24,
+        "fold_count": 5,
+        "train_window": 5976,
+        "validation_rows_per_fold": 599
+      },
+      "horizon_bars": 24,
+      "label_config": {
+        "pt_mult": 2.0,
+        "side": "both",
+        "sl_mult": 1.0
+      },
+      "label_distribution": {
+        "class_count": 3,
+        "counts": {
+          "-1": 9838,
+          "0": 474,
+          "1": 4674
+        },
+        "fractions": {
+          "-1": 0.6564793807553717,
+          "0": 0.03162952088616042,
+          "1": 0.3118910983584679
+        },
+        "majority_fraction": 0.6564793807553717,
+        "total": 14986
+      },
+      "models": [
+        {
+          "aggregate": {
+            "accuracy": 0.6574290484140234,
+            "actual_distribution": {
+              "class_count": 3,
+              "counts": {
+                "-1": 1969,
+                "0": 59,
+                "1": 967
+              },
+              "fractions": {
+                "-1": 0.6574290484140234,
+                "0": 0.01969949916527546,
+                "1": 0.32287145242070114
+              },
+              "majority_fraction": 0.6574290484140234,
+              "total": 2995
+            },
+            "balanced_accuracy": 0.3333333333333333,
+            "macro_f1": 0.26443728176201986,
+            "predicted_distribution": {
+              "class_count": 1,
+              "counts": {
+                "-1": 2995,
+                "0": 0,
+                "1": 0
+              },
+              "fractions": {
+                "-1": 1.0,
+                "0": 0.0,
+                "1": 0.0
+              },
+              "majority_fraction": 1.0,
+              "total": 2995
+            }
+          },
+          "folds": [
+            {
+              "accuracy": 0.6160267111853088,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 369,
+                  "0": 10,
+                  "1": 220
+                },
+                "fractions": {
+                  "-1": 0.6160267111853088,
+                  "0": 0.01669449081803005,
+                  "1": 0.3672787979966611
+                },
+                "majority_fraction": 0.6160267111853088,
+                "total": 599
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 24,
+              "fold": 0,
+              "macro_f1": 0.25413223140495866,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 599,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-03-19 13:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-07-13 14:00:00+00:00",
+              "validation_end": "2026-04-14 12:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-03-20 14:00:00+00:00"
+            },
+            {
+              "accuracy": 0.6126878130217028,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 367,
+                  "0": 10,
+                  "1": 222
+                },
+                "fractions": {
+                  "-1": 0.6126878130217028,
+                  "0": 0.01669449081803005,
+                  "1": 0.37061769616026713
+                },
+                "majority_fraction": 0.6126878130217028,
+                "total": 599
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 24,
+              "fold": 1,
+              "macro_f1": 0.2532781228433402,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 599,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-04-13 12:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-08-07 13:00:00+00:00",
+              "validation_end": "2026-05-09 11:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-04-14 13:00:00+00:00"
+            },
+            {
+              "accuracy": 0.7696160267111853,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 461,
+                  "0": 4,
+                  "1": 134
+                },
+                "fractions": {
+                  "-1": 0.7696160267111853,
+                  "0": 0.00667779632721202,
+                  "1": 0.22370617696160267
+                },
+                "majority_fraction": 0.7696160267111853,
+                "total": 599
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 24,
+              "fold": 2,
+              "macro_f1": 0.289937106918239,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 599,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-05-08 11:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-09-01 12:00:00+00:00",
+              "validation_end": "2026-06-03 10:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-05-09 12:00:00+00:00"
+            },
+            {
+              "accuracy": 0.674457429048414,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 404,
+                  "0": 18,
+                  "1": 177
+                },
+                "fractions": {
+                  "-1": 0.674457429048414,
+                  "0": 0.03005008347245409,
+                  "1": 0.29549248747913187
+                },
+                "majority_fraction": 0.674457429048414,
+                "total": 599
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 24,
+              "fold": 3,
+              "macro_f1": 0.2685277500830841,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 599,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-06-02 10:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-09-26 11:00:00+00:00",
+              "validation_end": "2026-06-28 09:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-06-03 11:00:00+00:00"
+            },
+            {
+              "accuracy": 0.6143572621035058,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 368,
+                  "0": 17,
+                  "1": 214
+                },
+                "fractions": {
+                  "-1": 0.6143572621035058,
+                  "0": 0.028380634390651086,
+                  "1": 0.3572621035058431
+                },
+                "majority_fraction": 0.6143572621035058,
+                "total": 599
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 24,
+              "fold": 4,
+              "macro_f1": 0.2537056187521544,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 599,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-06-27 09:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-10-21 10:00:00+00:00",
+              "validation_end": "2026-07-23 08:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-06-28 10:00:00+00:00"
+            }
+          ],
+          "model": "majority",
+          "status": "ok",
+          "validation_rows": 2995
+        },
+        {
+          "aggregate": {
+            "accuracy": 0.5008347245409015,
+            "actual_distribution": {
+              "class_count": 3,
+              "counts": {
+                "-1": 1969,
+                "0": 59,
+                "1": 967
+              },
+              "fractions": {
+                "-1": 0.6574290484140234,
+                "0": 0.01969949916527546,
+                "1": 0.32287145242070114
+              },
+              "majority_fraction": 0.6574290484140234,
+              "total": 2995
+            },
+            "balanced_accuracy": 0.35532764047493126,
+            "macro_f1": 0.33271762585408954,
+            "predicted_distribution": {
+              "class_count": 2,
+              "counts": {
+                "-1": 1340,
+                "0": 0,
+                "1": 1655
+              },
+              "fractions": {
+                "-1": 0.44741235392320533,
+                "0": 0.0,
+                "1": 0.5525876460767947
+              },
+              "majority_fraction": 0.5525876460767947,
+              "total": 2995
+            }
+          },
+          "folds": [
+            {
+              "accuracy": 0.44741235392320533,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 369,
+                  "0": 10,
+                  "1": 220
+                },
+                "fractions": {
+                  "-1": 0.6160267111853088,
+                  "0": 0.01669449081803005,
+                  "1": 0.3672787979966611
+                },
+                "majority_fraction": 0.6160267111853088,
+                "total": 599
+              },
+              "balanced_accuracy": 0.3271372259177137,
+              "embargo_rows": 24,
+              "fold": 0,
+              "macro_f1": 0.30068901915873897,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 217,
+                  "0": 0,
+                  "1": 382
+                },
+                "fractions": {
+                  "-1": 0.3622704507512521,
+                  "0": 0.0,
+                  "1": 0.6377295492487479
+                },
+                "majority_fraction": 0.6377295492487479,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-03-19 13:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-07-13 14:00:00+00:00",
+              "validation_end": "2026-04-14 12:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-03-20 14:00:00+00:00"
+            },
+            {
+              "accuracy": 0.48914858096828046,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 367,
+                  "0": 10,
+                  "1": 222
+                },
+                "fractions": {
+                  "-1": 0.6126878130217028,
+                  "0": 0.01669449081803005,
+                  "1": 0.37061769616026713
+                },
+                "majority_fraction": 0.6126878130217028,
+                "total": 599
+              },
+              "balanced_accuracy": 0.3485815515788268,
+              "embargo_rows": 24,
+              "fold": 1,
+              "macro_f1": 0.32864493996569466,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 238,
+                  "0": 0,
+                  "1": 361
+                },
+                "fractions": {
+                  "-1": 0.3973288814691152,
+                  "0": 0.0,
+                  "1": 0.6026711185308848
+                },
+                "majority_fraction": 0.6026711185308848,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-04-13 12:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-08-07 13:00:00+00:00",
+              "validation_end": "2026-05-09 11:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-04-14 13:00:00+00:00"
+            },
+            {
+              "accuracy": 0.5843071786310517,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 461,
+                  "0": 4,
+                  "1": 134
+                },
+                "fractions": {
+                  "-1": 0.7696160267111853,
+                  "0": 0.00667779632721202,
+                  "1": 0.22370617696160267
+                },
+                "majority_fraction": 0.7696160267111853,
+                "total": 599
+              },
+              "balanced_accuracy": 0.3660007986099869,
+              "embargo_rows": 24,
+              "fold": 2,
+              "macro_f1": 0.3465640118607918,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 357,
+                  "0": 0,
+                  "1": 242
+                },
+                "fractions": {
+                  "-1": 0.5959933222036727,
+                  "0": 0.0,
+                  "1": 0.4040066777963272
+                },
+                "majority_fraction": 0.5959933222036727,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-05-08 11:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-09-01 12:00:00+00:00",
+              "validation_end": "2026-06-03 10:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-05-09 12:00:00+00:00"
+            },
+            {
+              "accuracy": 0.5091819699499165,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 404,
+                  "0": 18,
+                  "1": 177
+                },
+                "fractions": {
+                  "-1": 0.674457429048414,
+                  "0": 0.03005008347245409,
+                  "1": 0.29549248747913187
+                },
+                "majority_fraction": 0.674457429048414,
+                "total": 599
+              },
+              "balanced_accuracy": 0.35005873468702803,
+              "embargo_rows": 24,
+              "fold": 3,
+              "macro_f1": 0.3309805051378085,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 308,
+                  "0": 0,
+                  "1": 291
+                },
+                "fractions": {
+                  "-1": 0.5141903171953256,
+                  "0": 0.0,
+                  "1": 0.48580968280467446
+                },
+                "majority_fraction": 0.5141903171953256,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-06-02 10:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-09-26 11:00:00+00:00",
+              "validation_end": "2026-06-28 09:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-06-03 11:00:00+00:00"
+            },
+            {
+              "accuracy": 0.4741235392320534,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 368,
+                  "0": 17,
+                  "1": 214
+                },
+                "fractions": {
+                  "-1": 0.6143572621035058,
+                  "0": 0.028380634390651086,
+                  "1": 0.3572621035058431
+                },
+                "majority_fraction": 0.6143572621035058,
+                "total": 599
+              },
+              "balanced_accuracy": 0.35045882432615466,
+              "embargo_rows": 24,
+              "fold": 4,
+              "macro_f1": 0.3206284200020649,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 220,
+                  "0": 0,
+                  "1": 379
+                },
+                "fractions": {
+                  "-1": 0.3672787979966611,
+                  "0": 0.0,
+                  "1": 0.6327212020033389
+                },
+                "majority_fraction": 0.6327212020033389,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-06-27 09:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-10-21 10:00:00+00:00",
+              "validation_end": "2026-07-23 08:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-06-28 10:00:00+00:00"
+            }
+          ],
+          "model": "trend",
+          "status": "ok",
+          "validation_rows": 2995
+        },
+        {
+          "aggregate": {
+            "accuracy": 0.6574290484140234,
+            "actual_distribution": {
+              "class_count": 3,
+              "counts": {
+                "-1": 1969,
+                "0": 59,
+                "1": 967
+              },
+              "fractions": {
+                "-1": 0.6574290484140234,
+                "0": 0.01969949916527546,
+                "1": 0.32287145242070114
+              },
+              "majority_fraction": 0.6574290484140234,
+              "total": 2995
+            },
+            "balanced_accuracy": 0.3336841694314267,
+            "macro_f1": 0.2657548752533138,
+            "predicted_distribution": {
+              "class_count": 2,
+              "counts": {
+                "-1": 2991,
+                "0": 0,
+                "1": 4
+              },
+              "fractions": {
+                "-1": 0.9986644407345576,
+                "0": 0.0,
+                "1": 0.001335559265442404
+              },
+              "majority_fraction": 0.9986644407345576,
+              "total": 2995
+            }
+          },
+          "folds": [
+            {
+              "accuracy": 0.6160267111853088,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 369,
+                  "0": 10,
+                  "1": 220
+                },
+                "fractions": {
+                  "-1": 0.6160267111853088,
+                  "0": 0.01669449081803005,
+                  "1": 0.3672787979966611
+                },
+                "majority_fraction": 0.6160267111853088,
+                "total": 599
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 24,
+              "fold": 0,
+              "macro_f1": 0.25413223140495866,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 599,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-03-19 13:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-07-13 14:00:00+00:00",
+              "validation_end": "2026-04-14 12:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-03-20 14:00:00+00:00"
+            },
+            {
+              "accuracy": 0.6110183639398998,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 367,
+                  "0": 10,
+                  "1": 222
+                },
+                "fractions": {
+                  "-1": 0.6126878130217028,
+                  "0": 0.01669449081803005,
+                  "1": 0.37061769616026713
+                },
+                "majority_fraction": 0.6126878130217028,
+                "total": 599
+              },
+              "balanced_accuracy": 0.332425068119891,
+              "embargo_rows": 24,
+              "fold": 1,
+              "macro_f1": 0.2528497409326425,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 598,
+                  "0": 0,
+                  "1": 1
+                },
+                "fractions": {
+                  "-1": 0.998330550918197,
+                  "0": 0.0,
+                  "1": 0.001669449081803005
+                },
+                "majority_fraction": 0.998330550918197,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-04-13 12:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-08-07 13:00:00+00:00",
+              "validation_end": "2026-05-09 11:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-04-14 13:00:00+00:00"
+            },
+            {
+              "accuracy": 0.7696160267111853,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 461,
+                  "0": 4,
+                  "1": 134
+                },
+                "fractions": {
+                  "-1": 0.7696160267111853,
+                  "0": 0.00667779632721202,
+                  "1": 0.22370617696160267
+                },
+                "majority_fraction": 0.7696160267111853,
+                "total": 599
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 24,
+              "fold": 2,
+              "macro_f1": 0.289937106918239,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 599,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-05-08 11:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-09-01 12:00:00+00:00",
+              "validation_end": "2026-06-03 10:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-05-09 12:00:00+00:00"
+            },
+            {
+              "accuracy": 0.676126878130217,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 404,
+                  "0": 18,
+                  "1": 177
+                },
+                "fractions": {
+                  "-1": 0.674457429048414,
+                  "0": 0.03005008347245409,
+                  "1": 0.29549248747913187
+                },
+                "majority_fraction": 0.674457429048414,
+                "total": 599
+              },
+              "balanced_accuracy": 0.336274729167832,
+              "embargo_rows": 24,
+              "fold": 3,
+              "macro_f1": 0.2760740740740741,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 596,
+                  "0": 0,
+                  "1": 3
+                },
+                "fractions": {
+                  "-1": 0.994991652754591,
+                  "0": 0.0,
+                  "1": 0.005008347245409015
+                },
+                "majority_fraction": 0.994991652754591,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-06-02 10:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-09-26 11:00:00+00:00",
+              "validation_end": "2026-06-28 09:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-06-03 11:00:00+00:00"
+            },
+            {
+              "accuracy": 0.6143572621035058,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 368,
+                  "0": 17,
+                  "1": 214
+                },
+                "fractions": {
+                  "-1": 0.6143572621035058,
+                  "0": 0.028380634390651086,
+                  "1": 0.3572621035058431
+                },
+                "majority_fraction": 0.6143572621035058,
+                "total": 599
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 24,
+              "fold": 4,
+              "macro_f1": 0.2537056187521544,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 599,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 599
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-06-27 09:00:00+00:00",
+              "train_rows": 5976,
+              "train_start": "2025-10-21 10:00:00+00:00",
+              "validation_end": "2026-07-23 08:00:00+00:00",
+              "validation_rows": 599,
+              "validation_start": "2026-06-28 10:00:00+00:00"
+            }
+          ],
+          "model": "logistic",
+          "status": "ok",
+          "validation_rows": 2995
+        }
+      ],
+      "promotion": "NOT_EVALUATED \u2014 diagnostics only; no production authority",
+      "research_end": "2026-07-23 08:00:00+00:00",
+      "research_rows": 14986,
+      "research_start": "2024-11-05 23:00:00+00:00"
+    },
+    {
+      "best_validation_balanced_accuracy": 0.35494545022769813,
+      "best_validation_macro_f1": 0.3335301904835344,
+      "fold_plan": {
+        "embargo_bars": 48,
+        "fold_count": 5,
+        "train_window": 5952,
+        "validation_rows_per_fold": 598
+      },
+      "horizon_bars": 48,
+      "label_config": {
+        "pt_mult": 2.0,
+        "side": "both",
+        "sl_mult": 1.0
+      },
+      "label_distribution": {
+        "class_count": 3,
+        "counts": {
+          "-1": 9915,
+          "0": 280,
+          "1": 4767
+        },
+        "fractions": {
+          "-1": 0.6626787862585216,
+          "0": 0.018714075658334446,
+          "1": 0.31860713808314395
+        },
+        "majority_fraction": 0.6626787862585216,
+        "total": 14962
+      },
+      "models": [
+        {
+          "aggregate": {
+            "accuracy": 0.6581939799331104,
+            "actual_distribution": {
+              "class_count": 3,
+              "counts": {
+                "-1": 1968,
+                "0": 52,
+                "1": 970
+              },
+              "fractions": {
+                "-1": 0.6581939799331104,
+                "0": 0.017391304347826087,
+                "1": 0.32441471571906355
+              },
+              "majority_fraction": 0.6581939799331104,
+              "total": 2990
+            },
+            "balanced_accuracy": 0.3333333333333333,
+            "macro_f1": 0.2646228317870109,
+            "predicted_distribution": {
+              "class_count": 1,
+              "counts": {
+                "-1": 2990,
+                "0": 0,
+                "1": 0
+              },
+              "fractions": {
+                "-1": 1.0,
+                "0": 0.0,
+                "1": 0.0
+              },
+              "majority_fraction": 1.0,
+              "total": 2990
+            }
+          },
+          "folds": [
+            {
+              "accuracy": 0.637123745819398,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 381,
+                  "0": 9,
+                  "1": 208
+                },
+                "fractions": {
+                  "-1": 0.637123745819398,
+                  "0": 0.015050167224080268,
+                  "1": 0.34782608695652173
+                },
+                "majority_fraction": 0.637123745819398,
+                "total": 598
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 48,
+              "fold": 0,
+              "macro_f1": 0.25944841675178754,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 598,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 598
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-03-17 18:00:00+00:00",
+              "train_rows": 5952,
+              "train_start": "2025-07-12 19:00:00+00:00",
+              "validation_end": "2026-04-13 16:00:00+00:00",
+              "validation_rows": 598,
+              "validation_start": "2026-03-19 19:00:00+00:00"
+            },
+            {
+              "accuracy": 0.6086956521739131,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 364,
+                  "0": 10,
+                  "1": 224
+                },
+                "fractions": {
+                  "-1": 0.6086956521739131,
+                  "0": 0.016722408026755852,
+                  "1": 0.3745819397993311
+                },
+                "majority_fraction": 0.6086956521739131,
+                "total": 598
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 48,
+              "fold": 1,
+              "macro_f1": 0.2522522522522523,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 598,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 598
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-04-11 16:00:00+00:00",
+              "train_rows": 5952,
+              "train_start": "2025-08-06 17:00:00+00:00",
+              "validation_end": "2026-05-08 14:00:00+00:00",
+              "validation_rows": 598,
+              "validation_start": "2026-04-13 17:00:00+00:00"
+            },
+            {
+              "accuracy": 0.7508361204013378,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 449,
+                  "0": 4,
+                  "1": 145
+                },
+                "fractions": {
+                  "-1": 0.7508361204013378,
+                  "0": 0.006688963210702341,
+                  "1": 0.24247491638795987
+                },
+                "majority_fraction": 0.7508361204013378,
+                "total": 598
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 48,
+              "fold": 2,
+              "macro_f1": 0.28589621139764404,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 598,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 598
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-05-06 14:00:00+00:00",
+              "train_rows": 5952,
+              "train_start": "2025-08-31 15:00:00+00:00",
+              "validation_end": "2026-06-02 12:00:00+00:00",
+              "validation_rows": 598,
+              "validation_start": "2026-05-08 15:00:00+00:00"
+            },
+            {
+              "accuracy": 0.68561872909699,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 410,
+                  "0": 13,
+                  "1": 175
+                },
+                "fractions": {
+                  "-1": 0.68561872909699,
+                  "0": 0.021739130434782608,
+                  "1": 0.29264214046822745
+                },
+                "majority_fraction": 0.68561872909699,
+                "total": 598
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 48,
+              "fold": 3,
+              "macro_f1": 0.27116402116402116,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 598,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 598
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-05-31 12:00:00+00:00",
+              "train_rows": 5952,
+              "train_start": "2025-09-25 13:00:00+00:00",
+              "validation_end": "2026-06-27 10:00:00+00:00",
+              "validation_rows": 598,
+              "validation_start": "2026-06-02 13:00:00+00:00"
+            },
+            {
+              "accuracy": 0.6086956521739131,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 364,
+                  "0": 16,
+                  "1": 218
+                },
+                "fractions": {
+                  "-1": 0.6086956521739131,
+                  "0": 0.026755852842809364,
+                  "1": 0.36454849498327757
+                },
+                "majority_fraction": 0.6086956521739131,
+                "total": 598
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 48,
+              "fold": 4,
+              "macro_f1": 0.2522522522522523,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 598,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 598
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-06-25 10:00:00+00:00",
+              "train_rows": 5952,
+              "train_start": "2025-10-20 11:00:00+00:00",
+              "validation_end": "2026-07-22 08:00:00+00:00",
+              "validation_rows": 598,
+              "validation_start": "2026-06-27 11:00:00+00:00"
+            }
+          ],
+          "model": "majority",
+          "status": "ok",
+          "validation_rows": 2990
+        },
+        {
+          "aggregate": {
+            "accuracy": 0.5030100334448161,
+            "actual_distribution": {
+              "class_count": 3,
+              "counts": {
+                "-1": 1968,
+                "0": 52,
+                "1": 970
+              },
+              "fractions": {
+                "-1": 0.6581939799331104,
+                "0": 0.017391304347826087,
+                "1": 0.32441471571906355
+              },
+              "majority_fraction": 0.6581939799331104,
+              "total": 2990
+            },
+            "balanced_accuracy": 0.35494545022769813,
+            "macro_f1": 0.3335301904835344,
+            "predicted_distribution": {
+              "class_count": 2,
+              "counts": {
+                "-1": 1346,
+                "0": 0,
+                "1": 1644
+              },
+              "fractions": {
+                "-1": 0.45016722408026755,
+                "0": 0.0,
+                "1": 0.5498327759197325
+              },
+              "majority_fraction": 0.5498327759197325,
+              "total": 2990
+            }
+          },
+          "folds": [
+            {
+              "accuracy": 0.4531772575250836,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 381,
+                  "0": 9,
+                  "1": 208
+                },
+                "fractions": {
+                  "-1": 0.637123745819398,
+                  "0": 0.015050167224080268,
+                  "1": 0.34782608695652173
+                },
+                "majority_fraction": 0.637123745819398,
+                "total": 598
+              },
+              "balanced_accuracy": 0.32950989299414496,
+              "embargo_rows": 48,
+              "fold": 0,
+              "macro_f1": 0.3041091219096334,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 231,
+                  "0": 0,
+                  "1": 367
+                },
+                "fractions": {
+                  "-1": 0.3862876254180602,
+                  "0": 0.0,
+                  "1": 0.6137123745819398
+                },
+                "majority_fraction": 0.6137123745819398,
+                "total": 598
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-03-17 18:00:00+00:00",
+              "train_rows": 5952,
+              "train_start": "2025-07-12 19:00:00+00:00",
+              "validation_end": "2026-04-13 16:00:00+00:00",
+              "validation_rows": 598,
+              "validation_start": "2026-03-19 19:00:00+00:00"
+            },
+            {
+              "accuracy": 0.49665551839464883,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 364,
+                  "0": 10,
+                  "1": 224
+                },
+                "fractions": {
+                  "-1": 0.6086956521739131,
+                  "0": 0.016722408026755852,
+                  "1": 0.3745819397993311
+                },
+                "majority_fraction": 0.6086956521739131,
+                "total": 598
+              },
+              "balanced_accuracy": 0.3566849816849817,
+              "embargo_rows": 48,
+              "fold": 1,
+              "macro_f1": 0.3339096803549084,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 226,
+                  "0": 0,
+                  "1": 372
+                },
+                "fractions": {
+                  "-1": 0.3779264214046823,
+                  "0": 0.0,
+                  "1": 0.6220735785953178
+                },
+                "majority_fraction": 0.6220735785953178,
+                "total": 598
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-04-11 16:00:00+00:00",
+              "train_rows": 5952,
+              "train_start": "2025-08-06 17:00:00+00:00",
+              "validation_end": "2026-05-08 14:00:00+00:00",
+              "validation_rows": 598,
+              "validation_start": "2026-04-13 17:00:00+00:00"
+            },
+            {
+              "accuracy": 0.568561872909699,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 449,
+                  "0": 4,
+                  "1": 145
+                },
+                "fractions": {
+                  "-1": 0.7508361204013378,
+                  "0": 0.006688963210702341,
+                  "1": 0.24247491638795987
+                },
+                "majority_fraction": 0.7508361204013378,
+                "total": 598
+              },
+              "balanced_accuracy": 0.35669559429639297,
+              "embargo_rows": 48,
+              "fold": 2,
+              "macro_f1": 0.3414529791724539,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 352,
+                  "0": 0,
+                  "1": 246
+                },
+                "fractions": {
+                  "-1": 0.5886287625418061,
+                  "0": 0.0,
+                  "1": 0.411371237458194
+                },
+                "majority_fraction": 0.5886287625418061,
+                "total": 598
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-05-06 14:00:00+00:00",
+              "train_rows": 5952,
+              "train_start": "2025-08-31 15:00:00+00:00",
+              "validation_end": "2026-06-02 12:00:00+00:00",
+              "validation_rows": 598,
+              "validation_start": "2026-05-08 15:00:00+00:00"
+            },
+            {
+              "accuracy": 0.5351170568561873,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 410,
+                  "0": 13,
+                  "1": 175
+                },
+                "fractions": {
+                  "-1": 0.68561872909699,
+                  "0": 0.021739130434782608,
+                  "1": 0.29264214046822745
+                },
+                "majority_fraction": 0.68561872909699,
+                "total": 598
+              },
+              "balanced_accuracy": 0.3540534262485482,
+              "embargo_rows": 48,
+              "fold": 3,
+              "macro_f1": 0.3402314278160779,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 330,
+                  "0": 0,
+                  "1": 268
+                },
+                "fractions": {
+                  "-1": 0.5518394648829431,
+                  "0": 0.0,
+                  "1": 0.44816053511705684
+                },
+                "majority_fraction": 0.5518394648829431,
+                "total": 598
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-05-31 12:00:00+00:00",
+              "train_rows": 5952,
+              "train_start": "2025-09-25 13:00:00+00:00",
+              "validation_end": "2026-06-27 10:00:00+00:00",
+              "validation_rows": 598,
+              "validation_start": "2026-06-02 13:00:00+00:00"
+            },
+            {
+              "accuracy": 0.46153846153846156,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 364,
+                  "0": 16,
+                  "1": 218
+                },
+                "fractions": {
+                  "-1": 0.6086956521739131,
+                  "0": 0.026755852842809364,
+                  "1": 0.36454849498327757
+                },
+                "majority_fraction": 0.6086956521739131,
+                "total": 598
+              },
+              "balanced_accuracy": 0.34290251033370295,
+              "embargo_rows": 48,
+              "fold": 4,
+              "macro_f1": 0.3115324999496749,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 207,
+                  "0": 0,
+                  "1": 391
+                },
+                "fractions": {
+                  "-1": 0.34615384615384615,
+                  "0": 0.0,
+                  "1": 0.6538461538461539
+                },
+                "majority_fraction": 0.6538461538461539,
+                "total": 598
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-06-25 10:00:00+00:00",
+              "train_rows": 5952,
+              "train_start": "2025-10-20 11:00:00+00:00",
+              "validation_end": "2026-07-22 08:00:00+00:00",
+              "validation_rows": 598,
+              "validation_start": "2026-06-27 11:00:00+00:00"
+            }
+          ],
+          "model": "trend",
+          "status": "ok",
+          "validation_rows": 2990
+        },
+        {
+          "aggregate": {
+            "accuracy": 0.6581939799331104,
+            "actual_distribution": {
+              "class_count": 3,
+              "counts": {
+                "-1": 1968,
+                "0": 52,
+                "1": 970
+              },
+              "fractions": {
+                "-1": 0.6581939799331104,
+                "0": 0.017391304347826087,
+                "1": 0.32441471571906355
+              },
+              "majority_fraction": 0.6581939799331104,
+              "total": 2990
+            },
+            "balanced_accuracy": 0.33368186516916715,
+            "macro_f1": 0.2659362783743223,
+            "predicted_distribution": {
+              "class_count": 2,
+              "counts": {
+                "-1": 2986,
+                "0": 0,
+                "1": 4
+              },
+              "fractions": {
+                "-1": 0.9986622073578595,
+                "0": 0.0,
+                "1": 0.0013377926421404682
+              },
+              "majority_fraction": 0.9986622073578595,
+              "total": 2990
+            }
+          },
+          "folds": [
+            {
+              "accuracy": 0.637123745819398,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 381,
+                  "0": 9,
+                  "1": 208
+                },
+                "fractions": {
+                  "-1": 0.637123745819398,
+                  "0": 0.015050167224080268,
+                  "1": 0.34782608695652173
+                },
+                "majority_fraction": 0.637123745819398,
+                "total": 598
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 48,
+              "fold": 0,
+              "macro_f1": 0.25944841675178754,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 598,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 598
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-03-17 18:00:00+00:00",
+              "train_rows": 5952,
+              "train_start": "2025-07-12 19:00:00+00:00",
+              "validation_end": "2026-04-13 16:00:00+00:00",
+              "validation_rows": 598,
+              "validation_start": "2026-03-19 19:00:00+00:00"
+            },
+            {
+              "accuracy": 0.6070234113712375,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 364,
+                  "0": 10,
+                  "1": 224
+                },
+                "fractions": {
+                  "-1": 0.6086956521739131,
+                  "0": 0.016722408026755852,
+                  "1": 0.3745819397993311
+                },
+                "majority_fraction": 0.6086956521739131,
+                "total": 598
+              },
+              "balanced_accuracy": 0.3324175824175824,
+              "embargo_rows": 48,
+              "fold": 1,
+              "macro_f1": 0.2518210197710718,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 597,
+                  "0": 0,
+                  "1": 1
+                },
+                "fractions": {
+                  "-1": 0.9983277591973244,
+                  "0": 0.0,
+                  "1": 0.0016722408026755853
+                },
+                "majority_fraction": 0.9983277591973244,
+                "total": 598
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-04-11 16:00:00+00:00",
+              "train_rows": 5952,
+              "train_start": "2025-08-06 17:00:00+00:00",
+              "validation_end": "2026-05-08 14:00:00+00:00",
+              "validation_rows": 598,
+              "validation_start": "2026-04-13 17:00:00+00:00"
+            },
+            {
+              "accuracy": 0.7508361204013378,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 449,
+                  "0": 4,
+                  "1": 145
+                },
+                "fractions": {
+                  "-1": 0.7508361204013378,
+                  "0": 0.006688963210702341,
+                  "1": 0.24247491638795987
+                },
+                "majority_fraction": 0.7508361204013378,
+                "total": 598
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 48,
+              "fold": 2,
+              "macro_f1": 0.28589621139764404,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 598,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 598
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-05-06 14:00:00+00:00",
+              "train_rows": 5952,
+              "train_start": "2025-08-31 15:00:00+00:00",
+              "validation_end": "2026-06-02 12:00:00+00:00",
+              "validation_rows": 598,
+              "validation_start": "2026-05-08 15:00:00+00:00"
+            },
+            {
+              "accuracy": 0.6872909698996655,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 410,
+                  "0": 13,
+                  "1": 175
+                },
+                "fractions": {
+                  "-1": 0.68561872909699,
+                  "0": 0.021739130434782608,
+                  "1": 0.29264214046822745
+                },
+                "majority_fraction": 0.68561872909699,
+                "total": 598
+              },
+              "balanced_accuracy": 0.3363298490127758,
+              "embargo_rows": 48,
+              "fold": 3,
+              "macro_f1": 0.2788007527903553,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 595,
+                  "0": 0,
+                  "1": 3
+                },
+                "fractions": {
+                  "-1": 0.9949832775919732,
+                  "0": 0.0,
+                  "1": 0.005016722408026756
+                },
+                "majority_fraction": 0.9949832775919732,
+                "total": 598
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-05-31 12:00:00+00:00",
+              "train_rows": 5952,
+              "train_start": "2025-09-25 13:00:00+00:00",
+              "validation_end": "2026-06-27 10:00:00+00:00",
+              "validation_rows": 598,
+              "validation_start": "2026-06-02 13:00:00+00:00"
+            },
+            {
+              "accuracy": 0.6086956521739131,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 364,
+                  "0": 16,
+                  "1": 218
+                },
+                "fractions": {
+                  "-1": 0.6086956521739131,
+                  "0": 0.026755852842809364,
+                  "1": 0.36454849498327757
+                },
+                "majority_fraction": 0.6086956521739131,
+                "total": 598
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 48,
+              "fold": 4,
+              "macro_f1": 0.2522522522522523,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 598,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 598
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-06-25 10:00:00+00:00",
+              "train_rows": 5952,
+              "train_start": "2025-10-20 11:00:00+00:00",
+              "validation_end": "2026-07-22 08:00:00+00:00",
+              "validation_rows": 598,
+              "validation_start": "2026-06-27 11:00:00+00:00"
+            }
+          ],
+          "model": "logistic",
+          "status": "ok",
+          "validation_rows": 2990
+        }
+      ],
+      "promotion": "NOT_EVALUATED \u2014 diagnostics only; no production authority",
+      "research_end": "2026-07-22 08:00:00+00:00",
+      "research_rows": 14962,
+      "research_start": "2024-11-05 23:00:00+00:00"
+    },
+    {
+      "best_validation_balanced_accuracy": 0.3558701423518383,
+      "best_validation_macro_f1": 0.3355063058423429,
+      "fold_plan": {
+        "embargo_bars": 72,
+        "fold_count": 5,
+        "train_window": 5928,
+        "validation_rows_per_fold": 597
+      },
+      "horizon_bars": 72,
+      "label_config": {
+        "pt_mult": 2.0,
+        "side": "both",
+        "sl_mult": 1.0
+      },
+      "label_distribution": {
+        "class_count": 3,
+        "counts": {
+          "-1": 9898,
+          "0": 261,
+          "1": 4779
+        },
+        "fractions": {
+          "-1": 0.662605435801312,
+          "0": 0.017472218503146338,
+          "1": 0.31992234569554157
+        },
+        "majority_fraction": 0.662605435801312,
+        "total": 14938
+      },
+      "models": [
+        {
+          "aggregate": {
+            "accuracy": 0.6582914572864321,
+            "actual_distribution": {
+              "class_count": 3,
+              "counts": {
+                "-1": 1965,
+                "0": 51,
+                "1": 969
+              },
+              "fractions": {
+                "-1": 0.6582914572864321,
+                "0": 0.017085427135678392,
+                "1": 0.3246231155778894
+              },
+              "majority_fraction": 0.6582914572864321,
+              "total": 2985
+            },
+            "balanced_accuracy": 0.3333333333333333,
+            "macro_f1": 0.26464646464646463,
+            "predicted_distribution": {
+              "class_count": 1,
+              "counts": {
+                "-1": 2985,
+                "0": 0,
+                "1": 0
+              },
+              "fractions": {
+                "-1": 1.0,
+                "0": 0.0,
+                "1": 0.0
+              },
+              "majority_fraction": 1.0,
+              "total": 2985
+            }
+          },
+          "folds": [
+            {
+              "accuracy": 0.6432160804020101,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 384,
+                  "0": 7,
+                  "1": 206
+                },
+                "fractions": {
+                  "-1": 0.6432160804020101,
+                  "0": 0.011725293132328308,
+                  "1": 0.34505862646566166
+                },
+                "majority_fraction": 0.6432160804020101,
+                "total": 597
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 72,
+              "fold": 0,
+              "macro_f1": 0.2609582059123344,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 597,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 597
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-03-15 23:00:00+00:00",
+              "train_rows": 5928,
+              "train_start": "2025-07-12 00:00:00+00:00",
+              "validation_end": "2026-04-12 20:00:00+00:00",
+              "validation_rows": 597,
+              "validation_start": "2026-03-19 00:00:00+00:00"
+            },
+            {
+              "accuracy": 0.5996649916247906,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 358,
+                  "0": 12,
+                  "1": 227
+                },
+                "fractions": {
+                  "-1": 0.5996649916247906,
+                  "0": 0.020100502512562814,
+                  "1": 0.38023450586264657
+                },
+                "majority_fraction": 0.5996649916247906,
+                "total": 597
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 72,
+              "fold": 1,
+              "macro_f1": 0.249912739965096,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 597,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 597
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-04-09 20:00:00+00:00",
+              "train_rows": 5928,
+              "train_start": "2025-08-05 21:00:00+00:00",
+              "validation_end": "2026-05-07 17:00:00+00:00",
+              "validation_rows": 597,
+              "validation_start": "2026-04-12 21:00:00+00:00"
+            },
+            {
+              "accuracy": 0.7453936348408711,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 445,
+                  "0": 4,
+                  "1": 148
+                },
+                "fractions": {
+                  "-1": 0.7453936348408711,
+                  "0": 0.006700167504187605,
+                  "1": 0.24790619765494137
+                },
+                "majority_fraction": 0.7453936348408711,
+                "total": 597
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 72,
+              "fold": 2,
+              "macro_f1": 0.2847088931541906,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 597,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 597
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-05-04 17:00:00+00:00",
+              "train_rows": 5928,
+              "train_start": "2025-08-30 18:00:00+00:00",
+              "validation_end": "2026-06-01 14:00:00+00:00",
+              "validation_rows": 597,
+              "validation_start": "2026-05-07 18:00:00+00:00"
+            },
+            {
+              "accuracy": 0.7001675041876047,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 418,
+                  "0": 11,
+                  "1": 168
+                },
+                "fractions": {
+                  "-1": 0.7001675041876047,
+                  "0": 0.018425460636515914,
+                  "1": 0.2814070351758794
+                },
+                "majority_fraction": 0.7001675041876047,
+                "total": 597
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 72,
+              "fold": 3,
+              "macro_f1": 0.2745484400656814,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 597,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 597
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-05-29 14:00:00+00:00",
+              "train_rows": 5928,
+              "train_start": "2025-09-24 15:00:00+00:00",
+              "validation_end": "2026-06-26 11:00:00+00:00",
+              "validation_rows": 597,
+              "validation_start": "2026-06-01 15:00:00+00:00"
+            },
+            {
+              "accuracy": 0.6030150753768844,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 360,
+                  "0": 17,
+                  "1": 220
+                },
+                "fractions": {
+                  "-1": 0.6030150753768844,
+                  "0": 0.02847571189279732,
+                  "1": 0.3685092127303183
+                },
+                "majority_fraction": 0.6030150753768844,
+                "total": 597
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 72,
+              "fold": 4,
+              "macro_f1": 0.25078369905956116,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 597,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 597
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-06-23 11:00:00+00:00",
+              "train_rows": 5928,
+              "train_start": "2025-10-19 12:00:00+00:00",
+              "validation_end": "2026-07-21 08:00:00+00:00",
+              "validation_rows": 597,
+              "validation_start": "2026-06-26 12:00:00+00:00"
+            }
+          ],
+          "model": "majority",
+          "status": "ok",
+          "validation_rows": 2985
+        },
+        {
+          "aggregate": {
+            "accuracy": 0.5068676716917923,
+            "actual_distribution": {
+              "class_count": 3,
+              "counts": {
+                "-1": 1965,
+                "0": 51,
+                "1": 969
+              },
+              "fractions": {
+                "-1": 0.6582914572864321,
+                "0": 0.017085427135678392,
+                "1": 0.3246231155778894
+              },
+              "majority_fraction": 0.6582914572864321,
+              "total": 2985
+            },
+            "balanced_accuracy": 0.3558701423518383,
+            "macro_f1": 0.3355063058423429,
+            "predicted_distribution": {
+              "class_count": 2,
+              "counts": {
+                "-1": 1365,
+                "0": 0,
+                "1": 1620
+              },
+              "fractions": {
+                "-1": 0.457286432160804,
+                "0": 0.0,
+                "1": 0.542713567839196
+              },
+              "majority_fraction": 0.542713567839196,
+              "total": 2985
+            }
+          },
+          "folds": [
+            {
+              "accuracy": 0.45896147403685095,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 384,
+                  "0": 7,
+                  "1": 206
+                },
+                "fractions": {
+                  "-1": 0.6432160804020101,
+                  "0": 0.011725293132328308,
+                  "1": 0.34505862646566166
+                },
+                "majority_fraction": 0.6432160804020101,
+                "total": 597
+              },
+              "balanced_accuracy": 0.333105784789644,
+              "embargo_rows": 72,
+              "fold": 0,
+              "macro_f1": 0.3073694462919696,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 230,
+                  "0": 0,
+                  "1": 367
+                },
+                "fractions": {
+                  "-1": 0.3852596314907873,
+                  "0": 0.0,
+                  "1": 0.6147403685092128
+                },
+                "majority_fraction": 0.6147403685092128,
+                "total": 597
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-03-15 23:00:00+00:00",
+              "train_rows": 5928,
+              "train_start": "2025-07-12 00:00:00+00:00",
+              "validation_end": "2026-04-12 20:00:00+00:00",
+              "validation_rows": 597,
+              "validation_start": "2026-03-19 00:00:00+00:00"
+            },
+            {
+              "accuracy": 0.48743718592964824,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 358,
+                  "0": 12,
+                  "1": 227
+                },
+                "fractions": {
+                  "-1": 0.5996649916247906,
+                  "0": 0.020100502512562814,
+                  "1": 0.38023450586264657
+                },
+                "majority_fraction": 0.5996649916247906,
+                "total": 597
+              },
+              "balanced_accuracy": 0.35047457321224945,
+              "embargo_rows": 72,
+              "fold": 1,
+              "macro_f1": 0.3282409886498462,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 225,
+                  "0": 0,
+                  "1": 372
+                },
+                "fractions": {
+                  "-1": 0.3768844221105528,
+                  "0": 0.0,
+                  "1": 0.6231155778894473
+                },
+                "majority_fraction": 0.6231155778894473,
+                "total": 597
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-04-09 20:00:00+00:00",
+              "train_rows": 5928,
+              "train_start": "2025-08-05 21:00:00+00:00",
+              "validation_end": "2026-05-07 17:00:00+00:00",
+              "validation_rows": 597,
+              "validation_start": "2026-04-12 21:00:00+00:00"
+            },
+            {
+              "accuracy": 0.5628140703517588,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 445,
+                  "0": 4,
+                  "1": 148
+                },
+                "fractions": {
+                  "-1": 0.7453936348408711,
+                  "0": 0.006700167504187605,
+                  "1": 0.24790619765494137
+                },
+                "majority_fraction": 0.7453936348408711,
+                "total": 597
+              },
+              "balanced_accuracy": 0.35239902824172487,
+              "embargo_rows": 72,
+              "fold": 2,
+              "macro_f1": 0.33866030660918806,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 351,
+                  "0": 0,
+                  "1": 246
+                },
+                "fractions": {
+                  "-1": 0.5879396984924623,
+                  "0": 0.0,
+                  "1": 0.4120603015075377
+                },
+                "majority_fraction": 0.5879396984924623,
+                "total": 597
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-05-04 17:00:00+00:00",
+              "train_rows": 5928,
+              "train_start": "2025-08-30 18:00:00+00:00",
+              "validation_end": "2026-06-01 14:00:00+00:00",
+              "validation_rows": 597,
+              "validation_start": "2026-05-07 18:00:00+00:00"
+            },
+            {
+              "accuracy": 0.5510887772194305,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 418,
+                  "0": 11,
+                  "1": 168
+                },
+                "fractions": {
+                  "-1": 0.7001675041876047,
+                  "0": 0.018425460636515914,
+                  "1": 0.2814070351758794
+                },
+                "majority_fraction": 0.7001675041876047,
+                "total": 597
+              },
+              "balanced_accuracy": 0.363228146122883,
+              "embargo_rows": 72,
+              "fold": 3,
+              "macro_f1": 0.3477587888119065,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 332,
+                  "0": 0,
+                  "1": 265
+                },
+                "fractions": {
+                  "-1": 0.5561139028475712,
+                  "0": 0.0,
+                  "1": 0.4438860971524288
+                },
+                "majority_fraction": 0.5561139028475712,
+                "total": 597
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-05-29 14:00:00+00:00",
+              "train_rows": 5928,
+              "train_start": "2025-09-24 15:00:00+00:00",
+              "validation_end": "2026-06-26 11:00:00+00:00",
+              "validation_rows": 597,
+              "validation_start": "2026-06-01 15:00:00+00:00"
+            },
+            {
+              "accuracy": 0.474036850921273,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 360,
+                  "0": 17,
+                  "1": 220
+                },
+                "fractions": {
+                  "-1": 0.6030150753768844,
+                  "0": 0.02847571189279732,
+                  "1": 0.3685092127303183
+                },
+                "majority_fraction": 0.6030150753768844,
+                "total": 597
+              },
+              "balanced_accuracy": 0.3457070707070707,
+              "embargo_rows": 72,
+              "fold": 4,
+              "macro_f1": 0.3205882636021521,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 227,
+                  "0": 0,
+                  "1": 370
+                },
+                "fractions": {
+                  "-1": 0.38023450586264657,
+                  "0": 0.0,
+                  "1": 0.6197654941373534
+                },
+                "majority_fraction": 0.6197654941373534,
+                "total": 597
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-06-23 11:00:00+00:00",
+              "train_rows": 5928,
+              "train_start": "2025-10-19 12:00:00+00:00",
+              "validation_end": "2026-07-21 08:00:00+00:00",
+              "validation_rows": 597,
+              "validation_start": "2026-06-26 12:00:00+00:00"
+            }
+          ],
+          "model": "trend",
+          "status": "ok",
+          "validation_rows": 2985
+        },
+        {
+          "aggregate": {
+            "accuracy": 0.6582914572864321,
+            "actual_distribution": {
+              "class_count": 3,
+              "counts": {
+                "-1": 1965,
+                "0": 51,
+                "1": 969
+              },
+              "fractions": {
+                "-1": 0.6582914572864321,
+                "0": 0.017085427135678392,
+                "1": 0.3246231155778894
+              },
+              "majority_fraction": 0.6582914572864321,
+              "total": 2985
+            },
+            "balanced_accuracy": 0.3336820572610992,
+            "macro_f1": 0.26601334736862503,
+            "predicted_distribution": {
+              "class_count": 2,
+              "counts": {
+                "-1": 2980,
+                "0": 0,
+                "1": 5
+              },
+              "fractions": {
+                "-1": 0.998324958123953,
+                "0": 0.0,
+                "1": 0.0016750418760469012
+              },
+              "majority_fraction": 0.998324958123953,
+              "total": 2985
+            }
+          },
+          "folds": [
+            {
+              "accuracy": 0.6432160804020101,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 384,
+                  "0": 7,
+                  "1": 206
+                },
+                "fractions": {
+                  "-1": 0.6432160804020101,
+                  "0": 0.011725293132328308,
+                  "1": 0.34505862646566166
+                },
+                "majority_fraction": 0.6432160804020101,
+                "total": 597
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 72,
+              "fold": 0,
+              "macro_f1": 0.2609582059123344,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 597,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 597
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-03-15 23:00:00+00:00",
+              "train_rows": 5928,
+              "train_start": "2025-07-12 00:00:00+00:00",
+              "validation_end": "2026-04-12 20:00:00+00:00",
+              "validation_rows": 597,
+              "validation_start": "2026-03-19 00:00:00+00:00"
+            },
+            {
+              "accuracy": 0.5979899497487438,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 358,
+                  "0": 12,
+                  "1": 227
+                },
+                "fractions": {
+                  "-1": 0.5996649916247906,
+                  "0": 0.020100502512562814,
+                  "1": 0.38023450586264657
+                },
+                "majority_fraction": 0.5996649916247906,
+                "total": 597
+              },
+              "balanced_accuracy": 0.3324022346368715,
+              "embargo_rows": 72,
+              "fold": 1,
+              "macro_f1": 0.24947589098532494,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 596,
+                  "0": 0,
+                  "1": 1
+                },
+                "fractions": {
+                  "-1": 0.998324958123953,
+                  "0": 0.0,
+                  "1": 0.0016750418760469012
+                },
+                "majority_fraction": 0.998324958123953,
+                "total": 597
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-04-09 20:00:00+00:00",
+              "train_rows": 5928,
+              "train_start": "2025-08-05 21:00:00+00:00",
+              "validation_end": "2026-05-07 17:00:00+00:00",
+              "validation_rows": 597,
+              "validation_start": "2026-04-12 21:00:00+00:00"
+            },
+            {
+              "accuracy": 0.7453936348408711,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 445,
+                  "0": 4,
+                  "1": 148
+                },
+                "fractions": {
+                  "-1": 0.7453936348408711,
+                  "0": 0.006700167504187605,
+                  "1": 0.24790619765494137
+                },
+                "majority_fraction": 0.7453936348408711,
+                "total": 597
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 72,
+              "fold": 2,
+              "macro_f1": 0.2847088931541906,
+              "predicted_distribution": {
+                "class_count": 1,
+                "counts": {
+                  "-1": 597,
+                  "0": 0,
+                  "1": 0
+                },
+                "fractions": {
+                  "-1": 1.0,
+                  "0": 0.0,
+                  "1": 0.0
+                },
+                "majority_fraction": 1.0,
+                "total": 597
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-05-04 17:00:00+00:00",
+              "train_rows": 5928,
+              "train_start": "2025-08-30 18:00:00+00:00",
+              "validation_end": "2026-06-01 14:00:00+00:00",
+              "validation_rows": 597,
+              "validation_start": "2026-05-07 18:00:00+00:00"
+            },
+            {
+              "accuracy": 0.7018425460636516,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 418,
+                  "0": 11,
+                  "1": 168
+                },
+                "fractions": {
+                  "-1": 0.7001675041876047,
+                  "0": 0.018425460636515914,
+                  "1": 0.2814070351758794
+                },
+                "majority_fraction": 0.7001675041876047,
+                "total": 597
+              },
+              "balanced_accuracy": 0.33650413913571814,
+              "embargo_rows": 72,
+              "fold": 3,
+              "macro_f1": 0.2825008282674187,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 594,
+                  "0": 0,
+                  "1": 3
+                },
+                "fractions": {
+                  "-1": 0.9949748743718593,
+                  "0": 0.0,
+                  "1": 0.005025125628140704
+                },
+                "majority_fraction": 0.9949748743718593,
+                "total": 597
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-05-29 14:00:00+00:00",
+              "train_rows": 5928,
+              "train_start": "2025-09-24 15:00:00+00:00",
+              "validation_end": "2026-06-26 11:00:00+00:00",
+              "validation_rows": 597,
+              "validation_start": "2026-06-01 15:00:00+00:00"
+            },
+            {
+              "accuracy": 0.6030150753768844,
+              "actual_distribution": {
+                "class_count": 3,
+                "counts": {
+                  "-1": 360,
+                  "0": 17,
+                  "1": 220
+                },
+                "fractions": {
+                  "-1": 0.6030150753768844,
+                  "0": 0.02847571189279732,
+                  "1": 0.3685092127303183
+                },
+                "majority_fraction": 0.6030150753768844,
+                "total": 597
+              },
+              "balanced_accuracy": 0.3333333333333333,
+              "embargo_rows": 72,
+              "fold": 4,
+              "macro_f1": 0.2510460251046025,
+              "predicted_distribution": {
+                "class_count": 2,
+                "counts": {
+                  "-1": 596,
+                  "0": 0,
+                  "1": 1
+                },
+                "fractions": {
+                  "-1": 0.998324958123953,
+                  "0": 0.0,
+                  "1": 0.0016750418760469012
+                },
+                "majority_fraction": 0.998324958123953,
+                "total": 597
+              },
+              "purged_rows": 0,
+              "status": "ok",
+              "train_end": "2026-06-23 11:00:00+00:00",
+              "train_rows": 5928,
+              "train_start": "2025-10-19 12:00:00+00:00",
+              "validation_end": "2026-07-21 08:00:00+00:00",
+              "validation_rows": 597,
+              "validation_start": "2026-06-26 12:00:00+00:00"
+            }
+          ],
+          "model": "logistic",
+          "status": "ok",
+          "validation_rows": 2985
+        }
+      ],
+      "promotion": "NOT_EVALUATED \u2014 diagnostics only; no production authority",
+      "research_end": "2026-07-21 08:00:00+00:00",
+      "research_rows": 14938,
+      "research_start": "2024-11-05 23:00:00+00:00"
+    }
+  ],
+  "limitations": [
+    "The raw time split is applied before feature/label generation; no features, labels, or predictions are computed on the reserved tail.",
+    "Raw model outputs are uncalibrated and used only for class predictions.",
+    "Model comparisons do not establish economic edge; Q3 uses actual OHLC execution prices and costs.",
+    "A genuinely prospective holdout must be collected after the frozen model/strategy timestamp."
+  ],
+  "models_skipped": [
+    "lightgbm: optional dependency not installed"
+  ],
+  "phase": "Q2.1",
+  "schema": "signalforge.quantitative-diagnostics.q2-1.v1"
+}

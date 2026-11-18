@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
 from typer.testing import CliRunner
 
 from crypto_engine.cli import app
@@ -492,7 +493,8 @@ def _signal_dirs(tmp_path: Path) -> tuple[Path, Path, Path]:
     return snap_dir, model_dir, config
 
 
-def test_signal_generate_ai_explain_preserves_deterministic_output(tmp_path: Path) -> None:
+def test_signal_generate_ai_explain_preserves_deterministic_output(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("SIGNALFORGE_ALLOW_FAIL_OPEN", "1")
     snap_dir, model_dir, config = _signal_dirs(tmp_path)
     base = [
         "signal",
@@ -521,3 +523,5 @@ def test_signal_generate_ai_explain_preserves_deterministic_output(tmp_path: Pat
     for field in ("direction", "expected_edge_bp", "prediction", "decision", "risk_reward"):
         assert after[field] == before[field]
     assert after["ai_context"]["status"] == "disabled"
+
+

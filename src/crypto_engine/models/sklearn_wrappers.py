@@ -35,11 +35,13 @@ class SklearnLogistic(BaseModel):
         random_state: int = 42,
         C: float = 1.0,
         max_iter: int = 200,
+        class_weight: str | dict[int, float] | None = None,
     ) -> None:
         super().__init__(feature_names, random_state)
         self.C: float = float(C)
         self.max_iter: int = int(max_iter)
         self.n_jobs: int = 1
+        self.class_weight: str | dict[int, float] | None = class_weight
         self._scaler_mean: np.ndarray | None = None
         self._scaler_scale: np.ndarray | None = None
         self._classes: list[int] = []
@@ -57,6 +59,8 @@ class SklearnLogistic(BaseModel):
             "max_iter": self.max_iter,
             "random_state": self.random_state,
         }
+        if self.class_weight is not None:
+            kwargs["class_weight"] = self.class_weight
         try:
             with warnings.catch_warnings():
                 # sklearn>=1.8 deprecates n_jobs (removal in 1.10); pin single
@@ -169,7 +173,12 @@ class SklearnLogistic(BaseModel):
     def to_dict(self) -> dict[str, Any]:
         return {
             "family": self.family,
-            "params": {"C": self.C, "max_iter": self.max_iter, "n_jobs": self.n_jobs},
+            "params": {
+                "C": self.C,
+                "max_iter": self.max_iter,
+                "n_jobs": self.n_jobs,
+                "class_weight": self.class_weight,
+            },
             "feature_names": list(self._feature_names or []),
             "random_state": self.random_state,
             "is_fitted": self._is_fitted,
@@ -223,6 +232,7 @@ class LightGBMModel(BaseModel):
         n_estimators: int = 50,
         num_leaves: int = 15,
         min_child_samples: int = 20,
+        class_weight: str | dict[int, float] | None = None,
     ) -> None:
         super().__init__(feature_names, random_state)
         if int(n_estimators) < 1 or int(n_estimators) > 100:
@@ -237,6 +247,7 @@ class LightGBMModel(BaseModel):
         self.num_leaves = int(num_leaves)
         self.min_child_samples = int(min_child_samples)
         self.n_jobs: int = 1
+        self.class_weight: str | dict[int, float] | None = class_weight
         self._classes: list[int] = []
         self._booster_blob: str | None = None  # model_to_string payload
 
@@ -264,16 +275,54 @@ class LightGBMModel(BaseModel):
             if isinstance(X, pd.DataFrame)
             else np.asarray(X, dtype=float)
         )
-        labels = np.asarray(y).ravel()
+        raw_labels = np.asarray(y).ravel()
         if arr.ndim != 2:
             raise InformativeError(f"lightgbm: expected 2D X, got {arr.shape}.")
-        classes = [int(c) for c in np.unique(labels)]
+        if raw_labels.size != arr.shape[0]:
+            raise InformativeError(
+                f"lightgbm: X rows ({arr.shape[0]}) != y size ({raw_labels.size})."
+            )
+        try:
+            numeric_labels = raw_labels.astype(float)
+        except (TypeError, ValueError) as exc:
+            raise InformativeError("lightgbm: class labels must be finite integers.") from exc
+        if not np.isfinite(numeric_labels).all() or not np.equal(
+            numeric_labels, np.trunc(numeric_labels)
+        ).all():
+            raise InformativeError("lightgbm: class labels must be finite integers.")
+        classes_array = np.unique(numeric_labels).astype(np.int64)
+        classes = [int(value) for value in classes_array]
         if len(classes) < 2:
             raise InformativeError(
                 f"lightgbm: need >= 2 classes; saw classes={classes}. "
                 "Use MajorityBaseline for single-class data."
             )
-        train = lgb.Dataset(arr, label=labels)
+        # LightGBM multiclass does not accept a class_weight hyperparameter,
+        # so we implement balanced training-fold-only class weighting as
+        # per-sample weights. Weights are computed from the training fold's
+        # class frequencies only, so no holdout information leaks in.
+        encoded_labels = np.searchsorted(classes_array, numeric_labels).astype(np.int32)
+        class_counts = np.bincount(encoded_labels.astype(np.int64))
+        if str(self.class_weight).lower() == "balanced":
+            n_total = float(class_counts.sum())
+            k = float(class_counts.size)
+            sample_weights = n_total / (k * class_counts[encoded_labels.astype(np.int64)])
+        elif isinstance(self.class_weight, dict):
+            weight_map = {
+                int(c): float(self.class_weight[c]) for c in classes if c in self.class_weight
+            }
+            default_weight = 1.0
+            sample_weights = np.asarray(
+                [weight_map.get(int(c), default_weight) for c in encoded_labels],
+                dtype=float,
+            )
+        else:
+            sample_weights = np.ones(encoded_labels.shape[0], dtype=float)
+        train = lgb.Dataset(
+            arr,
+            label=encoded_labels,
+            weight=sample_weights,
+        )
         params = {
             "objective": "multiclass" if len(classes) > 2 else "binary",
             "num_class": len(classes) if len(classes) > 2 else None,
@@ -326,6 +375,7 @@ class LightGBMModel(BaseModel):
                 "num_leaves": self.num_leaves,
                 "min_child_samples": self.min_child_samples,
                 "n_jobs": self.n_jobs,
+                "class_weight": self.class_weight,
             },
             "feature_names": list(self._feature_names or []),
             "random_state": self.random_state,
@@ -347,6 +397,7 @@ class LightGBMModel(BaseModel):
         obj._classes = [int(c) for c in payload.get("classes", [])]
         obj._booster_blob = payload.get("booster")
         obj._is_fitted = bool(payload.get("is_fitted", False))
+        obj.class_weight = payload.get("params", {}).get("class_weight")
         return obj
 
 

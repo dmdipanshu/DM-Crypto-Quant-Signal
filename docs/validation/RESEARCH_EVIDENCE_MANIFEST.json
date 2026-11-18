@@ -1,0 +1,65 @@
+{
+  "authority": {
+    "ai_can_override_risk": false,
+    "ai_can_promote": false,
+    "ai_can_select_strategy": false,
+    "human_approval_required": true,
+    "human_authorized": false,
+    "order_execution_authorized": false,
+    "paper_trading_authorized": false
+  },
+  "dataset": {
+    "path": "D:\\DM-Crypto-Quant-Signal\\data\\canonical\\binance\\BTC-USDT\\1h\\candles.parquet",
+    "sha256": "675d4302072552c90af253baf43f6555674ab4343088001ba15052c5f12e2790"
+  },
+  "generated_at": "2026-11-12T20:22:07.969773+00:00",
+  "holdout": {
+    "permanently_contaminated": true,
+    "prospective_validated": false,
+    "status": "contaminated"
+  },
+  "integrity": {
+    "accounting_integrity_ok": true,
+    "artifact_integrity_ok": true,
+    "freeze_integrity_ok": true,
+    "holdout_integrity_ok": true,
+    "predictive_evidence_integrity_ok": true,
+    "strategy_evidence_integrity_ok": true
+  },
+  "integrity_ok": true,
+  "overall_verdict": "NO_STRATEGY_ELIGIBLE",
+  "phase": "Q2.2.1-Q3-Q4",
+  "research_freeze": {
+    "checks": {
+      "schema": "valid"
+    },
+    "commit_sha": "8d7beb729d5f326c14700713f76fe1b858e348db",
+    "created_at_utc": "2026-11-12T19:11:47.293700+00:00",
+    "freeze_id": "freeze-aaa4dd57057a",
+    "status": "VALID",
+    "valid": true
+  },
+  "research_freeze_timestamp": "2026-11-12T19:11:47.293700+00:00",
+  "schema": "signalforge.research-evidence-manifest.v1",
+  "source_artifacts": {
+    "q2_2": {
+      "conclusion": "DIAGNOSTIC_ONLY \u2014 no strategy or model promotion",
+      "path": "D:\\DM-Crypto-Quant-Signal\\docs\\validation\\results\\quantitative_methodology_correction_q2_2.json",
+      "phase": "Q2.2",
+      "sha256": "09486804a46f1c69eda79dd2f2beb7496281f9ba9a9313bf068a2bc32a64a58f"
+    },
+    "q3_revised": {
+      "path": "D:\\DM-Crypto-Quant-Signal\\docs\\validation\\results\\strategy_validation_q3_revised.json",
+      "phase": "Q3-revised",
+      "sha256": "87e45e7ccd418066c3b336200c85e6f07b4a720e8d369b0c5e9a7606a73c359f"
+    },
+    "q4_revised": {
+      "integrity_ok": true,
+      "path": "D:\\DM-Crypto-Quant-Signal\\docs\\validation\\results\\quantitative_release_q4.json",
+      "phase": "Q4-revised",
+      "promotion_eligible": false,
+      "sha256": "b034cd977118aa6d83989ec2b2d789ad2088c05237e2026e62663dd0ded82672",
+      "verdict": "NO_STRATEGY_ELIGIBLE"
+    }
+  }
+}

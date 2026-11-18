@@ -1,0 +1,81 @@
+{
+  "phase": "Q7",
+  "phase_name": "Paper Trading Infrastructure",
+  "generated_at": "2026-11-14T07:38:00Z",
+  "status": "IMPLEMENTED_AND_TESTED",
+  "implemented_modules": {
+    "orders": {
+      "file": "src/crypto_engine/paper_trading/orders.py",
+      "status": "IMPLEMENTED",
+      "tests": "tests/unit/test_paper_q7_orders.py",
+      "test_count": 13,
+      "features": ["Order/FillRecord pydantic models", "OrderManager lifecycle", "MARKET/LIMIT orders", "partial fills", "slippage protection", "position tracking", "P&L/exposure/drawdown queries"]
+    },
+    "risk_extensions": {
+      "file": "src/crypto_engine/paper_trading/risk_extensions.py",
+      "status": "IMPLEMENTED",
+      "tests": "tests/unit/test_paper_q7_pnl_risk.py",
+      "test_count": 7,
+      "features": ["DailyLossTracker", "DailyLossLimitCheck (fail-closed)", "AbnormalSlippageCheck", "InvalidPriceCheck"]
+    },
+    "simulator": {
+      "file": "src/crypto_engine/paper_trading/simulator.py",
+      "status": "IMPLEMENTED",
+      "tests": "tests/unit/test_paper_q7_simulator.py",
+      "test_count": 15,
+      "features": ["SimulatorConfig", "SimulatorEvent", "SimulatorResult", "deterministic simulation", "SL/TP monitoring", "funding accrual", "mark-to-close equity", "full audit trail"]
+    },
+    "strategy_adapters": {
+      "file": "src/crypto_engine/paper_trading/strategy_adapters.py",
+      "status": "IMPLEMENTED",
+      "tests": "tests/unit/test_paper_q7_simulator.py",
+      "features": ["SignalProducer base", "MajorityProducer", "TrendProducer", "LogisticProducer (frozen artifact)", "LightGBMProducer (NOT_EVALUABLE)", "CandidateIsolationManager"]
+    },
+    "resilience": {
+      "file": "src/crypto_engine/paper_trading/resilience.py",
+      "status": "IMPLEMENTED",
+      "tests": "tests/unit/test_paper_q7_simulator.py",
+      "features": ["SimulatorCheckpoint", "CheckpointManager (atomic)", "EventLedger (hash chain)", "RecoveryManager", "deterministic_replay"]
+    }
+  },
+  "testing": {
+    "total_tests": 90,
+    "passed": 90,
+    "failed": 0,
+    "skipped": 0,
+    "new_q7_tests": 48,
+    "existing_tests": 42,
+    "ruff": "clean",
+    "test_command": "uv run pytest tests/unit/test_paper_state.py tests/unit/test_paper_loop.py tests/unit/test_paper_compare.py tests/unit/test_paper_q7_orders.py tests/unit/test_paper_q7_pnl_risk.py tests/unit/test_paper_q7_simulator.py"
+  },
+  "validation_status": {
+    "Q4_GOVERNANCE": "PASS - NO_STRATEGY_ELIGIBLE, all authorization flags false",
+    "Q5_2_PROSPECTIVE": "FAIL - DATA_INVALID, insufficient coverage (0.0909 vs 0.95 min), 1 obs vs 168 min - MUST CONTINUE INDEPENDENTLY, NOT BLOCKING Q7",
+    "Q6_HISTORICAL_VALIDATION": "PASS - 1250 passed, 3 skipped, 0 failed across all waves",
+    "Q7_PAPER_TRADING": "IMPLEMENTED_AND_TESTED - deterministic simulation verified"
+  },
+  "readiness_flags": {
+    "IMPLEMENTED": true,
+    "TESTED": true,
+    "HISTORICAL_VALIDATED": true,
+    "PROSPECTIVE_VALIDATED": false,
+    "PAPER_TRADING_READY": true,
+    "PRODUCTION_READY": false,
+    "LIVE_TRADING_AUTHORIZED": false
+  },
+  "blocking_issues": [
+    "Q5.2 prospective collection FAIL: collect-52cefa0dda64 DATA_INVALID - design contradiction between max_ingestion_latency_s=900 and min_observation_count=168/min_coverage_fraction=0.95",
+    "LightGBM producer: NOT_EVALUABLE - no trained artifact available"
+  ],
+  "safety_notes": [
+    "Public read-only data only - no live orders anywhere in codebase",
+    "No retraining, tuning, or calibration in Q7",
+    "Deterministic risk gates independent of models/AI",
+    "Q4 governance preserved: NO_STRATEGY_ELIGIBLE, no authorization flags",
+    "Q5.2 collection continues independently in background - must not be falsely satisfied"
+  ],
+  "artifacts": {
+    "frozen_model": "models/artifacts/logistic-ee482c-3e3324f2-20261028T132236/record.json",
+    "historical_dataset": "data/historical_accelerated_12m/dataset_manifest.json"
+  }
+}

@@ -103,7 +103,7 @@ def test_corrupted_artifacts_detected(tmp_path) -> None:
     """Bit-flipped artifacts are rejected, not silently loaded (item 9)."""
     X, y = _supervised()
     d = save_model(SklearnLogistic(random_state=42).fit(X, y), _meta(), tmp_path / "reg")
-    art = d / "artifact.pkl"
+    art = d / "artifact.json"
     blob = bytearray(art.read_bytes())
     blob[len(blob) // 2] ^= 0xFF
     art.write_bytes(bytes(blob))
@@ -157,3 +157,4 @@ def test_representative_fit_timing_reports_elapsed(capsys) -> None:
     assert dt < 120.0
     captured = capsys.readouterr()
     assert "representative-fit" in captured.out
+

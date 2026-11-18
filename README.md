@@ -1,17 +1,17 @@
-# DM Crypto Quant Signal — SignalForge (Phase 7 authorized, final phase)
+﻿# DM Crypto Quant Signal — SignalForge (Q29 complete — all authorized phases delivered)
 
 Standalone crypto quant signal engine. Phase 5 adds the canonical signal
-decision pipeline — schema-validated `SignalRecord` v1.0, deterministic
+decision pipeline â€” schema-validated `SignalRecord` v1.0, deterministic
 model-to-decision policy, calibration-aware handling, expected-edge vs cost
 gating, deterministic risk gates (fail-closed), advisory-only AI context,
 proposed level validation, a hash-chained audit history, and `sf signal`
-CLI with offline replay — on top of the Phase 1–4 foundation. The engine
+CLI with offline replay â€” on top of the Phase 1â€“4 foundation. The engine
 abstains (`NO_TRADE`) whenever mandatory evidence is missing, and it places
 no orders, holds no positions, and tracks no live P&L. Phase 6 adds the
 event-safe backtester (`sf backtest`: next-bar fills, full costs, conservative
 ties, reproducible ledger) and the advisory-only paper sandbox (`sf paper`:
 persistent state, duplicate protection, halt/flatten, divergence comparison).
-Both are offline simulations — neither places orders nor trades real money.
+Both are offline simulations â€” neither places orders nor trades real money.
 Phase 7 adds the read-only API (`/api/v1`, GET-only) and a server-rendered
 dashboard (`sf serve`, loopback-only by default). The dashboard never predicts
 and the API never mutates, trains, fetches, or trades.
@@ -55,18 +55,19 @@ AI providers are all disabled by default; risk gates fail closed by default;
 the API binds loopback-only by default and refuses non-loopback binds without
 explicit `--allow-remote`. Keys live only in env/`.env` (see `.env.example`);
 TOML never holds secrets. Provider SDKs are bring-your-own
-(`pip install openai …`) — the sandbox has no package-registry network, so
+(`pip install openai â€¦`) â€” the sandbox has no package-registry network, so
 there are no ai-* extras. API extras install via `uv sync --extra api`.
 
 ## Status
 
-Phase 7 complete (final) — read-only API + server-rendered dashboard + `sf serve`
+Q29 complete — all authorized phases delivered (Phase 7 + Q27-Q29) â€” read-only API + server-rendered dashboard + `sf serve`
 (all verified; empty states explicit; no predictions, no mutations, no orders).
 See `memory/CURRENT_STATE.md` and `memory/NEXT_STEPS.md` for verified state.
 No 90% target claimed; no out-of-sample profitability claimed; no AI
 predictive-value claim; no order placement, live readiness, real-money
-trading, or public deployment — paper fills are hypothetical.
+trading, or public deployment â€” paper fills are hypothetical.
 
 ## License
 
 MIT (see `DECISIONS.md` for stack/license notes, incl. VectorBT deferral).
+

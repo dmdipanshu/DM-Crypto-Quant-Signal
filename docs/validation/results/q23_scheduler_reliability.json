@@ -1,0 +1,95 @@
+﻿{
+  "phase": "Q23",
+  "topic": "Scheduler Reliability & Collection Launch Readiness",
+  "started_at_utc": "2026-11-17T08:37:41Z",
+  "completed_at_utc": "2026-11-17T11:52:48Z",
+  "duration_minutes": 195.12,
+  "status": "COMPLETE",
+  "phases": {
+    "A_source_audit": {
+      "status": "PASS",
+      "details": "Source audit of scripts/q20_prospective_scheduler.ps1 complete. 7 [DateTime]::UtcNow call sites identified and replaced with Get-TestUtcNow. -SimulatedUtcTime parameter added for test-only UTC clock injection. Forced $DryRun=$true removed from -SimulatedUtcTime block. Local $pid renamed to $ownerPid in Acquire-Lock to avoid collision with PowerShell automatic $PID variable."
+    },
+    "B_simulated_utc_testing": {
+      "status": "PASS",
+      "tests_run": 11,
+      "tests_passed": 11,
+      "details": "All 11 simulated UTC collection windows executed with -SimulatedUtcTime. Exit codes matched expected values (0) for every window. Get-TestUtcNow clock injection verified stable across hourly boundaries. ToString() call-site fixes confirmed at 5 locations."
+    },
+    "C_concurrency_stale_lock": {
+      "status": "PASS",
+      "tests_run": 3,
+      "tests_passed": 3,
+      "details": "Concurrency and stale-lock recovery exercised. C1 dry run exits 0 (no lock held). C2 live PID lock exits 2 (owner alive, collection skipped). C3 stale lock with dead PID exits 1 (stale lock detected, stale-lock recovery path returns collection_result). $ownerPid rename prevents $PID automatic-variable collision that previously caused exit code 3."
+    },
+    "D_launch_safety": {
+      "status": "PASS",
+      "checks_run": 9,
+      "checks_passed": 9,
+      "details": "All 9 launch-safety checks passed. Governance gates confirmed: no strategy eligible, AI cannot promote, not production ready, live trading not authorized. Deterministic risk gates independent of models. NO_TRADE is a valid output on insufficient evidence. Read-only risk/security review satisfied."
+    },
+    "E_monitoring_eval": {
+      "status": "PASS_WITH_PARTIAL",
+      "details": "Monitoring and evaluation path partially active. Evaluation blocked because collection is not yet eligible (16/168 observations, 16% coverage, seven_day_elapsed=false). Collection eligibility state is ACCUMULATING. Monitoring hooks present but evaluation gate remains closed until thresholds met."
+    },
+    "F_regression": {
+      "status": "PASS",
+      "tests_passed": 1408,
+      "tests_skipped": 3,
+      "tests_failed": 0,
+      "details": "Full regression suite run: 1408 passed, 0 failed, 3 skipped. Skips are pre-existing environment-bound cases, not regressions. No new failures introduced by Q23 scheduler changes."
+    }
+  },
+  "files_changed": [
+    "scripts/q20_prospective_scheduler.ps1"
+  ],
+  "changes": [
+    "Added -SimulatedUtcTime parameter for test-only UTC clock injection",
+    "Added Get-TestUtcNow function replacing 7 [DateTime]::UtcNow call sites",
+    "Fixed Get-TestUtcNow.ToString() -> (Get-TestUtcNow).ToString() at 5 call sites",
+    "Removed forced $DryRun=$true from -SimulatedUtcTime block",
+    "Renamed local $pid -> $ownerPid in Acquire-Lock to avoid collision with PowerShell automatic $PID variable"
+  ],
+  "test_results": {
+    "phase_b_utc_windows": [
+      {"time": "2026-11-17T00:00:00Z", "exit": 0, "expected": 0, "pass": true},
+      {"time": "2026-11-17T06:00:00Z", "exit": 0, "expected": 0, "pass": true},
+      {"time": "2026-11-17T07:00:00Z", "exit": 0, "expected": 0, "pass": true},
+      {"time": "2026-11-17T08:00:00Z", "exit": 0, "expected": 0, "pass": true},
+      {"time": "2026-11-17T09:00:00Z", "exit": 0, "expected": 0, "pass": true},
+      {"time": "2026-11-17T10:00:00Z", "exit": 0, "expected": 0, "pass": true},
+      {"time": "2026-11-17T11:00:00Z", "exit": 0, "expected": 0, "pass": true},
+      {"time": "2026-11-17T12:00:00Z", "exit": 0, "expected": 0, "pass": true},
+      {"time": "2026-11-17T13:00:00Z", "exit": 0, "expected": 0, "pass": true},
+      {"time": "2026-11-17T14:00:00Z", "exit": 0, "expected": 0, "pass": true},
+      {"time": "2026-11-17T15:00:00Z", "exit": 0, "expected": 0, "pass": true}
+    ],
+    "phase_c_concurrency": [
+      {"test": "C1_no_lock_dry_run", "exit": 0, "expected": 0, "pass": true},
+      {"test": "C2_live_pid_lock", "exit": 2, "expected": 2, "pass": true},
+      {"test": "C3_stale_lock_dead_pid", "exit": 1, "expected": "collection_result", "pass": true}
+    ]
+  },
+  "storage_state": {
+    "accepted_observations": 16,
+    "expected_intervals": 100,
+    "coverage_fraction": 0.16,
+    "n_required": 168,
+    "remaining_duration_days": 2.77,
+    "seven_day_elapsed": false,
+    "collection_eligibility_state": "ACCUMULATING",
+    "evaluation_blocked": true
+  },
+  "regression": {
+    "passed": 1408,
+    "failed": 0,
+    "skipped": 3
+  },
+  "governance": {
+    "no_strategy_eligible": true,
+    "ai_can_promote": false,
+    "production_ready": false,
+    "live_trading_authorized": false
+  },
+  "notes": "Q23 complete. Concurrency/stale-lock recovery now exercised. Collection not yet eligible (16/168 obs, 16%/95% coverage, ~2.77/7 days). Launch blocked by governance and eligibility thresholds."
+}

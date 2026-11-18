@@ -1,0 +1,6 @@
+{
+  "assessed_at_utc": "2026-11-13T07:25:27.294105+00:00",
+  "reason": "Q6 preflight BLOCKED: 3 condition(s): Observation count 0 is below minimum 168; No observations collected; cannot evaluate prospective holdout.; Prospective holdout is ACCUMULATING, not ELIGIBLE_FOR_EVALUATION",
+  "schema": "q6-preflight.v1",
+  "status": "BLOCKED"
+}

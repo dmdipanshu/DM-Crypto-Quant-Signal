@@ -1,4 +1,4 @@
-"""Stage 3 adapter tests: SnapshotStore and MarketDataSource implementations.
+"""Stage 3 adapter tests: MarketDataSource implementations.
 
 Offline tests using fakes; no network access, no ccxt required.
 """
@@ -6,73 +6,11 @@ Offline tests using fakes; no network access, no ccxt required.
 from __future__ import annotations
 
 from decimal import Decimal
-from pathlib import Path
 
 import pytest
 
 from crypto_engine.data.market_data_source import CcxtMarketDataSource
 from crypto_engine.domain.candle import Candle as DomainCandle
-from crypto_engine.storage.snapshot_store import FileSnapshotStore
-
-# ---------------------------------------------------------------------------
-# FileSnapshotStore tests
-# ---------------------------------------------------------------------------
-
-
-def test_snapshot_store_write_read(tmp_path: Path) -> None:
-    store = FileSnapshotStore(tmp_path / "snapshots")
-    payload = b"parquet-payload-bytes"
-    manifest = {"rows": 42, "exchange": "binance", "symbol": "BTC/USDT"}
-
-    sid = store.write("snap-001", payload, manifest)
-    assert sid == "snap-001"
-
-    data, man = store.read("snap-001")
-    assert data == payload
-    assert man["rows"] == 42
-    assert man["exchange"] == "binance"
-    assert "checksum" in man
-    assert man["checksum_algorithm"] == "sha256"
-
-
-def test_snapshot_store_exists(tmp_path: Path) -> None:
-    store = FileSnapshotStore(tmp_path / "snapshots")
-    assert not store.exists("snap-001")
-    store.write("snap-001", b"data", {"rows": 1})
-    assert store.exists("snap-001")
-
-
-def test_snapshot_store_checksum(tmp_path: Path) -> None:
-    store = FileSnapshotStore(tmp_path / "snapshots")
-    store.write("snap-001", b"data", {"rows": 1})
-    cs = store.checksum("snap-001")
-    import hashlib
-
-    assert cs == hashlib.sha256(b"data").hexdigest()
-
-
-def test_snapshot_store_checksum_verification_on_corruption(tmp_path: Path) -> None:
-    store = FileSnapshotStore(tmp_path / "snapshots")
-    store.write("snap-001", b"original", {"rows": 1})
-    # Corrupt the payload file directly
-    payload_path = store.root / "snap-001.parquet"
-    payload_path.write_bytes(b"corrupted")
-    with pytest.raises(ValueError, match="checksum mismatch"):
-        store.read("snap-001")
-
-
-def test_snapshot_store_no_overwrite(tmp_path: Path) -> None:
-    store = FileSnapshotStore(tmp_path / "snapshots")
-    store.write("snap-001", b"first", {"rows": 1})
-    with pytest.raises(FileExistsError):
-        store.write("snap-001", b"second", {"rows": 2})
-
-
-def test_snapshot_store_read_missing(tmp_path: Path) -> None:
-    store = FileSnapshotStore(tmp_path / "snapshots")
-    with pytest.raises(KeyError):
-        store.read("nope")
-
 
 # ---------------------------------------------------------------------------
 # CcxtMarketDataSource tests (with fake client)
@@ -140,10 +78,4 @@ __all__ = [
     "test_market_data_source_fetch_funding_not_implemented",
     "test_market_data_source_fetch_ohlcv",
     "test_market_data_source_fetch_ohlcv_empty",
-    "test_snapshot_store_checksum",
-    "test_snapshot_store_checksum_verification_on_corruption",
-    "test_snapshot_store_exists",
-    "test_snapshot_store_no_overwrite",
-    "test_snapshot_store_read_missing",
-    "test_snapshot_store_write_read",
 ]

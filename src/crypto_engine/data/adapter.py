@@ -10,6 +10,7 @@ from tenacity import (
     retry,
     retry_if_exception_type,
     stop_after_attempt,
+    stop_after_delay,
     wait_exponential,
 )
 
@@ -56,6 +57,7 @@ def _transient_errors() -> tuple[type[BaseException], ...]:
             ccxt.ExchangeNotAvailable,
             ccxt.RequestTimeout,
             ccxt.DDoSProtection,
+            ccxt.RateLimitExceeded,
         )
     except ImportError:
         return (TimeoutError, ConnectionError)
@@ -93,12 +95,14 @@ class CcxtAdapter:
         exchange_name: str = "binance",
         timeout_ms: int = 10000,
         max_retries: int = 3,
+        max_duration_ms: int = 60000,
         rate_limit: bool = True,
         client: ExchangeClient | None = None,
     ) -> None:
         self.exchange_name = exchange_name
         self.timeout_ms = timeout_ms
         self.max_retries = max_retries
+        self.max_duration_ms = max_duration_ms
         self.rate_limit = rate_limit
         self._client = client
 
@@ -125,7 +129,8 @@ class CcxtAdapter:
         transient = _transient_errors()
 
         @retry(
-            stop=stop_after_attempt(max(1, self.max_retries + 1)),
+            stop=stop_after_attempt(max(1, self.max_retries + 1))
+            | stop_after_delay(self.max_duration_ms / 1000.0),
             wait=wait_exponential(multiplier=1, min=1, max=8),
             retry=retry_if_exception_type(transient),
             reraise=True,

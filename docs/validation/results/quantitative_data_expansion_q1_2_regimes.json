@@ -1,0 +1,83 @@
+{
+  "methodology": {
+    "trend_lookback_hours": 168,
+    "trend_bull_threshold": 0.02,
+    "trend_bear_threshold": -0.02,
+    "vol_lookback_hours": 24,
+    "high_vol_threshold_annualized": 0.6449,
+    "low_vol_threshold_annualized": 0.4847,
+    "vol_median_annualized": 0.356,
+    "note": "Descriptive heuristic classification only. Not predictive. Regimes are assigned per candle based on trailing trend and volatility; a candle's regime does not predict future regimes."
+  },
+  "total_rows": 17798,
+  "regime_coverage": {
+    "bull": {
+      "rows": 5453,
+      "pct_of_total": 30.64,
+      "hours": 5453
+    },
+    "bear": {
+      "rows": 4907,
+      "pct_of_total": 27.57,
+      "hours": 4907
+    },
+    "sideways": {
+      "rows": 615,
+      "pct_of_total": 3.46,
+      "hours": 615
+    },
+    "low_volatility_sideways": {
+      "rows": 5043,
+      "pct_of_total": 28.33,
+      "hours": 5043
+    },
+    "high_volatility": {
+      "rows": 1780,
+      "pct_of_total": 10.0,
+      "hours": 1780
+    }
+  },
+  "regime_periods": {
+    "bull": {
+      "first_ts": "2024-11-08 00:00:00+00:00",
+      "last_ts": "2026-10-22 05:00:00+00:00",
+      "contiguous_blocks": 267
+    },
+    "bear": {
+      "first_ts": "2024-11-28 09:00:00+00:00",
+      "last_ts": "2026-11-12 13:00:00+00:00",
+      "contiguous_blocks": 318
+    },
+    "sideways": {
+      "first_ts": "2024-11-01 03:00:00+00:00",
+      "last_ts": "2026-11-05 01:00:00+00:00",
+      "contiguous_blocks": 141
+    },
+    "low_volatility_sideways": {
+      "first_ts": "2024-11-01 00:00:00+00:00",
+      "last_ts": "2026-11-09 23:00:00+00:00",
+      "contiguous_blocks": 481
+    },
+    "high_volatility": {
+      "first_ts": "2024-11-01 02:00:00+00:00",
+      "last_ts": "2026-11-06 13:00:00+00:00",
+      "contiguous_blocks": 93
+    }
+  },
+  "volatility_stats": {
+    "median_annualized": 0.356,
+    "p75_annualized": 0.4847,
+    "p90_annualized": 0.6449,
+    "min_annualized": 0.0506,
+    "max_annualized": 1.605
+  },
+  "trend_stats": {
+    "median_weekly_log_return": 0.000571,
+    "mean_weekly_log_return": 0.000574,
+    "std_weekly_log_return": 0.058777
+  },
+  "generated_at": "2026-11-12T13:41:15.977346+00:00",
+  "dataset_first_ts": "2024-11-01 00:00:00+00:00",
+  "dataset_last_ts": "2026-11-12 13:00:00+00:00",
+  "dataset_rows": 17798
+}

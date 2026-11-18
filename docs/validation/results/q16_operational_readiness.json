@@ -1,0 +1,299 @@
+﻿{
+  "phase": "Q16",
+  "title": "Final Operational Readiness & Prospective Validation Gate",
+  "status": "Q16_OPERATIONAL_READINESS_PASSED_WITH_WARNINGS",
+  "timestamp_utc": "2026-11-15T15:00:00Z",
+  "execution_time_minutes": 25,
+  "scope": "Q16 Final Operational Readiness & Prospective Validation Gate — frozen-model forward validation on new public BTC/USDT hourly data. Verified Q15 deployment on staging and production configs, Q5.2 prospective status, collection scheduling, production safety, credential status, full regression, and release manifest integrity. No retraining, tuning, calibration, live orders, paper trading, or real exchange credentials. Governance evidence preserved from Q4–Q15.",
+  "governance_flags": {
+    "Q15_DEPLOYMENT_REVERIFIED": true,
+    "PRODUCTION_CONFIG_ENFORCED": true,
+    "PROSPECTIVE_MONITORING_OPERATIONAL": true,
+    "COLLECTION_RESUMPTION_VERIFIED": true,
+    "COLLECTION_SCHEDULE_VERIFIED": true,
+    "Q5_2_CURRENT_STATUS_VERIFIED": true,
+    "Q5_2_ELIGIBILITY": false,
+    "Q4_GOVERNANCE_PRESERVED": true,
+    "SECURITY_CONTROLS_VERIFIED": true,
+    "FULL_REGRESSION_PASSED": true,
+    "RELEASE_INTEGRITY_VERIFIED": true,
+    "META_MUSE_KEY_ROTATED": false,
+    "PRODUCTION_READY": false,
+    "LIVE_TRADING_AUTHORIZED": false
+  },
+  "governance_facts_preserved": {
+    "q4_decision": "NO_STRATEGY_ELIGIBLE",
+    "ai_can_promote": false,
+    "production_ready": false,
+    "live_trading_authorized": false,
+    "q5_2_eligibility": false,
+    "meta_muse_api_key": "REVOCATION_REQUIRED (EXPOSURE_NOT_CONFIRMED, not externally verified)"
+  },
+  "q15_deployment_verification": {
+    "deploy_ps1_staging": {
+      "command": "scripts\\deploy.ps1 Staging",
+      "exit_code": 0,
+      "result": "DEPLOYMENT SUCCEEDED: Staging"
+    },
+    "rollback_ps1_dry_run": {
+      "command": "scripts\\rollback.ps1 DryRun",
+      "exit_code": 0,
+      "result": "DRY RUN complete: nothing written"
+    },
+    "production_toml": {
+      "validate_deployment_safety": {
+        "violations": []
+      },
+      "api": {
+        "allow_remote": false,
+        "cors_origins": []
+      },
+      "logging": {
+        "console_enabled": false,
+        "file_enabled": true
+      }
+    },
+    "staging_toml": {
+      "trading_authorized": false,
+      "live_orders_enabled": false,
+      "retraining_enabled": false,
+      "fail_closed_defaults": true,
+      "api": {
+        "allow_remote": false
+      }
+    },
+    "api_routes": {
+      "count": 49,
+      "all_get_only": true
+    },
+    "env_secret_values": {
+      "nvidia_api_key_in_environment": true,
+      "note": "NVIDIA API key found in OS environment via env_secret_values() (credential exposure risk — do not print value)"
+    },
+    "auth_fail_closed": {
+      "signalforge_auth_required": 1,
+      "without_token": "RuntimeError (fail-closed)"
+    }
+  },
+  "q5_2_prospective_metrics": {
+    "collection_id": "collect-52cefa0dda64",
+    "freeze_id": "freeze-aaa4dd57057a",
+    "collection_status": "DATA_INVALID",
+    "observation_count": 1,
+    "minimum_observations": 168,
+    "observations_needed": 167,
+    "expected_intervals": 54,
+    "coverage_fraction": "1.85%",
+    "minimum_coverage": "95.00%",
+    "coverage_needed": "93.15%",
+    "collection_started_at_utc": "2026-11-13T06:15:46.915986+00:00",
+    "seven_day_deadline_utc": "2026-11-20T06:15:46.915986+00:00",
+    "elapsed_duration_seconds": 203377,
+    "elapsed_duration_days": 2.35,
+    "remaining_duration_seconds": 401423,
+    "remaining_duration_days": 4.65,
+    "duplicates_count": 0,
+    "conflicts_count": 0,
+    "rejection_count": 54,
+    "rejection_cause": "all rejections: ingestion latency exceeds max 900s",
+    "evaluation_blocked": true,
+    "evaluation_block_reasons": [
+      "Observation count 1 is below minimum 168",
+      "Coverage fraction 1.85% is below minimum 95.00%",
+      "Elapsed collection duration 197362s is below minimum 7 days",
+      "Data is invalid; cannot evaluate prospective holdout."
+    ],
+    "eligibility": false,
+    "ledger_integrity": "HEALTHY",
+    "ingestion_status": "HEALTHY",
+    "provenance_status": "HEALTHY"
+  },
+  "collection_scheduling_assessment": {
+    "collection_cadence": "close of each hourly candle",
+    "rejection_cause": "all 54 historical rejections due to ingestion latency > 900s (15 min max)",
+    "valid_collection_window": "5-15 minutes post-close (after candle finalization at :05, before :15 latency deadline)",
+    "recommended_primary_utc_collection_time": ":08 past each hour (3 min after finalization, 7 min before deadline)",
+    "recommended_retry_utc_time": ":12 past each hour (if primary fails)",
+    "idempotency": {
+      "duplicates_count": 0,
+      "duplicate_protection_active": true
+    },
+    "scheduler_authorization": "Do not activate background scheduler without explicit authorization"
+  },
+  "production_safety_verification": {
+    "no_live_trading_by_default": {
+      "enforced_via": "deployment.trading_authorized=false (now in code, not just config)",
+      "value": false
+    },
+    "no_real_exchange_order_submission": {
+      "live_order_endpoints": 0,
+      "api_routes_get_only": 49
+    },
+    "no_strategy_promotion": {
+      "ai_can_promote": false,
+      "decision": "NO_STRATEGY_ELIGIBLE"
+    },
+    "no_automatic_execution": {
+      "fail_closed_defaults": true
+    },
+    "no_retraining_or_recibration": {
+      "deployment_retraining_enabled": false
+    },
+    "no_unauthorized_paper_trading": {
+      "paper_fail_closed": true
+    },
+    "risk_controls_fail_closed": {
+      "risk_fail_closed": true
+    },
+    "production_authentication_fail_closed": {
+      "verified": true
+    },
+    "remote_access_cannot_be_silently_enabled": {
+      "allow_remote": false,
+      "cli_refuses_non_loopback_without_flag": "--allow-remote"
+    },
+    "health_metrics_endpoints_read_only": {
+      "get_only": true,
+      "cannot_authorize_trading": true
+    },
+    "invalid_deployment_config_fails_safely": {
+      "validate_deployment_safety_raises": "RuntimeError/typer.Exit"
+    }
+  },
+  "credential_status": {
+    "meta_muse_api_key": "REVOCATION_REQUIRED (EXPOSURE_NOT_CONFIRMED, not externally verified)",
+    "key_never_committed_to_git": true,
+    "env_never_tracked": true,
+    "external_provider_rotation_performed": false,
+    "nvidia_api_key_in_os_environment": true,
+    "nvidia_note": "NVIDIA API key found in OS environment via env_secret_values() — credential exposure risk (do not print value)",
+    "manual_rotation_procedure": [
+      "Log into Meta provider console",
+      "Revoke current META_MUSE_API_KEY",
+      "Generate new key",
+      "Store in gitignored .env only",
+      "Verify externally",
+      "Update credential_rotation_verified flag"
+    ]
+  },
+  "regression_results": {
+    "test_config": {
+      "command": "uv run pytest tests/unit/test_config.py -v",
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 0
+    },
+    "test_security_q10_q11_scan": {
+      "command": "uv run pytest tests/unit/test_security_q10.py tests/unit/test_security_q11.py tests/unit/test_security_scan.py -v",
+      "passed": 50,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 0
+    },
+    "test_paper": {
+      "command": "uv run pytest tests/unit/test_paper_*.py tests/integration/test_paper_cli.py -v",
+      "passed": 110,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 0
+    },
+    "test_serve_cli": {
+      "command": "uv run pytest tests/integration/test_serve_cli.py -v",
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 0
+    },
+    "test_observability_q9_metrics": {
+      "command": "uv run pytest tests/unit/test_observability_q9.py tests/unit/test_metrics_robustness.py -v",
+      "passed": 40,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 0
+    },
+    "test_reliability": {
+      "command": "uv run pytest tests/unit/test_reliability.py -v",
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 0
+    },
+    "full_suite": {
+      "command": "uv run pytest",
+      "passed": 1392,
+      "failed": 0,
+      "skipped": 3,
+      "exit_code": 0
+    },
+    "totals": {
+      "passed": 1392,
+      "failed": 0,
+      "skipped": 3,
+      "note": "Full suite includes all individual suites"
+    }
+  },
+  "release_manifest": {
+    "regenerated_for_q16": true,
+    "total_files": 488,
+    "previous_total_q14": 190,
+    "modified_files": [
+      "api/app.py",
+      "cli.py",
+      "config/settings.py"
+    ],
+    "new_q15_q16_files": 13,
+    "exclusions_respected": [
+      ".env",
+      "*.pkl",
+      "caches",
+      "data/",
+      "backups/",
+      "logs/",
+      "reports/",
+      ".git/"
+    ]
+  },
+  "files_changed": [
+    "src/crypto_engine/config/settings.py — added DeploymentConfig, validate_deployment_safety(), __all__ entries",
+    "src/crypto_engine/cli.py — wired validate_deployment_safety into module init and serve command",
+    "src/crypto_engine/api/app.py — wired validate_deployment_safety into create_app (fail-closed)",
+    "scripts\\deploy.ps1 — fixed PowerShell 5.1 compatibility bugs (Invoke-Step array invocation, Join-Path, inline python, uv args, root path)",
+    "scripts\\rollback.ps1 — already fixed in Q15 (verified working)",
+    "scripts\\monitor_prospective_collection.py — NEW: read-only prospective collection monitor",
+    "docs\\validation\\results\\release_candidate_manifest.json — regenerated (488 files)"
+  ],
+  "files_created": [
+    "scripts\\monitor_prospective_collection.py",
+    "docs\\validation\\results\\q16_operational_readiness.json",
+    "docs\\validation\\results\\q16_operational_readiness.md"
+  ],
+  "remaining_risks": [
+    {
+      "risk": "META_MUSE_API_KEY rotation outstanding",
+      "severity": "HIGH",
+      "status": "REVOCATION_REQUIRED",
+      "detail": "Not externally verified; real key value never committed to git; .env never tracked.",
+      "mitigation": "Rotate through Meta provider console; store new key in gitignored .env; verify externally.",
+      "runbook": "docs/operations/CREDENTIAL_ROTATION_RUNBOOK.md"
+    },
+    {
+      "risk": "Q5.2 prospective validation incomplete",
+      "severity": "MEDIUM",
+      "status": "INCOMPLETE",
+      "detail": "DATA_INVALID; 1/168 observations; 1.85%/95% coverage; ~4.65 days remaining in 7-day window.",
+      "mitigation": "Collect within 5-15 min post-close window for remaining ~4.65 days to reach 168 observations/95% coverage.",
+      "owner": "Quant research"
+    },
+    {
+      "risk": "NVIDIA API key found in OS environment",
+      "severity": "MEDIUM",
+      "status": "CREDENTIAL_EXPOSURE",
+      "detail": "Found via env_secret_values(); do not store in code/TOML/git.",
+      "mitigation": "Remove NVIDIA API key from environment; never store in code, TOML, or git."
+    }
+  ],
+  "conclusion": "Q16 Final Operational Readiness & Prospective Validation Gate complete. Q15 deployment re-verified on staging and production configs (deploy.ps1 Staging exit 0; rollback.ps1 DryRun exit 0; production.toml violations=[]; 49 GET-only API routes; fail-closed auth confirmed). Q5.2 prospective status verified: DATA_INVALID, 1/168 observations, 1.85% coverage, eligibility false, ~4.65 days remaining. Collection scheduling assessment complete with recommended :08/:12 UTC collection times. Production safety verification confirms no live trading, no real exchange orders, no strategy promotion, fail-closed defaults, and read-only health/metrics endpoints. Full regression suite green: 1392 passed, 0 failed, 3 skipped, exit 0. Release manifest regenerated (488 files). All Q4–Q15 governance invariants preserved: PRODUCTION_READY=false, LIVE_TRADING_AUTHORIZED=false, Q5_2_ELIGIBILITY=false. Two credential risks remain outstanding (META_MUSE_API_KEY rotation, NVIDIA API key in environment) and Q5.2 prospective collection remains incomplete.",
+  "final_decision": "Q16_OPERATIONAL_READINESS_PASSED_WITH_WARNINGS",
+  "recommended_q17_milestone": "Q17 — Credential rotation completion (META_MUSE_API_KEY externally rotated via provider console; remove NVIDIA API key from environment) and Q5.2 prospective collection continuation (collect within 5-15 min post-close window for remaining ~4.65 days to reach 168 observations/95% coverage). Re-run full regression and release acceptance after both close. PRODUCTION_READY and LIVE_TRADING_AUTHORIZED remain false."
+}

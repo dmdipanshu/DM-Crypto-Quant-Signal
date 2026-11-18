@@ -15,6 +15,29 @@ from crypto_engine.paper_trading.loop import (
     paper_portfolio,
     step,
 )
+from crypto_engine.paper_trading.orders import (
+    FillRecord,
+    Order,
+    OrderCancelError,
+    OrderManager,
+    OrderRejectionError,
+    OrderSide,
+    OrderStatus,
+    OrderType,
+)
+from crypto_engine.paper_trading.resilience import (
+    CheckpointManager,
+    EventLedger,
+    RecoveryManager,
+    SimulatorCheckpoint,
+    deterministic_replay,
+)
+from crypto_engine.paper_trading.simulator import (
+    Simulator,
+    SimulatorConfig,
+    SimulatorEvent,
+    SimulatorResult,
+)
 from crypto_engine.paper_trading.state import (
     ACCOUNT_FILENAME,
     BAR_WINDOW,
@@ -35,6 +58,16 @@ from crypto_engine.paper_trading.state import (
     record_rejection,
     save_account,
 )
+from crypto_engine.paper_trading.strategy_adapters import (
+    CandidateIsolationManager,
+    CandidateStatus,
+    LightGBMProducer,
+    LogisticProducer,
+    MajorityProducer,
+    SignalProducer,
+    TrendProducer,
+    create_producers,
+)
 
 __all__ = [
     "ACCOUNT_FILENAME",
@@ -43,15 +76,40 @@ __all__ = [
     "MAX_PROCESSED_IDS",
     "MAX_REJECTIONS",
     "MAX_TRADES_CLOSED",
+    "CandidateIsolationManager",
+    "CandidateStatus",
+    "CheckpointManager",
     "CorruptStateError",
     "DivergenceReport",
+    "EventLedger",
+    "FillRecord",
+    "LightGBMProducer",
+    "LogisticProducer",
+    "MajorityProducer",
+    "Order",
+    "OrderCancelError",
+    "OrderManager",
+    "OrderRejectionError",
+    "OrderSide",
+    "OrderStatus",
+    "OrderType",
     "PaperAccount",
+    "RecoveryManager",
+    "SignalProducer",
+    "Simulator",
+    "SimulatorCheckpoint",
+    "SimulatorConfig",
+    "SimulatorEvent",
+    "SimulatorResult",
     "StepResult",
     "TradeDivergence",
+    "TrendProducer",
     "account_hash",
     "compare_account_to_backtest",
     "compare_to_backtest",
+    "create_producers",
     "default_gates_ctx",
+    "deterministic_replay",
     "equity",
     "flatten",
     "halt",
@@ -65,3 +123,5 @@ __all__ = [
     "save_account",
     "step",
 ]
+
+

@@ -1,0 +1,871 @@
+{
+  "generated_at_utc": "2026-11-13T16:24:55.881584+00:00",
+  "governance_checks": [
+    {
+      "compliant": true,
+      "details": {
+        "present_governance_fields": [
+          "official_prospective_evidence",
+          "promotion_eligible",
+          "promotion_gate",
+          "q4_decision",
+          "q4_decision_preserved",
+          "q5_2_eligible"
+        ],
+        "required_fields": {
+          "official_prospective_evidence": false,
+          "promotion_eligible": false,
+          "promotion_gate": "BLOCKED",
+          "q4_decision": "NO_STRATEGY_ELIGIBLE",
+          "q4_decision_preserved": true,
+          "q5_2_eligible": false
+        }
+      },
+      "extra_fields": [
+        "candidates",
+        "coverage_fraction",
+        "dataset_id",
+        "dataset_type",
+        "evaluated_at_utc",
+        "expected_intervals",
+        "historical_status",
+        "observation_count",
+        "read_only",
+        "schema_version",
+        "summary"
+      ],
+      "file_path": "docs\\validation\\results\\historical_validation_comparison.json",
+      "mismatched_fields": {},
+      "missing_fields": []
+    },
+    {
+      "compliant": true,
+      "details": {
+        "present_governance_fields": [
+          "official_prospective_evidence",
+          "promotion_eligible",
+          "promotion_gate",
+          "q4_decision",
+          "q4_decision_preserved",
+          "q5_2_eligible"
+        ],
+        "required_fields": {
+          "official_prospective_evidence": false,
+          "promotion_eligible": false,
+          "promotion_gate": "BLOCKED",
+          "q4_decision": "NO_STRATEGY_ELIGIBLE",
+          "q4_decision_preserved": true,
+          "q5_2_eligible": false
+        }
+      },
+      "extra_fields": [
+        "candidate_id",
+        "dataset_id",
+        "dataset_type",
+        "evaluated_at_utc",
+        "evaluation_result",
+        "historical_status",
+        "promotion_gate_details",
+        "read_only",
+        "schema_version"
+      ],
+      "file_path": "docs\\validation\\results\\historical_validation_results.json",
+      "mismatched_fields": {},
+      "missing_fields": []
+    },
+    {
+      "compliant": true,
+      "details": {
+        "present_governance_fields": [
+          "official_prospective_evidence",
+          "promotion_eligible",
+          "promotion_gate",
+          "q4_decision",
+          "q4_decision_preserved",
+          "q5_2_eligible"
+        ],
+        "required_fields": {
+          "official_prospective_evidence": false,
+          "promotion_eligible": false,
+          "promotion_gate": "BLOCKED",
+          "q4_decision": "NO_STRATEGY_ELIGIBLE",
+          "q4_decision_preserved": true,
+          "q5_2_eligible": false
+        }
+      },
+      "extra_fields": [
+        "candidates",
+        "dataset_hash",
+        "dataset_id",
+        "dataset_type",
+        "generated_at_utc",
+        "n_candles",
+        "schema_version",
+        "storage_root"
+      ],
+      "file_path": "docs\\validation\\results\\historical_validation_results_12m.json",
+      "mismatched_fields": {},
+      "missing_fields": []
+    },
+    {
+      "compliant": true,
+      "details": {
+        "present_governance_fields": [
+          "official_prospective_evidence",
+          "promotion_eligible",
+          "promotion_gate",
+          "q4_decision",
+          "q4_decision_preserved",
+          "q5_2_eligible"
+        ],
+        "required_fields": {
+          "official_prospective_evidence": false,
+          "promotion_eligible": false,
+          "promotion_gate": "BLOCKED",
+          "q4_decision": "NO_STRATEGY_ELIGIBLE",
+          "q4_decision_preserved": true,
+          "q5_2_eligible": false
+        }
+      },
+      "extra_fields": [
+        "candidate_id",
+        "candidate_lock_hash",
+        "dataset_id",
+        "dataset_type",
+        "evaluated_at_utc",
+        "evaluation_result",
+        "historical_status",
+        "promotion_gate_details",
+        "read_only",
+        "schema_version"
+      ],
+      "file_path": "docs\\validation\\results\\historical_validation_results_lightgbm.json",
+      "mismatched_fields": {},
+      "missing_fields": []
+    },
+    {
+      "compliant": true,
+      "details": {
+        "present_governance_fields": [
+          "official_prospective_evidence",
+          "promotion_eligible",
+          "promotion_gate",
+          "q4_decision",
+          "q4_decision_preserved",
+          "q5_2_eligible"
+        ],
+        "required_fields": {
+          "official_prospective_evidence": false,
+          "promotion_eligible": false,
+          "promotion_gate": "BLOCKED",
+          "q4_decision": "NO_STRATEGY_ELIGIBLE",
+          "q4_decision_preserved": true,
+          "q5_2_eligible": false
+        }
+      },
+      "extra_fields": [
+        "candidate_id",
+        "candidate_lock_hash",
+        "dataset_id",
+        "dataset_type",
+        "evaluated_at_utc",
+        "evaluation_result",
+        "historical_status",
+        "promotion_gate_details",
+        "read_only",
+        "schema_version"
+      ],
+      "file_path": "docs\\validation\\results\\historical_validation_results_logistic.json",
+      "mismatched_fields": {},
+      "missing_fields": []
+    },
+    {
+      "compliant": true,
+      "details": {
+        "present_governance_fields": [
+          "official_prospective_evidence",
+          "promotion_eligible",
+          "promotion_gate",
+          "q4_decision",
+          "q4_decision_preserved",
+          "q5_2_eligible"
+        ],
+        "required_fields": {
+          "official_prospective_evidence": false,
+          "promotion_eligible": false,
+          "promotion_gate": "BLOCKED",
+          "q4_decision": "NO_STRATEGY_ELIGIBLE",
+          "q4_decision_preserved": true,
+          "q5_2_eligible": false
+        }
+      },
+      "extra_fields": [
+        "candidate_id",
+        "candidate_lock_hash",
+        "dataset_id",
+        "dataset_type",
+        "evaluated_at_utc",
+        "evaluation_result",
+        "historical_status",
+        "promotion_gate_details",
+        "read_only",
+        "schema_version"
+      ],
+      "file_path": "docs\\validation\\results\\historical_validation_results_trend.json",
+      "mismatched_fields": {},
+      "missing_fields": []
+    },
+    {
+      "compliant": true,
+      "details": {
+        "present_governance_fields": [
+          "official_prospective_evidence",
+          "promotion_eligible",
+          "promotion_gate",
+          "q4_decision",
+          "q4_decision_preserved",
+          "q5_2_eligible"
+        ],
+        "required_fields": {
+          "official_prospective_evidence": false,
+          "promotion_eligible": false,
+          "promotion_gate": "BLOCKED",
+          "q4_decision": "NO_STRATEGY_ELIGIBLE",
+          "q4_decision_preserved": true,
+          "q5_2_eligible": false
+        }
+      },
+      "extra_fields": [
+        "abstain_count",
+        "audit_id",
+        "candidate_id",
+        "candidate_lock_hash",
+        "dataset_id",
+        "dataset_type",
+        "eligible_prediction_count",
+        "excluded_observations",
+        "generated_at_utc",
+        "inference_errors",
+        "inference_implementation",
+        "long_count",
+        "model_artifact_hash",
+        "model_name",
+        "n_candles",
+        "n_predictions",
+        "prediction_counts",
+        "prediction_provenance",
+        "prediction_timestamps",
+        "promotion_gate_details",
+        "q6_evaluation",
+        "schema_version",
+        "short_count",
+        "status"
+      ],
+      "file_path": "docs\\validation\\results\\prediction_audit_lightgbm.json",
+      "mismatched_fields": {},
+      "missing_fields": []
+    },
+    {
+      "compliant": true,
+      "details": {
+        "present_governance_fields": [
+          "official_prospective_evidence",
+          "promotion_eligible",
+          "promotion_gate",
+          "q4_decision",
+          "q4_decision_preserved",
+          "q5_2_eligible"
+        ],
+        "required_fields": {
+          "official_prospective_evidence": false,
+          "promotion_eligible": false,
+          "promotion_gate": "BLOCKED",
+          "q4_decision": "NO_STRATEGY_ELIGIBLE",
+          "q4_decision_preserved": true,
+          "q5_2_eligible": false
+        }
+      },
+      "extra_fields": [
+        "abstain_count",
+        "audit_id",
+        "candidate_id",
+        "candidate_lock_hash",
+        "dataset_hash",
+        "dataset_id",
+        "dataset_type",
+        "decision_mask",
+        "eligible_prediction_count",
+        "evaluation",
+        "feature_columns",
+        "feature_config_hash",
+        "feature_schema_hash",
+        "first_candle_utc",
+        "generated_at_utc",
+        "last_candle_utc",
+        "long_count",
+        "model_artifact_hash",
+        "model_config_hash",
+        "model_name",
+        "n_candles",
+        "n_eligible",
+        "n_predictions",
+        "prediction_counts",
+        "predictions",
+        "promotion_gate_details",
+        "q6_evaluation",
+        "reason",
+        "schema",
+        "schema_version",
+        "score_max",
+        "score_mean",
+        "score_min",
+        "scores",
+        "short_count",
+        "status",
+        "storage_root",
+        "strategy_config_hash",
+        "target_config_hash"
+      ],
+      "file_path": "docs\\validation\\results\\prediction_audit_lightgbm_12m.json",
+      "mismatched_fields": {},
+      "missing_fields": []
+    },
+    {
+      "compliant": true,
+      "details": {
+        "present_governance_fields": [
+          "official_prospective_evidence",
+          "promotion_eligible",
+          "promotion_gate",
+          "q4_decision",
+          "q4_decision_preserved",
+          "q5_2_eligible"
+        ],
+        "required_fields": {
+          "official_prospective_evidence": false,
+          "promotion_eligible": false,
+          "promotion_gate": "BLOCKED",
+          "q4_decision": "NO_STRATEGY_ELIGIBLE",
+          "q4_decision_preserved": true,
+          "q5_2_eligible": false
+        }
+      },
+      "extra_fields": [
+        "abstain_count",
+        "audit_id",
+        "candidate_id",
+        "candidate_lock_hash",
+        "dataset_id",
+        "dataset_type",
+        "eligible_prediction_count",
+        "excluded_observations",
+        "generated_at_utc",
+        "inference_errors",
+        "inference_implementation",
+        "long_count",
+        "model_artifact_hash",
+        "model_name",
+        "n_candles",
+        "n_predictions",
+        "prediction_counts",
+        "prediction_provenance",
+        "prediction_timestamps",
+        "promotion_gate_details",
+        "q6_evaluation",
+        "schema_version",
+        "short_count",
+        "status"
+      ],
+      "file_path": "docs\\validation\\results\\prediction_audit_logistic.json",
+      "mismatched_fields": {},
+      "missing_fields": []
+    },
+    {
+      "compliant": true,
+      "details": {
+        "present_governance_fields": [
+          "official_prospective_evidence",
+          "promotion_eligible",
+          "promotion_gate",
+          "q4_decision",
+          "q4_decision_preserved",
+          "q5_2_eligible"
+        ],
+        "required_fields": {
+          "official_prospective_evidence": false,
+          "promotion_eligible": false,
+          "promotion_gate": "BLOCKED",
+          "q4_decision": "NO_STRATEGY_ELIGIBLE",
+          "q4_decision_preserved": true,
+          "q5_2_eligible": false
+        }
+      },
+      "extra_fields": [
+        "abstain_count",
+        "audit_id",
+        "candidate_id",
+        "candidate_lock_hash",
+        "dataset_hash",
+        "dataset_id",
+        "dataset_type",
+        "decision_mask",
+        "eligible_prediction_count",
+        "evaluation",
+        "feature_columns",
+        "feature_config_hash",
+        "feature_schema_hash",
+        "first_candle_utc",
+        "generated_at_utc",
+        "last_candle_utc",
+        "long_count",
+        "model_artifact_hash",
+        "model_config_hash",
+        "model_name",
+        "n_candles",
+        "n_eligible",
+        "n_predictions",
+        "prediction_counts",
+        "predictions",
+        "promotion_gate_details",
+        "q6_evaluation",
+        "reason",
+        "schema",
+        "schema_version",
+        "score_max",
+        "score_mean",
+        "score_min",
+        "scores",
+        "short_count",
+        "status",
+        "storage_root",
+        "strategy_config_hash",
+        "target_config_hash"
+      ],
+      "file_path": "docs\\validation\\results\\prediction_audit_logistic_12m.json",
+      "mismatched_fields": {},
+      "missing_fields": []
+    },
+    {
+      "compliant": true,
+      "details": {
+        "present_governance_fields": [
+          "official_prospective_evidence",
+          "promotion_eligible",
+          "promotion_gate",
+          "q4_decision",
+          "q4_decision_preserved",
+          "q5_2_eligible"
+        ],
+        "required_fields": {
+          "official_prospective_evidence": false,
+          "promotion_eligible": false,
+          "promotion_gate": "BLOCKED",
+          "q4_decision": "NO_STRATEGY_ELIGIBLE",
+          "q4_decision_preserved": true,
+          "q5_2_eligible": false
+        }
+      },
+      "extra_fields": [
+        "abstain_count",
+        "audit_id",
+        "candidate_id",
+        "candidate_lock_hash",
+        "dataset_id",
+        "dataset_type",
+        "eligible_prediction_count",
+        "excluded_observations",
+        "generated_at_utc",
+        "inference_errors",
+        "inference_implementation",
+        "long_count",
+        "model_artifact_hash",
+        "model_name",
+        "n_candles",
+        "n_predictions",
+        "prediction_counts",
+        "prediction_provenance",
+        "prediction_timestamps",
+        "promotion_gate_details",
+        "q6_evaluation",
+        "schema_version",
+        "short_count",
+        "status"
+      ],
+      "file_path": "docs\\validation\\results\\prediction_audit_majority.json",
+      "mismatched_fields": {},
+      "missing_fields": []
+    },
+    {
+      "compliant": true,
+      "details": {
+        "present_governance_fields": [
+          "official_prospective_evidence",
+          "promotion_eligible",
+          "promotion_gate",
+          "q4_decision",
+          "q4_decision_preserved",
+          "q5_2_eligible"
+        ],
+        "required_fields": {
+          "official_prospective_evidence": false,
+          "promotion_eligible": false,
+          "promotion_gate": "BLOCKED",
+          "q4_decision": "NO_STRATEGY_ELIGIBLE",
+          "q4_decision_preserved": true,
+          "q5_2_eligible": false
+        }
+      },
+      "extra_fields": [
+        "abstain_count",
+        "audit_id",
+        "candidate_id",
+        "candidate_lock_hash",
+        "dataset_hash",
+        "dataset_id",
+        "dataset_type",
+        "decision_mask",
+        "eligible_prediction_count",
+        "evaluation",
+        "feature_columns",
+        "feature_config_hash",
+        "feature_schema_hash",
+        "first_candle_utc",
+        "generated_at_utc",
+        "last_candle_utc",
+        "long_count",
+        "model_artifact_hash",
+        "model_config_hash",
+        "model_name",
+        "n_candles",
+        "n_eligible",
+        "n_predictions",
+        "prediction_counts",
+        "predictions",
+        "promotion_gate_details",
+        "q6_evaluation",
+        "reason",
+        "schema",
+        "schema_version",
+        "score_max",
+        "score_mean",
+        "score_min",
+        "scores",
+        "short_count",
+        "status",
+        "storage_root",
+        "strategy_config_hash",
+        "target_config_hash"
+      ],
+      "file_path": "docs\\validation\\results\\prediction_audit_majority_12m.json",
+      "mismatched_fields": {},
+      "missing_fields": []
+    },
+    {
+      "compliant": true,
+      "details": {
+        "present_governance_fields": [
+          "official_prospective_evidence",
+          "promotion_eligible",
+          "promotion_gate",
+          "q4_decision",
+          "q4_decision_preserved",
+          "q5_2_eligible"
+        ],
+        "required_fields": {
+          "official_prospective_evidence": false,
+          "promotion_eligible": false,
+          "promotion_gate": "BLOCKED",
+          "q4_decision": "NO_STRATEGY_ELIGIBLE",
+          "q4_decision_preserved": true,
+          "q5_2_eligible": false
+        }
+      },
+      "extra_fields": [
+        "candidates",
+        "dataset_hash",
+        "dataset_id",
+        "dataset_type",
+        "generated_at_utc",
+        "n_candles",
+        "schema_version",
+        "storage_root"
+      ],
+      "file_path": "docs\\validation\\results\\prediction_audit_report.json",
+      "mismatched_fields": {},
+      "missing_fields": []
+    },
+    {
+      "compliant": true,
+      "details": {
+        "present_governance_fields": [
+          "official_prospective_evidence",
+          "promotion_eligible",
+          "promotion_gate",
+          "q4_decision",
+          "q4_decision_preserved",
+          "q5_2_eligible"
+        ],
+        "required_fields": {
+          "official_prospective_evidence": false,
+          "promotion_eligible": false,
+          "promotion_gate": "BLOCKED",
+          "q4_decision": "NO_STRATEGY_ELIGIBLE",
+          "q4_decision_preserved": true,
+          "q5_2_eligible": false
+        }
+      },
+      "extra_fields": [
+        "abstain_count",
+        "audit_id",
+        "candidate_id",
+        "candidate_lock_hash",
+        "dataset_id",
+        "dataset_type",
+        "eligible_prediction_count",
+        "excluded_observations",
+        "generated_at_utc",
+        "inference_errors",
+        "inference_implementation",
+        "long_count",
+        "model_artifact_hash",
+        "model_name",
+        "n_candles",
+        "n_predictions",
+        "prediction_counts",
+        "prediction_provenance",
+        "prediction_timestamps",
+        "promotion_gate_details",
+        "q6_evaluation",
+        "schema_version",
+        "short_count",
+        "status"
+      ],
+      "file_path": "docs\\validation\\results\\prediction_audit_trend.json",
+      "mismatched_fields": {},
+      "missing_fields": []
+    },
+    {
+      "compliant": true,
+      "details": {
+        "present_governance_fields": [
+          "official_prospective_evidence",
+          "promotion_eligible",
+          "promotion_gate",
+          "q4_decision",
+          "q4_decision_preserved",
+          "q5_2_eligible"
+        ],
+        "required_fields": {
+          "official_prospective_evidence": false,
+          "promotion_eligible": false,
+          "promotion_gate": "BLOCKED",
+          "q4_decision": "NO_STRATEGY_ELIGIBLE",
+          "q4_decision_preserved": true,
+          "q5_2_eligible": false
+        }
+      },
+      "extra_fields": [
+        "abstain_count",
+        "audit_id",
+        "candidate_id",
+        "candidate_lock_hash",
+        "dataset_hash",
+        "dataset_id",
+        "dataset_type",
+        "decision_mask",
+        "eligible_prediction_count",
+        "evaluation",
+        "feature_columns",
+        "feature_config_hash",
+        "feature_schema_hash",
+        "first_candle_utc",
+        "generated_at_utc",
+        "last_candle_utc",
+        "long_count",
+        "model_artifact_hash",
+        "model_config_hash",
+        "model_name",
+        "n_candles",
+        "n_eligible",
+        "n_predictions",
+        "prediction_counts",
+        "predictions",
+        "promotion_gate_details",
+        "q6_evaluation",
+        "reason",
+        "schema",
+        "schema_version",
+        "score_max",
+        "score_mean",
+        "score_min",
+        "scores",
+        "short_count",
+        "status",
+        "storage_root",
+        "strategy_config_hash",
+        "target_config_hash"
+      ],
+      "file_path": "docs\\validation\\results\\prediction_audit_trend_12m.json",
+      "mismatched_fields": {},
+      "missing_fields": []
+    },
+    {
+      "compliant": true,
+      "details": {
+        "present_governance_fields": [
+          "official_prospective_evidence",
+          "promotion_eligible",
+          "promotion_gate",
+          "q4_decision",
+          "q4_decision_preserved",
+          "q5_2_eligible"
+        ],
+        "required_fields": {
+          "official_prospective_evidence": false,
+          "promotion_eligible": false,
+          "promotion_gate": "BLOCKED",
+          "q4_decision": "NO_STRATEGY_ELIGIBLE",
+          "q4_decision_preserved": true,
+          "q5_2_eligible": false
+        }
+      },
+      "extra_fields": [
+        "buy_and_hold_return_bp",
+        "candidates",
+        "dataset_type",
+        "generated_at_utc",
+        "n_candles",
+        "schema_version",
+        "storage_root"
+      ],
+      "file_path": "docs\\validation\\results\\statistical_robustness_12m_combined.json",
+      "mismatched_fields": {},
+      "missing_fields": []
+    },
+    {
+      "compliant": true,
+      "details": {
+        "present_governance_fields": [
+          "official_prospective_evidence",
+          "promotion_eligible",
+          "promotion_gate",
+          "q4_decision",
+          "q4_decision_preserved",
+          "q5_2_eligible"
+        ],
+        "required_fields": {
+          "official_prospective_evidence": false,
+          "promotion_eligible": false,
+          "promotion_gate": "BLOCKED",
+          "q4_decision": "NO_STRATEGY_ELIGIBLE",
+          "q4_decision_preserved": true,
+          "q5_2_eligible": false
+        }
+      },
+      "extra_fields": [
+        "buy_and_hold_return_bp",
+        "candidates",
+        "dataset_type",
+        "generated_at_utc",
+        "n_candles",
+        "schema_version",
+        "storage_root"
+      ],
+      "file_path": "docs\\validation\\results\\statistical_robustness_logistic.json",
+      "mismatched_fields": {},
+      "missing_fields": []
+    },
+    {
+      "compliant": true,
+      "details": {
+        "present_governance_fields": [
+          "official_prospective_evidence",
+          "promotion_eligible",
+          "promotion_gate",
+          "q4_decision",
+          "q4_decision_preserved",
+          "q5_2_eligible"
+        ],
+        "required_fields": {
+          "official_prospective_evidence": false,
+          "promotion_eligible": false,
+          "promotion_gate": "BLOCKED",
+          "q4_decision": "NO_STRATEGY_ELIGIBLE",
+          "q4_decision_preserved": true,
+          "q5_2_eligible": false
+        }
+      },
+      "extra_fields": [
+        "buy_and_hold_return_bp",
+        "candidates",
+        "dataset_type",
+        "generated_at_utc",
+        "n_candles",
+        "schema_version",
+        "storage_root"
+      ],
+      "file_path": "docs\\validation\\results\\statistical_robustness_trend.json",
+      "mismatched_fields": {},
+      "missing_fields": []
+    }
+  ],
+  "ledger_checks": [
+    {
+      "hash_chain_valid": true,
+      "ledger_entries": 169,
+      "missing_hashes": [],
+      "orphaned_entries": [],
+      "storage_root": "data\\historical_accelerated"
+    },
+    {
+      "hash_chain_valid": true,
+      "ledger_entries": 8760,
+      "missing_hashes": [],
+      "orphaned_entries": [],
+      "storage_root": "data\\historical_accelerated_12m"
+    }
+  ],
+  "namespace_checks": [
+    {
+      "details": {
+        "dataset_id": "hist-accel-7c0a166d4f93",
+        "hash_chain_valid": true,
+        "ledger_entries": 169,
+        "manifest_present": true,
+        "missing_hashes": [],
+        "orphaned_entries": [],
+        "retrieval_timestamp": "2026-11-13T12:31:31.668000+00:00",
+        "root": "data\\historical_accelerated"
+      },
+      "isolated": true,
+      "namespace": "historical_accelerated",
+      "violations": []
+    },
+    {
+      "details": {
+        "dataset_id_12m": "hist-accel-12m-27eb09322722",
+        "dataset_id_1week": null,
+        "manifest_present": true,
+        "retrieval_timestamp": "2026-11-13T15:43:27.216141+00:00",
+        "root": "data\\historical_accelerated_12m",
+        "separate_from_1week": null
+      },
+      "isolated": true,
+      "namespace": "historical_accelerated_12m",
+      "violations": []
+    },
+    {
+      "details": {
+        "exists": true,
+        "root": "data\\prospective",
+        "separate_from_historical_12m": true,
+        "separate_from_historical_1week": true
+      },
+      "isolated": true,
+      "namespace": "prospective",
+      "violations": []
+    }
+  ],
+  "overall_compliant": true,
+  "schema_version": "governance_verification.v1"
+}

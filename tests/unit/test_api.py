@@ -146,6 +146,10 @@ def test_validation_and_research(tmp_path: Path) -> None:
     assert status == 404
     status, _, body = api_get(app, "/api/v1/research/reports")
     assert status == 200 and body["data"]["available"] is True
+    status, _, release = api_get(app, "/api/v1/research/release")
+    assert status == 200
+    assert release["data"]["available"] is False
+    assert release["data"]["reason"] == "not_initialized"
 
 
 def test_backtests_and_slices(tmp_path: Path) -> None:

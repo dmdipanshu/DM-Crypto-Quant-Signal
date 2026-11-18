@@ -1,0 +1,30 @@
+{
+  "actual_first_candle_utc": "2026-11-06T00:00:00+00:00",
+  "actual_last_candle_utc": "2026-11-13T00:00:00+00:00",
+  "conflicting_count": 0,
+  "dataset_hash": "4e55bf0fad592529bb0ee45b3bbfa47db792517aff850d8e52d169549277ffbf",
+  "dataset_id": "hist-accel-7c0a166d4f93",
+  "dataset_started_at_utc": "2026-11-06T00:00:00+00:00",
+  "dataset_type": "HISTORICAL_ACCELERATED_VALIDATION",
+  "duplicate_count": 0,
+  "exchange": "binance",
+  "is_prospective": false,
+  "market_type": "spot",
+  "missing_interval_count": 0,
+  "normalization_version": "v1",
+  "observation_count": 169,
+  "provider": "binance",
+  "q5_2_eligible": false,
+  "requested_end_utc": "2026-11-13T00:00:00+00:00",
+  "requested_start_utc": "2026-11-06T00:00:00+00:00",
+  "retrieval_timestamp": "2026-11-13T12:31:31.668000+00:00",
+  "schema_version": "historical_accelerated_manifest_v1",
+  "source_metadata": {
+    "api_endpoint": "public/fetchOHLCV",
+    "exchange": "binance",
+    "symbol": "BTC/USDT",
+    "timeframe": "1h"
+  },
+  "symbol": "BTC/USDT",
+  "timeframe": "1h"
+}

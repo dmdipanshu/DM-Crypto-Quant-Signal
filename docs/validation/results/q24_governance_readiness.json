@@ -1,0 +1,90 @@
+{
+  "phase": "Q24",
+  "topic": "Collection Governance Separation & Controlled Launch Readiness",
+  "started_at_utc": "2026-11-17T12:00:17Z",
+  "completed_at_utc": "2026-11-17T12:10:17Z",
+  "duration_minutes": 10.0,
+  "status": "HUMAN_APPROVAL_REQUIRED",
+  "final_decision": "Q24_HUMAN_APPROVAL_REQUIRED",
+  "governance_preserved": {
+    "q4_decision": "NO_STRATEGY_ELIGIBLE",
+    "ai_can_promote": false,
+    "production_ready": false,
+    "live_trading_authorized": false,
+    "paper_trading_authorized": false,
+    "collection_id": "collect-52cefa0dda64",
+    "freeze_id": "freeze-aaa4dd57057a"
+  },
+  "authorization_boundary": {
+    "collection_gated_by": ["storage_thresholds", "evaluation_blocked", "freeze_validity", "manifest_integrity", "human_continuation_approval", "scheduler_registration"],
+    "trading_gated_by": ["production_ready", "live_trading_authorized", "q4_no_strategy_eligible", "paper_trading_authorized"],
+    "coupling_defect_found": false,
+    "collection_independent_of_trading": true
+  },
+  "launch_gates": {
+    "1_collection_freeze_identity": "PASS",
+    "2_continuation_governance": "PASS",
+    "3_human_continuation_approval": "PENDING",
+    "4_scheduler_registration_authorization": "FAIL",
+    "5_scheduler_technical_readiness": "PASS",
+    "6_collection_storage_integrity": "PASS",
+    "7_freshness_finalization_enforcement": "PASS",
+    "8_duplicate_conflict_prevention": "PASS",
+    "9_secret_safe_logging": "PASS",
+    "10_readonly_execution_path": "PASS"
+  },
+  "status_flags": {
+    "GOVERNANCE_BOUNDARIES_VERIFIED": true,
+    "COLLECTION_TRADING_SEPARATION_VERIFIED": true,
+    "CONTINUATION_APPROVAL_RECORDED": false,
+    "SCHEDULER_AUTHORIZATION_RECORDED": false,
+    "SCHEDULER_TECHNICALLY_READY": true,
+    "COLLECTION_INTEGRITY_VERIFIED": true,
+    "Q5_2_PROSPECTIVE_VALIDATED": false,
+    "Q4_GOVERNANCE_PRESERVED": true,
+    "SCHEDULER_REGISTERED": false,
+    "PAPER_TRADING_AUTHORIZED": false,
+    "LIVE_TRADING_AUTHORIZED": false,
+    "PRODUCTION_READY": false
+  },
+  "q5_2_metrics": {
+    "accepted_observations": 17,
+    "expected_intervals": 101,
+    "coverage_fraction": 0.1584,
+    "remaining_observations_to_168": 151,
+    "n_coverage": 1599,
+    "n_required": 1599,
+    "earliest_eligibility_utc": "2027-01-23T03:04:01Z",
+    "seven_day_elapsed": false,
+    "seven_day_deadline_utc": "2026-11-20T06:15:46Z",
+    "ledger_valid": true,
+    "ledger_event_count": 19,
+    "duplicate_count": 2,
+    "conflict_count": 0,
+    "evaluation_blocked": true,
+    "collection_eligibility_state": "ACCUMULATING"
+  },
+  "regression": {
+    "tests_passed": 1408,
+    "tests_failed": 0,
+    "tests_skipped": 3,
+    "ruff_errors": 36,
+    "ruff_errors_note": "pre-existing, unrelated to Q24"
+  },
+  "files_changed": [],
+  "required_approvals": [
+    "human_continuation_approval (currently PENDING_HUMAN_APPROVAL)",
+    "scheduler_registration_authorization (currently false)",
+    "collection_authorized flag (does not exist)",
+    "scheduler_authorized flag (does not exist)"
+  ],
+  "remaining_risks": [
+    "Human continuation approval not recorded — PENDING_HUMAN_APPROVAL",
+    "Scheduler registration not authorized — false",
+    "Collection not eligible: 17/168 observations (15.84% coverage)",
+    "Evaluation blocked — storage thresholds not met",
+    "Q5.2 prospective not validated until official gates pass",
+    "~130 days to earliest eligibility (2027-01-23)"
+  ],
+  "recommended_q25_milestone": "Q25 Collection Launch Authorization — record human continuation approval, create collection_authorized/scheduler_authorized flags, authorize scheduler registration, then technical launch readiness"
+}

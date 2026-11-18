@@ -1,0 +1,54 @@
+﻿# VCS
+.git
+.gitignore
+.gitattributes
+
+# Python/uv caches and artifacts
+.venv
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# Secrets and credentials
+.env
+.env.*
+*.pem
+*.key
+*.p12
+secrets/
+credentials/
+
+# Runtime data (mounted separately)
+data/
+backups/
+logs/
+reports/generated/
+
+# IDE/editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local compose overrides
+docker-compose.override.yml
+compose.override.yaml
+
+# Large/local-only artifacts
+SignalForge_Q2_to_Q4_Build/
+*.zip

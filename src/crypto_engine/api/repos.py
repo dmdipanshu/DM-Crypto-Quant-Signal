@@ -2,7 +2,7 @@
 
 Thin wrappers over the canonical Phase 1-6 stores. Rules:
 
-* Never write, train, fetch, or trade — pure reads only.
+* Never write, train, fetch, or trade â€” pure reads only.
 * Bounded scans: JSONL ledgers scan at most ``scan_cap`` newest lines;
   list endpoints paginate with server-side caps.
 * Unavailable (not missing-data-fabrication): empty stores return
@@ -46,9 +46,14 @@ class RepoRoots:
     paper_path: Path = field(default_factory=lambda: Path("data/paper/account.json"))
     experiments_path: Path = field(default_factory=lambda: Path("reports/experiments.jsonl"))
     holdout_ledger_path: Path = field(default_factory=lambda: Path("reports/holdout.json"))
+    research_release_path: Path = field(
+        default_factory=lambda: Path("docs/validation/results/quantitative_release_q4.json")
+    )
     progress_dir: Path = field(default_factory=lambda: Path("data/project_progress"))
     ai_telemetry_path: Path = field(default_factory=lambda: Path("data/ai_telemetry/events.jsonl"))
     scan_cap: int = 5000
+    health_checker: Any = None
+    metrics_registry: Any = None
 
 
 def _parse_ts(value: str, field: str) -> datetime:
@@ -298,6 +303,55 @@ def read_experiment(roots: RepoRoots, experiment_id: str) -> dict[str, Any]:
     return {"available": True, "experiment": entry}
 
 
+def read_research_release(roots: RepoRoots) -> dict[str, Any]:
+    """Read the bounded, deterministic Q4 research release artifact.
+
+    The path is derived from the configured data root's project parent, so the
+    API does not accept arbitrary filesystem paths from a request. This reader
+    has no write, training, data-fetch, model-load, or execution side effects.
+    """
+    configured_path = roots.research_release_path
+    path = (
+        configured_path
+        if configured_path.is_absolute()
+        else roots.data_storage.parent / configured_path
+    )
+    try:
+        if not path.is_file():
+            return unavailable("not_initialized", "Q4 research release has not been generated.")
+        if path.stat().st_size > 1_000_000:
+            return unavailable("corrupt", "Q4 research release exceeds the 1 MB read limit.")
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError):
+        return unavailable("missing", "Q4 research release is unreadable.")
+    except (json.JSONDecodeError, ValueError):
+        return unavailable("corrupt", "Q4 research release is not valid JSON.")
+
+    if (
+        not isinstance(payload, dict)
+        or payload.get("schema") != "signalforge.quantitative-release.q4.v1"
+    ):
+        return unavailable("corrupt", "Q4 research release has an unsupported schema.")
+    authority = payload.get("authority")
+    required_denials = (
+        "ai_can_select_strategy",
+        "ai_can_override_risk",
+        "ai_can_promote",
+        "human_authorized",
+        "paper_trading_authorized",
+        "order_execution_authorized",
+    )
+    if (
+        not isinstance(authority, dict)
+        or any(authority.get(key) is not False for key in required_denials)
+        or authority.get("human_approval_required") is not True
+    ):
+        return unavailable(
+            "corrupt", "Q4 research release contains an unsafe authority declaration."
+        )
+    return {"available": True, "release": payload}
+
+
 def read_holdout_status(roots: RepoRoots) -> dict[str, Any]:
     """Holdout access-ledger state (pristine vs used; never the data itself)."""
     from crypto_engine.validation.holdout import HoldoutLedger
@@ -427,7 +481,7 @@ def read_backtest_slice(
 
 
 def read_paper(roots: RepoRoots) -> dict[str, Any]:
-    """Paper sandbox state, checksum-verified (corrupt → unavailable)."""
+    """Paper sandbox state, checksum-verified (corrupt â†' unavailable)."""
     from crypto_engine.paper_trading.state import CorruptStateError, load_account
 
     path = roots.paper_path
@@ -565,6 +619,194 @@ def read_ai_metrics(roots: RepoRoots) -> dict[str, Any]:
     }
 
 
+# -- Q5 prospective collection (read-only) ----------------------------------
+
+
+def read_q5_collection_status(roots: RepoRoots) -> dict[str, Any]:
+    """Read-only Q5 prospective collection status (no network, no secrets)."""
+    from crypto_engine.research.prospective.collector import ProspectiveCollector
+    from crypto_engine.research.prospective.storage import ProspectiveStorage
+
+    collector = ProspectiveCollector(
+        exchange="binance",
+        market_type="spot",
+        symbols=["BTC/USDT"],
+        timeframes=["1h"],
+    )
+
+    # Verify collection manifest integrity
+    integrity = collector.verify_collection_integrity()
+
+    # Read storage state
+    storage = ProspectiveStorage(Path("data/prospective/binance/spot/BTC-USDT/1h"))
+    dataset_manifest = storage.read_dataset_manifest() or {}
+    ledger = storage.verify_ledger_chain()
+
+    return {
+        "available": True,
+        "collection_id": integrity.get("collection_id"),
+        "collection_started_at_utc": integrity.get("collection_started_at_utc"),
+        "associated_freeze_id": integrity.get("associated_freeze_id"),
+        "associated_freeze_timestamp": integrity.get("associated_freeze_timestamp"),
+        "exchange": collector.exchange,
+        "market_type": collector.market_type,
+        "symbols": collector.symbols,
+        "timeframes": collector.timeframes,
+        "manifest_status": integrity.get("status"),
+        "manifest_reason": integrity.get("reason"),
+        "dataset_hash": dataset_manifest.get("dataset_hash"),
+        "raw_payload_hash": dataset_manifest.get("raw_payload_hash"),
+        "observation_count": dataset_manifest.get("observation_count", 0),
+        "coverage_fraction": dataset_manifest.get("coverage_fraction", 0.0),
+        "ledger_events": ledger.get("event_count", 0),
+        "ledger_valid": ledger.get("valid", False),
+        "read_only": True,
+    }
+
+
+def read_q5_prospective_governance(roots: RepoRoots) -> dict[str, Any]:
+    """Read-only Q5 prospective holdout governance state."""
+    from crypto_engine.research.prospective.collector import ProspectiveCollector
+    from crypto_engine.research.prospective.governance import (
+        assess_prospective_holdout_readiness,
+        historical_holdout_is_contaminated,
+    )
+    from crypto_engine.research.prospective.storage import ProspectiveStorage
+
+    collector = ProspectiveCollector(
+        exchange="binance",
+        market_type="spot",
+        symbols=["BTC/USDT"],
+        timeframes=["1h"],
+    )
+
+    freeze_info = collector.validate_freeze()
+    manifest = collector.validate_or_create_collection_manifest()
+
+    storage = ProspectiveStorage(Path("data/prospective/binance/spot/BTC-USDT/1h"))
+    dataset_manifest = storage.read_dataset_manifest() or {}
+    ledger = storage.verify_ledger_chain()
+
+    observation_count = dataset_manifest.get("observation_count", 0)
+    coverage = dataset_manifest.get("coverage_fraction", 0.0)
+    data_quality_passed = ledger.get("valid", False) and observation_count > 0
+
+    readiness = assess_prospective_holdout_readiness(
+        freeze_timestamp=freeze_info["created_at_utc"],
+        collection_started_at=manifest["collection_started_at_utc"],
+        observation_count=observation_count,
+        min_observation_count=collector.policy.min_observation_count,
+        coverage_fraction=coverage,
+        min_coverage_fraction=collector.policy.min_coverage_fraction,
+        data_quality_passed=data_quality_passed,
+        first_seen_provenance_valid=True,
+        post_collection_start=True,
+        no_backfill=True,
+        no_development_inspection=True,
+        evaluation_requested=False,
+    )
+
+    historical = historical_holdout_is_contaminated()
+
+    return {
+        "available": True,
+        "historical_holdout_state": historical["state"],
+        "historical_holdout_contaminated": historical["reasons"][0]
+        if historical["reasons"]
+        else "",
+        "prospective_state": readiness["state"],
+        "eligible_for_evaluation": readiness["eligible_for_evaluation"],
+        "evaluated": readiness["evaluated"],
+        "observation_count": observation_count,
+        "min_observation_count": collector.policy.min_observation_count,
+        "coverage_fraction": coverage,
+        "min_coverage_fraction": collector.policy.min_coverage_fraction,
+        "data_quality_passed": data_quality_passed,
+        "first_seen_provenance_valid": readiness.get("first_seen_provenance_valid", False),
+        "no_backfill": readiness.get("no_backfill", True),
+        "no_development_inspection": readiness.get("no_development_inspection", True),
+        "evaluation_requested": readiness.get("evaluation_requested", False),
+        "reasons": readiness.get("reasons", []),
+        "research_freeze_id": freeze_info["freeze_id"],
+        "research_freeze_timestamp": freeze_info["created_at_utc"],
+        "collection_started_at_utc": manifest["collection_started_at_utc"],
+        "read_only": True,
+    }
+
+
+def read_q6_evaluation(roots: RepoRoots) -> dict[str, Any]:
+    """Read-only Q6 prospective evaluation status."""
+    from pathlib import Path
+
+    eval_path = Path("docs/validation/results/q6_evaluation.json")
+    if not eval_path.is_file():
+        return {
+            "available": False,
+            "reason": "no evaluation run yet",
+            "read_only": True,
+        }
+    try:
+        import json as _json
+
+        data = _json.loads(eval_path.read_text(encoding="utf-8"))
+        data["available"] = True
+        data["read_only"] = True
+        return data
+    except (json.JSONDecodeError, OSError) as exc:
+        return {
+            "available": False,
+            "reason": f"cannot read evaluation: {exc}",
+            "read_only": True,
+        }
+
+
+def read_historical_validation_status() -> dict[str, Any]:
+    """Read-only historical validation status."""
+    from crypto_engine.research.q6.historical_storage import HistoricalStorage
+
+    storage = HistoricalStorage()
+    summary = storage.get_observation_summary()
+    ledger = storage.verify_ledger_chain()
+    manifest = storage.read_dataset_manifest() or {}
+
+    expected_intervals = int(
+        summary.get("expected_intervals", 0) or manifest.get("expected_intervals", 0) or 0
+    )
+    coverage_fraction = float(summary.get("coverage_fraction", 0.0) or 0.0)
+    accepted = int(summary.get("accepted_unique_observations", 0))
+
+    return {
+        "available": True,
+        "dataset_id": manifest.get("dataset_id"),
+        "dataset_type": manifest.get("dataset_type"),
+        "dataset_started_at_utc": manifest.get("dataset_started_at_utc"),
+        "provider": manifest.get("provider"),
+        "exchange": manifest.get("exchange"),
+        "market_type": manifest.get("market_type"),
+        "symbol": manifest.get("symbol"),
+        "timeframe": manifest.get("timeframe"),
+        "requested_start_utc": manifest.get("requested_start_utc"),
+        "requested_end_utc": manifest.get("requested_end_utc"),
+        "observation_count": accepted,
+        "expected_intervals": expected_intervals,
+        "coverage_fraction": coverage_fraction,
+        "missing_interval_count": int(
+            summary.get("missing_interval_count", max(0, expected_intervals - accepted))
+        ),
+        "duplicate_count": summary.get("duplicate_ingestion_attempts", 0),
+        "conflicting_count": summary.get("conflicting_observations", 0),
+        "dataset_hash": storage.compute_dataset_hash() or manifest.get("dataset_hash"),
+        "raw_payload_hash": storage.compute_raw_payload_hash(),
+        "ledger_events": ledger.get("event_count", 0),
+        "ledger_valid": ledger.get("valid", False),
+        "manifest_valid": bool(manifest),
+        "manifest_status": "VALID" if manifest else "MISSING",
+        "q5_2_eligible": bool(manifest.get("q5_2_eligible", False)),
+        "is_prospective": bool(manifest.get("is_prospective", False)),
+        "read_only": True,
+    }
+
+
 __all__ = [
     "RepoRoots",
     "clamp_limit",
@@ -576,12 +818,17 @@ __all__ = [
     "read_backtests",
     "read_experiment",
     "read_experiments",
+    "read_historical_validation_status",
     "read_holdout_status",
     "read_latest_signal",
     "read_model",
     "read_models",
     "read_models_status",
     "read_paper",
+    "read_q5_collection_status",
+    "read_q5_prospective_governance",
+    "read_q6_evaluation",
+    "read_research_release",
     "read_signal",
     "read_signals",
     "read_snapshot",

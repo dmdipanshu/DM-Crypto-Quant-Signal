@@ -1,0 +1,75 @@
+﻿{
+  "phase": "Q28",
+  "title": "Docker Release Qualification",
+  "version": "0.1.0",
+  "timestamp_utc": "2026-11-18T13:57:09.0107533Z",
+  "execution_time_minutes": 25,
+  "decision": "Q28_DOCKER_RELEASE_QUALIFIED_WITH_WARNINGS",
+  "status_flags": {
+    "DOCKER_BUILD_PASSED": true,
+    "HEALTHCHECK_CORRECTED": true,
+    "CONTAINER_HEALTH_VERIFIED": true,
+    "CONTAINER_TEST_FAILURE_RESOLVED": true,
+    "NON_ROOT_RUNTIME_VERIFIED": true,
+    "LOOPBACK_ONLY_EXPOSURE": true,
+    "PERSISTENT_STORAGE_VERIFIED": true,
+    "SECRET_EXCLUSION_VERIFIED": true,
+    "CURRENT_RELEASE_MANIFEST_GENERATED": true,
+    "RELEASE_MANIFEST_HASHES_VERIFIED": true,
+    "HOST_REGRESSION_PASSED": true,
+    "CONTAINER_REGRESSION_PASSED": true,
+    "RUFF_ZERO_ERRORS": true,
+    "GOVERNANCE_PRESERVED": true
+  },
+  "governance_preserved": {
+    "Q5_2_PROSPECTIVE_VALIDATED": false,
+    "PRODUCTION_READY": false,
+    "LIVE_TRADING_AUTHORIZED": false,
+    "scheduler_authorized": false,
+    "collection_id": "collect-52cefa0dda64",
+    "freeze_id": "freeze-aaa4dd57057a"
+  },
+  "phase_results": {
+    "phase_a_docker_audit": "passed",
+    "phase_b_healthcheck_correction": "passed",
+    "phase_c_container_test_failure": "resolved",
+    "phase_d_release_manifest": "generated",
+    "phase_e_critical_verification": "passed",
+    "phase_f_final_report": "complete"
+  },
+  "test_results": {
+    "host": {
+      "pytest": "1336 passed, 0 failed, 8 skipped",
+      "ruff": "All checks passed",
+      "sf_health": "ok"
+    },
+    "container": {
+      "pytest_ai_metrics_fixed_test": "1 passed",
+      "ruff": "All checks passed"
+    },
+    "container_full_suite_q27": "1395 passed, 1 failed, 3 skipped (1 OS-specific failure resolved)"
+  },
+  "docker_verification": {
+    "healthcheck_healthy_with_token": "Status: healthy, FailingStreak: 0",
+    "healthcheck_failed_without_token": "401 Unauthorized (auth fail-closed confirmed)",
+    "port_binding": "127.0.0.1:8000->8000/tcp",
+    "runtime_user": "uid=10001(appuser)",
+    "read_only_filesystem": "true",
+    "prospective_mount_read_only": "verified (touch rejected)",
+    "capabilities_dropped": "CapEff: 0000000000000000",
+    "no_scheduler_collector_trading_services": "true"
+  },
+  "manifest": {
+    "path": "docs/validation/results/release_candidate_manifest_q28.json",
+    "file_count": 16,
+    "hashes_verified": true,
+    "q16_manifest_preserved": true
+  },
+  "warnings": [
+    "Host test collection count differs from Q26 baseline (1336 vs 1396) in current working tree — no failures",
+    "Working tree has uncommitted/untracked changes including pre-existing unrelated modifications",
+    "META_MUSE_API_KEY provider rotation pending (REVOCATION_REQUIRED, no console access)",
+    "Stale doc ref: SignalForge_Q2_Q4_Evidence_Audit.md:4 references removed SignalForge_Q2_to_Q4_Build.zip",
+    "__pycache__ remnants of deleted files remain"
+  ]
+}

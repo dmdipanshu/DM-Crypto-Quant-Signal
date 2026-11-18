@@ -166,3 +166,24 @@ def test_to_from_dict_roundtrip() -> None:
     assert np.array_equal(TrendBaseline.from_dict(t.to_dict()).predict(X), t.predict(X))
     j = MajorityBaseline().fit(X, y)
     assert np.array_equal(MajorityBaseline.from_dict(j.to_dict()).predict(X), j.predict(X))
+
+
+def test_lightgbm_supports_negative_and_three_class_labels() -> None:
+    pytest.importorskip("lightgbm")
+    from crypto_engine.models.sklearn_wrappers import LightGBMModel
+
+    X, y_binary, _ = _frame(n=300, seed=71)
+    binary_model = LightGBMModel(random_state=42, n_estimators=10).fit(X, y_binary)
+    binary_predictions = binary_model.predict(X)
+    assert set(np.unique(binary_predictions)).issubset({-1, 1})
+
+    # A feature-derived third class exercises LightGBM's multiclass path with
+    # non-zero-based labels: the estimator sees 0/1/2; callers see -1/0/+1.
+    ratio = X["trend_ratio_20_50"].to_numpy()
+    three_class = np.where(ratio > 0.002, 1, np.where(ratio < -0.002, -1, 0))
+    assert set(np.unique(three_class)) == {-1, 0, 1}
+    multiclass_model = LightGBMModel(random_state=42, n_estimators=10).fit(X, three_class)
+    multiclass_predictions = multiclass_model.predict(X)
+    assert set(np.unique(multiclass_predictions)).issubset({-1, 0, 1})
+    restored = LightGBMModel.from_dict(multiclass_model.to_dict())
+    assert np.array_equal(restored.predict(X), multiclass_predictions)

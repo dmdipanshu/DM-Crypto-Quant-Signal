@@ -1,0 +1,90 @@
+name: signalforge
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: signalforge:local
+    container_name: signalforge-api
+    command: ["sf", "serve", "--host", "0.0.0.0", "--port", "8000", "--allow-remote"]
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      # Fail-closed auth by default; provide token via environment/compose override (never baked into image).
+      SIGNALFORGE_AUTH_REQUIRED: "${SIGNALFORGE_AUTH_REQUIRED:-1}"
+      SIGNALFORGE_API_TOKEN: "${SIGNALFORGE_API_TOKEN:-}"
+    volumes:
+      # Read-only inputs
+      - ./data/prospective:/app/data/prospective:ro
+      - ./models/artifacts:/app/models/artifacts:ro
+      - ./config:/app/config:ro
+      # Writable runtime state (scoped). Prospective submount remains read-only due to bind specificity.
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./reports:/app/reports
+    tmpfs:
+      - /tmp
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    user: "10001:10001"
+    restart: "no"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request, os; token = os.environ.get('SIGNALFORGE_API_TOKEN', '') ; req = urllib.request.Request('http://127.0.0.1:8000/health', headers={'Authorization': 'Bearer ' + token}) ; urllib.request.urlopen(req, timeout=3).read()"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test
+    image: signalforge:test
+    container_name: signalforge-test
+    profiles:
+      - test
+    environment:
+      # Match host/baseline test behavior: API/dashboard tests use in-process ASGI harness without auth headers.
+      # Production-like auth hardening remains enforced on the api service; this does not weaken api.
+      SIGNALFORGE_AUTH_REQUIRED: "0"
+      HOME: /tmp
+      XDG_CACHE_HOME: /tmp/.cache
+      UV_CACHE_DIR: /tmp/.cache/uv
+      RUFF_CACHE_DIR: /tmp/.ruff_cache
+    volumes:
+      # Repo/test assets mounted read-only so container tests see current source, docs, memory, and governance files.
+      - ./src:/app/src:ro
+      - ./tests:/app/tests:ro
+      - ./config:/app/config:ro
+      - ./docs:/app/docs:ro
+      - ./scripts:/app/scripts:ro
+      - ./memory:/app/memory:ro
+      - ./.opencode:/app/.opencode:ro
+      - ./AGENTS.md:/app/AGENTS.md:ro
+      - ./pyproject.toml:/app/pyproject.toml:ro
+      - ./uv.lock:/app/uv.lock:ro
+      - ./README.md:/app/README.md:ro
+      # Provide a safe .env for tests that require file presence without exposing real secrets.
+      - ./.env.example:/app/.env:ro
+      # Data/models read-only for dataset/manifest-dependent tests; prospective remains explicitly read-only.
+      - ./data:/app/data:ro
+      - ./data/prospective:/app/data/prospective:ro
+      - ./models:/app/models:ro
+      # Writable runtime outputs (scoped).
+      - ./logs:/app/logs
+      - ./reports:/app/reports
+    tmpfs:
+      - /tmp
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    user: "10001:10001"
+    command: ["sh", "-c", "ruff check . && pytest -q"]

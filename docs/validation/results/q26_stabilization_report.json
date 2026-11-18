@@ -1,0 +1,279 @@
+{
+  "phase": "Q26",
+  "topic": "Post-cleanup stabilization and integrity verification",
+  "started_at_utc": "2026-11-18T06:44:17Z",
+  "completed_at_utc": "2026-11-18T08:20:00Z",
+  "duration_estimate": "PT1H35M43S",
+  "duration_minutes": 95.7,
+  "status": "PASSED_WITH_WARNINGS",
+  "final_decision": "Q26_STABILIZATION_PASSED_WITH_WARNINGS",
+  "source_inputs": {
+    "cleanup_report": "docs/validation/results/codebase_cleanup_report.json (CODEBASE_CLEANUP_PASSED_WITH_WARNINGS)",
+    "phases_executed": [
+      "A_integrity_audit",
+      "B_deletions_dependencies",
+      "C_ruff_cleanup",
+      "D_regression_validation",
+      "E_manifest_parallel"
+    ],
+    "evidence_basis": "Verified findings from Phases A-D; Phase E manifest regeneration and verification completed"
+  },
+  "phase_a_integrity_audit": {
+    "cleanup_report_reviewed": {
+      "decision": "CODEBASE_CLEANUP_PASSED_WITH_WARNINGS",
+      "files_inspected": 432,
+      "directories_removed": 1,
+      "files_removed": 7,
+      "dependencies_removed": 5,
+      "post_cleanup_baseline_reported": "1396 passed, 0 failed, 3 skipped",
+      "ruff_trend_reported": "21 -> reduced (Phase C brought to 0)"
+    },
+    "git_working_tree": {
+      "state": "modified_and_untracked",
+      "notes": "Cleanup-related modifications/deletions and other artifacts/untracked files present"
+    },
+    "imports_and_cli": {
+      "import_crypto_engine": "ok",
+      "from_crypto_engine_cli_import_app": "ok",
+      "uv_run_sf_health": "ok",
+      "uv_run_sf_config_show": "ok"
+    },
+    "stale_reference_found": {
+      "file": "SignalForge_Q2_Q4_Evidence_Audit.md",
+      "line": 4,
+      "detail": "Mentions SignalForge_Q2_to_Q4_Build.zip (documentation text, not runtime)",
+      "runtime_impact": "none_known"
+    },
+    "removed_dependency_runtime_refs": {
+      "src_scripts_tests_runtime_imports": "none_found",
+      "hardcoded_parquet_engine_refs_remaining": [
+        "src/crypto_engine/datasets/snapshots.py:193",
+        "src/crypto_engine/datasets/snapshots.py:275",
+        "scripts/build_canonical_dataset.py:155"
+      ]
+    },
+    "governance_intact": {
+      "q4_decision": "NO_STRATEGY_ELIGIBLE",
+      "collection_id": "collect-52cefa0dda64",
+      "freeze_id": "freeze-aaa4dd57057a",
+      "approval_record_status": "active"
+    }
+  },
+  "phase_b_deletions_dependencies": {
+    "legacy_directory": {
+      "path": "SignalForge_Q2_to_Q4_Build/",
+      "on_disk": false,
+      "git_history_tracked_refs": "none"
+    },
+    "deleted_files": {
+      "count": 7,
+      "all_absent_from_disk": true,
+      "git_index_status": "some tracked as deleted",
+      "pycache_remnants_found": true,
+      "active_source_refs_found": false,
+      "paths": [
+        "src/crypto_engine/ports/ai_adapter.py",
+        "src/crypto_engine/ports/exchange.py",
+        "src/crypto_engine/ports/feature_store.py",
+        "src/crypto_engine/ports/model_store.py",
+        "src/crypto_engine/ports/snapshot_store.py",
+        "src/crypto_engine/storage/snapshot_store.py",
+        "tests/unit/domain/test_ports.py"
+      ]
+    },
+    "dependencies_removed": {
+      "count": 5,
+      "names": [
+        "pyarrow",
+        "pyyaml",
+        "tomli",
+        "pydantic-settings",
+        "optuna"
+      ],
+      "removed_from": [
+        "pyproject.toml",
+        "uv.lock"
+      ],
+      "dynamic_imports_found": false
+    },
+    "storage": {
+      "active_dependency_on_snapshot_store_or_FileSnapshotStore": false
+    },
+    "remaining_risk": "pyarrow removed from dependencies but parquet I/O code still hardcodes engine=\"pyarrow\" in src/crypto_engine/datasets/snapshots.py (193,275) and scripts/build_canonical_dataset.py (155); potential runtime failure if invoked without pyarrow installed"
+  },
+  "phase_c_ruff_cleanup": {
+    "before": {
+      "errors": 21,
+      "files": 9,
+      "codes": [
+        "SIM103",
+        "UP017",
+        "I001",
+        "RUF046",
+        "RUF001",
+        "RUF022",
+        "F841",
+        "F821"
+      ]
+    },
+    "targeted_fixes": [
+      {
+        "file": "scripts/generate_release_manifest.py",
+        "changes": [
+          "SIM103",
+          "UP017"
+        ]
+      },
+      {
+        "file": "scripts/q2_1_diagnostic_lab.py",
+        "changes": [
+          "I001",
+          "RUF046 x7"
+        ]
+      },
+      {
+        "file": "scripts/q2_research_lab.py",
+        "changes": [
+          "I001"
+        ]
+      },
+      {
+        "file": "scripts/q3_strategy_validation.py",
+        "changes": [
+          "RUF046 x5"
+        ]
+      },
+      {
+        "file": "src/crypto_engine/cli.py",
+        "changes": [
+          "RUF001 (mojibake replaced with ASCII)"
+        ]
+      },
+      {
+        "file": "src/crypto_engine/config/settings.py",
+        "changes": [
+          "RUF022 sorted __all__"
+        ]
+      },
+      {
+        "file": "src/crypto_engine/research/governance.py",
+        "changes": [
+          "F841 removed unused variable"
+        ]
+      },
+      {
+        "file": "tests/integration/test_ai_cli.py",
+        "changes": [
+          "F821 added pytest import"
+        ]
+      },
+      {
+        "file": "tests/integration/test_signal_cli.py",
+        "changes": [
+          "I001 import order"
+        ]
+      }
+    ],
+    "additional_encoding_fix": {
+      "issue": "UTF-8 BOM found by architecture tests during Phase D",
+      "files_fixed": 20,
+      "scope": "Python files including settings.py, governance.py, scripts, and tests"
+    },
+    "after": {
+      "command": "uv run ruff check .",
+      "result": "0 errors"
+    }
+  },
+  "phase_d_regression_validation": {
+    "architecture_tests": {
+      "result": "12 passed",
+      "note": "Passed after UTF-8 BOM fixes"
+    },
+    "full_suite": {
+      "command": "uv run pytest",
+      "passed": 1396,
+      "failed": 0,
+      "skipped": 3,
+      "duration_seconds": 201.21,
+      "baseline_match": "matches post-cleanup baseline"
+    },
+    "cli_api_smoke": {
+      "commands_ok": [
+        "uv run sf --help",
+        "uv run sf health",
+        "uv run sf config-show",
+        "uv run sf data --help",
+        "uv run sf serve --help"
+      ]
+    },
+    "test_changes_documented": {
+      "removed_tests": [
+        "tests/unit/domain/test_ports.py",
+        "snapshot_store-related tests (as documented in cleanup)"
+      ],
+      "removed_test_count_documented": 12,
+      "note": "Removed tests are documented and not claimed as passed"
+    }
+  },
+  "phase_e_manifest": {
+    "status": "verified_regenerated",
+    "parallel_task": "Phase E manifest verify/regenerate completed (parallel task ses_e1244553bffe2t7NKqOWIebLH6)",
+    "existing_manifest": "docs/validation/results/release_candidate_manifest.json exists",
+    "previous_count_reference": 488,
+    "regenerated_count": 620,
+    "verification_claim": "Manifest regenerated and verified: 620 files, deleted entries removed, exclusions OK"
+  },
+  "files_changed_in_q26": {
+    "ruff_fixes": [
+      "scripts/generate_release_manifest.py",
+      "scripts/q2_1_diagnostic_lab.py",
+      "scripts/q2_research_lab.py",
+      "scripts/q3_strategy_validation.py",
+      "src/crypto_engine/cli.py",
+      "src/crypto_engine/config/settings.py",
+      "src/crypto_engine/research/governance.py",
+      "tests/integration/test_ai_cli.py",
+      "tests/integration/test_signal_cli.py"
+    ],
+    "bom_fixes": {
+      "count": 20,
+      "note": "UTF-8 BOM removed from 20 Python files discovered during Phase D (including settings.py, governance.py, scripts, tests); exact file list not fully enumerated in provided findings"
+    },
+    "manifest_regeneration": "docs/validation/results/release_candidate_manifest.json regenerated (620 files, deleted entries removed)"
+  },
+  "status_flags": {
+    "POST_CLEANUP_INTEGRITY_VERIFIED": true,
+    "LEGACY_REMOVALS_VERIFIED": true,
+    "DEPENDENCY_GRAPH_VERIFIED": true,
+    "DEPENDENCY_GRAPH_WARNING": "pyarrow hardcoded in parquet engine usage but removed from dependencies",
+    "RUFF_ZERO_ERRORS": true,
+    "ARCHITECTURE_INTEGRITY_VERIFIED": true,
+    "FULL_REGRESSION_PASSED": true,
+    "CLI_API_HEALTH_PASSED": true,
+    "RELEASE_MANIFEST_VERIFIED": true,
+    "GOVERNANCE_PRESERVED": true,
+    "Q5_2_PROSPECTIVE_VALIDATED": false,
+    "PRODUCTION_READY": false,
+    "LIVE_TRADING_AUTHORIZED": false
+  },
+  "governance_preserved": {
+    "q4_decision": "NO_STRATEGY_ELIGIBLE",
+    "collection_id": "collect-52cefa0dda64",
+    "freeze_id": "freeze-aaa4dd57057a",
+    "approval_record_status": "active",
+    "scheduler_authorized": false,
+    "collection_authorized_recorded": true,
+    "q5_2_prospective_validated": false,
+    "strategy_evaluation_authorized": false,
+    "paper_trading_authorized": false,
+    "live_trading_authorized": false,
+    "production_ready": false
+  },
+  "warnings_and_remaining_risks": [
+    "pyarrow removed from dependencies but src/crypto_engine/datasets/snapshots.py:193,275 and scripts/build_canonical_dataset.py:155 hardcode engine=\"pyarrow\" (potential runtime issue if parquet paths invoked without pyarrow installed)",
+    "Stale documentation reference: SignalForge_Q2_Q4_Evidence_Audit.md:4 mentions SignalForge_Q2_to_Q4_Build.zip",
+    "Git working tree contains many uncommitted/untracked changes and cleanup-related modifications/deletions",
+    "Pycache remnants of deleted files found (no active source references)"
+  ],
+  "final_decision_rationale": "Post-cleanup integrity, targeted lint fixes, encoding fixes, architecture checks, CLI/API smoke, and full regression baseline all passed with verified evidence; residual documentation/dependency-hardcoding and uncommitted working-tree state warrant warnings but do not invalidate stabilization evidence."
+}

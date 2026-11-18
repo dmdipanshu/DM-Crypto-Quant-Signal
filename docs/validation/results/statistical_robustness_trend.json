@@ -1,0 +1,27 @@
+{
+  "buy_and_hold_return_bp": -3213.4506797115423,
+  "candidates": {
+    "trend": {
+      "benchmark_comparison": null,
+      "bootstrap_ci": null,
+      "candidate_id": "trend-baseline",
+      "cost_sensitivity": [],
+      "model_name": "trend",
+      "permutation_test": null,
+      "regime_analysis": null,
+      "status": "SKIPPED_UNVERIFIED",
+      "temporal_provenance_status": "TEMPORAL_PROVENANCE_UNVERIFIED"
+    }
+  },
+  "dataset_type": "HISTORICAL_ACCELERATED_VALIDATION_12M",
+  "generated_at_utc": "2026-11-13T16:11:22.005865+00:00",
+  "n_candles": 8760,
+  "official_prospective_evidence": false,
+  "promotion_eligible": false,
+  "promotion_gate": "BLOCKED",
+  "q4_decision": "NO_STRATEGY_ELIGIBLE",
+  "q4_decision_preserved": true,
+  "q5_2_eligible": false,
+  "schema_version": "statistical_robustness.v1",
+  "storage_root": "data\\historical_accelerated_12m"
+}

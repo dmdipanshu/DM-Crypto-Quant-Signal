@@ -177,7 +177,7 @@ def test_evaluate_forward_end_to_end(tmp_path: Path) -> None:
         },
         reg,
     )
-    before = hashlib.sha256((model_dir / "artifact.pkl").read_bytes()).hexdigest()
+    before = hashlib.sha256((model_dir / "artifact.json").read_bytes()).hexdigest()
 
     report = evaluate_forward(hist_snap, fwd_snap, model_dir, eval_start)
     assert report["frozen_model"] is True
@@ -188,7 +188,7 @@ def test_evaluate_forward_end_to_end(tmp_path: Path) -> None:
     # Eval rows are strictly after the cutoff (forward-only evidence).
     assert report["evaluation_window"]["eval_first_ts"] > eval_start
     assert set(report["metrics_forward"]["predicted_dist"]) <= {"-1", "0", "1"}
-    after = hashlib.sha256((model_dir / "artifact.pkl").read_bytes()).hexdigest()
+    after = hashlib.sha256((model_dir / "artifact.json").read_bytes()).hexdigest()
     assert before == after, "evaluation must not modify the artifact"
 
     # A record whose provenance disagrees with the loaded snapshot is rejected
@@ -244,12 +244,12 @@ def test_artifact_unmodified_by_evaluation(tmp_path: Path) -> None:
         "train_end": "",
     }
     model_dir = save_model(model, meta, reg)
-    before = hashlib.sha256((model_dir / "artifact.pkl").read_bytes()).hexdigest()
-    mtime_before = (model_dir / "artifact.pkl").stat().st_mtime_ns
+    before = hashlib.sha256((model_dir / "artifact.json").read_bytes()).hexdigest()
+    mtime_before = (model_dir / "artifact.json").stat().st_mtime_ns
     loaded, _record = verify_model_artifact(model_dir)
     assert loaded.is_fitted
-    assert (model_dir / "artifact.pkl").stat().st_mtime_ns == mtime_before
-    assert hashlib.sha256((model_dir / "artifact.pkl").read_bytes()).hexdigest() == before
+    assert (model_dir / "artifact.json").stat().st_mtime_ns == mtime_before
+    assert hashlib.sha256((model_dir / "artifact.json").read_bytes()).hexdigest() == before
 
 
 def test_write_report_never_overwrites(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -270,3 +270,4 @@ def test_write_report_never_overwrites(tmp_path: Path, monkeypatch: pytest.Monke
     with pytest.raises(FileExistsError, match="refusing to overwrite"):
         write_forward_report(report, tmp_path)
     assert first.is_file()
+

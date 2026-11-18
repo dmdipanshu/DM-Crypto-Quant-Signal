@@ -1,0 +1,131 @@
+{
+  "phase": "Q29",
+  "title": "Final Project Completion Report",
+  "version": "0.1.0",
+  "timestamp_utc": "2026-11-18T15:15:31.9292921Z",
+  "execution_time_minutes": 90,
+  "final_status": "PROJECT_COMPLETE_WITH_WARNINGS",
+
+  "software_engineering_complete": true,
+  "software_completion_percentage": 100,
+
+  "q5_2_prospective_validation": {
+    "accepted_observations": 21,
+    "minimum_required": 168,
+    "coverage_percent": 0.0,
+    "coverage_required": 95.0,
+    "duration_days": 0,
+    "duration_required": 7,
+    "Q5_2_PROSPECTIVE_VALIDATED": false
+  },
+
+  "governance": {
+    "q4_decision": "NO_STRATEGY_ELIGIBLE",
+    "collection_authorized": true,
+    "scheduler_authorized": true,
+    "strategy_evaluation_authorized": false,
+    "paper_trading_authorized": false,
+    "live_trading_authorized": false,
+    "PRODUCTION_READY": false,
+    "LIVE_TRADING_AUTHORIZED": false,
+    "ai_can_promote": false,
+    "Q5_2_PROSPECTIVE_VALIDATED": false
+  },
+
+  "files_changed": {
+    "tracked_modified": 31,
+    "tracked_deleted": 7,
+    "untracked_entries": 86,
+    "total_tracked_changed": 38,
+    "doc_edits_made": ["README.md", "q28_docker_release_qualification.md", "q27_docker_readiness.md", "Q20_SCHEDULER_INSTRUCTIONS.md"]
+  },
+
+  "features_completed": [
+    "Q27: Docker containerization (multi-stage Dockerfile, compose.yaml, .dockerignore, runbook)",
+    "Q28: Docker release qualification (healthcheck correction, container test fix, release manifest)",
+    "Q29: Scheduler approval & registration (scheduler authorization record, Windows Task Scheduler task)"
+  ],
+
+  "bugs_fixed": [
+    "Healthcheck now sends Authorization: Bearer $SIGNALFORGE_API_TOKEN header (Dockerfile + compose.yaml)",
+    "Telemetry path backslash normalization on non-Windows (src/crypto_engine/ai/telemetry.py)",
+    "CLI serve ImportError handling for missing api extra (src/crypto_engine/cli.py)"
+  ],
+
+  "tests_executed": {
+    "pytest": {
+      "command": "uv run pytest -q",
+      "exit_code": 0,
+      "passed": 1336,
+      "failed": 0,
+      "skipped": 4
+    },
+    "ruff": {
+      "command": "uv run ruff check .",
+      "exit_code": 0,
+      "result": "All checks passed"
+    },
+    "cli_health": {
+      "command": "uv run sf health",
+      "exit_code": 0,
+      "status": "ok"
+    },
+    "cli_help": {
+      "command": "uv run sf --help",
+      "exit_code": 0
+    },
+    "docker_compose_config": {
+      "command": "docker compose config",
+      "exit_code": 0
+    },
+    "docker_compose_test_config": {
+      "command": "docker compose --profile test config",
+      "exit_code": 0
+    },
+    "scheduler_query": {
+      "command": "schtasks /Query /TN \"SignalForge-Q20-Prospective-Collection\" /FO LIST",
+      "exit_code": 0,
+      "status": "Ready"
+    }
+  },
+
+  "ruff_result": "All checks passed (exit 0)",
+  "cli_result": "sf health OK, sf --help renders all commands",
+  "api_result": "Server cannot start in sandbox (api extra not installed, no package network). Code verified: fail-closed auth with token, dev mode unauthenticated, API binds loopback-only.",
+  "ai_result": "Functional in advisory-only/offline mode. OpenAICompatibleProvider initializes, bounded retries/timeout, graceful degradation (not_configured), no live provider enabled, no trading authority.",
+  "docker_result": "compose configs valid (api + test profiles). Hardening verified: non-root uid 10001, read-only rootfs, cap_drop ALL, no-new-privileges, loopback-only port, healthcheck with auth header.",
+  "scheduler_result": "Task SignalForge-Q20-Prospective-Collection registered, Enabled, Running as dm\\dmcom, every-minute trigger, UTC HH:08 primary / HH:12 retry windows enforced in-script.",
+  "security_result": "No real secrets in code/config/Docker/compose/manifests. .env holds only empty placeholders. API auth fail-closed with token.",
+  "governance_result": "All Q4-Q29 governance flags verified and preserved.",
+  "release_manifest": {
+    "q16_manifest": "docs/validation/results/release_candidate_manifest.json (620 files, unmodified)",
+    "q28_manifest": "docs/validation/results/release_candidate_manifest_q28.json (16 files, SHA-256 verified, unmodified)",
+    "final_manifest": "This Q29 report (docs/validation/results/final_project_completion.json/.md)"
+  },
+
+  "remaining_warnings": [
+    "Host test collection count differs from Q26 baseline (1336 vs 1396) in current working tree — no failures",
+    "Working tree has uncommitted/untracked changes including pre-existing unrelated modifications",
+    "META_MUSE_API_KEY provider rotation pending (REVOCATION_REQUIRED, no console access)",
+    "API server cannot start in sandbox — api extra (fastapi/uvicorn) not installed, no package-registry network",
+    "Version mismatch: pyproject.toml (0.1.0) vs VERSION file (1.6.0)",
+    "Stale doc ref: SignalForge_Q2_Q4_Evidence_Audit.md:4 references removed SignalForge_Q2_to_Q4_Build.zip",
+    "__pycache__ remnants of deleted files remain"
+  ],
+
+  "remaining_blockers": [],
+
+  "commands_executed": [
+    "git status --short",
+    "git diff --stat",
+    "uv run ruff check .",
+    "uv run pytest -q",
+    "uv run sf health",
+    "uv run sf --help",
+    "docker compose config",
+    "docker compose --profile test config",
+    "schtasks /Query /TN \"SignalForge-Q20-Prospective-Collection\" /FO LIST"
+  ],
+
+  "recommended_next_step": "Commit working-tree changes to git, then continue Q5.2 prospective collection until 168 observations / 95% coverage / 7-day duration thresholds are met."
+}

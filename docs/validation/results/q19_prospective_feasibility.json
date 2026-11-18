@@ -1,0 +1,123 @@
+{
+  "phase": "Q19",
+  "topic": "Prospective Validation Feasibility & Collection Optimization",
+  "decision": "Q19_FEASIBILITY_CONFIRMED_WITH_WARNINGS",
+  "collection_id": "collect-52cefa0dda64",
+  "freeze_id": "freeze-aaa4dd57057a",
+  "collection_started_at_utc": "2026-11-13T06:15:46.915986+00:00",
+  "seven_day_deadline_utc": "2026-11-20T06:15:46.915986+00:00",
+  "assessment_time_utc": "2026-11-15T17:58:45Z",
+  "coverage_formula": "growing_denominator",
+  "coverage_formula_description": "expected_intervals = count of exchange-aligned candles whose open time is strictly after collection_started_at_utc and whose close time is at or before now; coverage = accepted_count / expected_intervals; denominator grows by 1 every hour",
+  "current_state": {
+    "accepted_observations": 1,
+    "expected_intervals": 58,
+    "coverage_fraction": 0.0172,
+    "evaluation_blocked": true,
+    "collection_status": "DATA_INVALID",
+    "ledger_integrity": "HEALTHY",
+    "ingestion_status": "HEALTHY",
+    "provenance_status": "HEALTHY",
+    "duplicates_count": 0,
+    "conflicts_count": 0,
+    "rejection_count": 58
+  },
+  "phase_b_calculations": {
+    "hours_remaining_to_deadline": 108.28,
+    "expected_intervals_at_deadline": 167,
+    "new_expected_intervals_now_to_deadline": 109,
+    "max_collectable_intervals": 109,
+    "max_accepted_by_deadline": 110,
+    "max_coverage_by_deadline": 0.6587,
+    "all_requirements_met_by_deadline": false,
+    "observation_requirement_met_by_deadline": false,
+    "coverage_requirement_met_by_deadline": false,
+    "duration_requirement_met_by_deadline": true
+  },
+  "phase_b_extended": {
+    "n_count": 167,
+    "n_coverage": 1082,
+    "n_required": 1082,
+    "hours_needed": 1082,
+    "days_needed": 45.08,
+    "earliest_eligibility_date_utc": "2026-12-30T19:58:45+00:00",
+    "missed_interval_effect_formula": "T >= 1082 + 20*M",
+    "missed_interval_examples": {
+      "M=0": 1082,
+      "M=1": 1102,
+      "M=5": 1182,
+      "M=10": 1282,
+      "M=25": 1582
+    }
+  },
+  "phase_c_governance": {
+    "duration_semantics": "minimum_floor_not_fixed_window",
+    "collection_can_continue_beyond_seven_days": true,
+    "freeze_has_expiration": false,
+    "rejected_intervals_count_against_coverage": true,
+    "coverage_can_recover_naturally": true,
+    "data_invalid_is_recoverable": true,
+    "decision": "CONTINUE_BEYOND_SEVEN_DAYS"
+  },
+  "phase_d_reliability": {
+    "adapter_max_duration_ms": 60000,
+    "adapter_max_retries": 3,
+    "adapter_total_attempts": 4,
+    "adapter_backoff": "exponential multiplier=1 min=1s max=8s",
+    "adapter_stop_condition": "stop_after_attempt | stop_after_delay",
+    "adapter_rate_limit_exceeded_retried": true,
+    "collection_cadence_primary": "HH:08 UTC",
+    "collection_cadence_retry": "HH:12 UTC",
+    "monitoring_script": "scripts/monitor_prospective_continuity.py"
+  },
+  "phase_e_improvements": {
+    "prospective_collection_health_check": "added to crypto_engine/observability/health.py",
+    "health_check_read_only": true
+  },
+  "phase_f_test_results": {
+    "total_passed": 1408,
+    "total_failed": 0,
+    "total_skipped": 3,
+    "q19_tests_passed": 12,
+    "all_tests_pass": true
+  },
+  "readiness_flags": {
+    "CURRENT_PROSPECTIVE_STATE_VERIFIED": true,
+    "COVERAGE_FORMULA_VERIFIED": true,
+    "COUNT_FEASIBILITY_CALCULATED": true,
+    "COVERAGE_FEASIBILITY_CALCULATED": true,
+    "ORIGINAL_DEADLINE_FEASIBILITY": false,
+    "EXTENDED_COLLECTION_GOVERNANCE_VERIFIED": true,
+    "COLLECTION_CONTINUITY_VERIFIED": true,
+    "ELIGIBILITY_DATE_PROJECTED": true,
+    "Q5_2_PROSPECTIVE_VALIDATED": false,
+    "Q4_GOVERNANCE_PRESERVED": true,
+    "SECURITY_REGRESSION_PASSED": true,
+    "PRODUCTION_READY": false,
+    "LIVE_TRADING_AUTHORIZED": false
+  },
+  "warnings": [
+    "Original 7-day deadline cannot satisfy obs>=168 (max 110) or coverage>=95% (max 65.87%)",
+    "Extended collection requires ~45 more days of near-perfect collection",
+    "Each missed interval adds 20 hours to required time",
+    "Earliest eligibility: 2026-12-30T19:58:45Z (assuming zero misses)",
+    "META_MUSE_API_KEY provider-side rotation pending (no provider console access)"
+  ],
+  "not_implemented": [
+    "live orders", "real-money trading", "model retraining/refitting/calibration/tuning",
+    "threshold selection", "feature selection", "backtest execution", "paper trading",
+    "portfolio accounting", "API/dashboard write endpoints", "public exposure",
+    "Windows scheduled tasks"
+  ],
+  "files_changed": [
+    "src/crypto_engine/data/adapter.py (Q18, preserved)",
+    "src/crypto_engine/observability/health.py (Q19, added prospective_collection health check)",
+    "tests/unit/test_adapter.py (Q18, preserved)",
+    "tests/unit/research/q19/test_q19_coverage_feasibility.py (Q19, new)",
+    "scripts/monitor_prospective_continuity.py (Q19, new)",
+    "docs/validation/results/q19_prospective_feasibility.json (Q19, new)",
+    "docs/validation/results/q19_prospective_feasibility.md (Q19, new)",
+    "docs/operations/PROSPECTIVE_VALIDATION_FEASIBILITY.md (Q19, new)",
+    "docs/operations/PROSPECTIVE_COLLECTION_CONTINUITY.md (Q19, new)"
+  ]
+}

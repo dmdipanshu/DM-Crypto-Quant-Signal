@@ -1,0 +1,4029 @@
+{
+  "generated_at": "2026-11-12T13:16:19.571070+00:00",
+  "model_id": "logistic-ee482c-3e3324f2-20261028T132236",
+  "model_artifact_hash": "42a8ea4bafd248c727538e233e5335337917bcd1664d28421daa70331eccf4db",
+  "dataset_snapshot_id": "binance-BTC-USDT-1h-20260701T0000-20261001T0000-103f110e06f0",
+  "feature_schema_hash": "592fdd3c59c4253b781c1a74f4402ba0a4316d99e041b676d9dd3531e770a918",
+  "label_hash": "74bd147242856a17ea17cd17916cf9c674d98e25c7fbb4c526445875e366a072",
+  "random_state": 42,
+  "stage1_audit": {
+    "snapshots": [
+      {
+        "dir": "binance-BTC-USDT-1h-20260701T0000-20261001T0000-103f110e06f0",
+        "manifest": {
+          "snapshot_id": "binance-BTC-USDT-1h-20260701T0000-20261001T0000-103f110e06f0",
+          "exchange": "binance",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h",
+          "requested_start": "2026-07-01T00:00:00+00:00",
+          "requested_end": "2026-10-01T00:00:00+00:00",
+          "actual_start": "2026-07-01T00:00:00+00:00",
+          "actual_end": "2026-10-01T00:00:00+00:00",
+          "fetched_at": "2026-10-28T12:25:43.274195+00:00",
+          "row_count": 2209,
+          "schema_version": "1.0",
+          "columns": {
+            "timestamp": "timestamp[ns, tz=UTC]",
+            "open": "float64",
+            "high": "float64",
+            "low": "float64",
+            "close": "float64",
+            "volume": "float64"
+          },
+          "quality": {
+            "duplicates": 0,
+            "missing_intervals": 0,
+            "warnings": [
+              "stale data: last candle 2026-10-01T00:00:00+00:00"
+            ]
+          },
+          "checksum_sha256": "3e3324f2792576b5fd11a3311e2133d43db7b9af7e5dc425b5cc38bf885c5dfb",
+          "config_hash": "",
+          "package_version": "0.1.0"
+        },
+        "parquet_files": [
+          "candles.parquet"
+        ],
+        "row_count_parquet": 2209,
+        "checksum_ok": true
+      },
+      {
+        "dir": "binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06",
+        "manifest": {
+          "snapshot_id": "binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06",
+          "exchange": "binance",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h",
+          "requested_start": "2026-09-25T00:00:00+00:00",
+          "requested_end": "2026-10-28T00:00:00+00:00",
+          "actual_start": "2026-09-25T00:00:00+00:00",
+          "actual_end": "2026-10-28T00:00:00+00:00",
+          "fetched_at": "2026-10-28T14:36:44.982418+00:00",
+          "row_count": 793,
+          "schema_version": "1.0",
+          "columns": {
+            "timestamp": "timestamp[ns, tz=UTC]",
+            "open": "float64",
+            "high": "float64",
+            "low": "float64",
+            "close": "float64",
+            "volume": "float64"
+          },
+          "quality": {
+            "duplicates": 0,
+            "missing_intervals": 0,
+            "warnings": [
+              "stale data: last candle 2026-10-28T00:00:00+00:00"
+            ]
+          },
+          "checksum_sha256": "90e5339e8fcc5636135df8e68006bd2f7de24f36fb703aad2ade3ffe13223f2d",
+          "config_hash": "",
+          "package_version": "0.1.0"
+        },
+        "parquet_files": [
+          "candles.parquet"
+        ],
+        "row_count_parquet": 793,
+        "checksum_ok": true
+      },
+      {
+        "dir": "binance-BTC-USDT-1h-20261021T2100-20261111T1600-7d0a1d1c5d3e",
+        "manifest": {
+          "snapshot_id": "binance-BTC-USDT-1h-20261021T2100-20261111T1600-7d0a1d1c5d3e",
+          "exchange": "binance",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h",
+          "requested_start": null,
+          "requested_end": null,
+          "actual_start": "2026-10-21T21:00:00+00:00",
+          "actual_end": "2026-11-11T16:00:00+00:00",
+          "fetched_at": "2026-11-11T16:12:12.362777+00:00",
+          "row_count": 500,
+          "schema_version": "1.0",
+          "columns": {
+            "timestamp": "timestamp[ns, tz=UTC]",
+            "open": "float64",
+            "high": "float64",
+            "low": "float64",
+            "close": "float64",
+            "volume": "float64"
+          },
+          "quality": {
+            "duplicates": 0,
+            "missing_intervals": 0,
+            "warnings": []
+          },
+          "checksum_sha256": "ecb93f50b00258ea617b6384a999d2e9159aa81b09cad084a5f2026cb5c0ff5c",
+          "config_hash": "",
+          "package_version": "0.1.0"
+        },
+        "parquet_files": [
+          "candles.parquet"
+        ],
+        "row_count_parquet": 500,
+        "checksum_ok": true
+      },
+      {
+        "dir": "binance-BTC-USDT-1h-20261022T1200-20261112T0700-38ecbd210a9b",
+        "manifest": {
+          "snapshot_id": "binance-BTC-USDT-1h-20261022T1200-20261112T0700-38ecbd210a9b",
+          "exchange": "binance",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h",
+          "requested_start": null,
+          "requested_end": null,
+          "actual_start": "2026-10-22T12:00:00+00:00",
+          "actual_end": "2026-11-12T07:00:00+00:00",
+          "fetched_at": "2026-11-12T07:20:00.630156+00:00",
+          "row_count": 500,
+          "schema_version": "1.0",
+          "columns": {
+            "timestamp": "timestamp[ns, tz=UTC]",
+            "open": "float64",
+            "high": "float64",
+            "low": "float64",
+            "close": "float64",
+            "volume": "float64"
+          },
+          "quality": {
+            "duplicates": 0,
+            "missing_intervals": 0,
+            "warnings": []
+          },
+          "checksum_sha256": "912788f0b38f242da2de447795db3ba771b37063be10a145fd6308bff3d9a571",
+          "config_hash": "",
+          "package_version": "0.1.0"
+        },
+        "parquet_files": [
+          "candles.parquet"
+        ],
+        "row_count_parquet": 500,
+        "checksum_ok": true
+      },
+      {
+        "dir": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0089fd051f42",
+        "manifest": {
+          "snapshot_id": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0089fd051f42",
+          "exchange": "binance",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h",
+          "requested_start": null,
+          "requested_end": null,
+          "actual_start": "2026-10-22T15:00:00+00:00",
+          "actual_end": "2026-11-12T10:00:00+00:00",
+          "fetched_at": "2026-11-12T10:28:52.818376+00:00",
+          "row_count": 500,
+          "schema_version": "1.0",
+          "columns": {
+            "timestamp": "timestamp[ns, tz=UTC]",
+            "open": "float64",
+            "high": "float64",
+            "low": "float64",
+            "close": "float64",
+            "volume": "float64"
+          },
+          "quality": {
+            "duplicates": 0,
+            "missing_intervals": 0,
+            "warnings": []
+          },
+          "checksum_sha256": "96b984a1eefff507b672430496bb3149cf475f77ecc047d5a851abd02ef0606a",
+          "config_hash": "",
+          "package_version": "0.1.0"
+        },
+        "parquet_files": [
+          "candles.parquet"
+        ],
+        "row_count_parquet": 500,
+        "checksum_ok": true
+      },
+      {
+        "dir": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0ccbfa821f8f",
+        "manifest": {
+          "snapshot_id": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0ccbfa821f8f",
+          "exchange": "binance",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h",
+          "requested_start": null,
+          "requested_end": null,
+          "actual_start": "2026-10-22T15:00:00+00:00",
+          "actual_end": "2026-11-12T10:00:00+00:00",
+          "fetched_at": "2026-11-12T10:41:14.626402+00:00",
+          "row_count": 500,
+          "schema_version": "1.0",
+          "columns": {
+            "timestamp": "timestamp[ns, tz=UTC]",
+            "open": "float64",
+            "high": "float64",
+            "low": "float64",
+            "close": "float64",
+            "volume": "float64"
+          },
+          "quality": {
+            "duplicates": 0,
+            "missing_intervals": 0,
+            "warnings": []
+          },
+          "checksum_sha256": "82b2394853864d2fd21cdde8418ed24d5707d0b2c26fad56c1f7635fb83c1383",
+          "config_hash": "",
+          "package_version": "0.1.0"
+        },
+        "parquet_files": [
+          "candles.parquet"
+        ],
+        "row_count_parquet": 500,
+        "checksum_ok": true
+      },
+      {
+        "dir": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1453513e7d44",
+        "manifest": {
+          "snapshot_id": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1453513e7d44",
+          "exchange": "binance",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h",
+          "requested_start": null,
+          "requested_end": null,
+          "actual_start": "2026-10-22T15:00:00+00:00",
+          "actual_end": "2026-11-12T10:00:00+00:00",
+          "fetched_at": "2026-11-12T10:42:05.002025+00:00",
+          "row_count": 500,
+          "schema_version": "1.0",
+          "columns": {
+            "timestamp": "timestamp[ns, tz=UTC]",
+            "open": "float64",
+            "high": "float64",
+            "low": "float64",
+            "close": "float64",
+            "volume": "float64"
+          },
+          "quality": {
+            "duplicates": 0,
+            "missing_intervals": 0,
+            "warnings": []
+          },
+          "checksum_sha256": "67918c7e47740638db3914bc180c5962cbbcdce63b0468f628b6358f2416a21b",
+          "config_hash": "",
+          "package_version": "0.1.0"
+        },
+        "parquet_files": [
+          "candles.parquet"
+        ],
+        "row_count_parquet": 500,
+        "checksum_ok": true
+      },
+      {
+        "dir": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1d78489108a1",
+        "manifest": {
+          "snapshot_id": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1d78489108a1",
+          "exchange": "binance",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h",
+          "requested_start": null,
+          "requested_end": null,
+          "actual_start": "2026-10-22T15:00:00+00:00",
+          "actual_end": "2026-11-12T10:00:00+00:00",
+          "fetched_at": "2026-11-12T10:38:06.886546+00:00",
+          "row_count": 500,
+          "schema_version": "1.0",
+          "columns": {
+            "timestamp": "timestamp[ns, tz=UTC]",
+            "open": "float64",
+            "high": "float64",
+            "low": "float64",
+            "close": "float64",
+            "volume": "float64"
+          },
+          "quality": {
+            "duplicates": 0,
+            "missing_intervals": 0,
+            "warnings": []
+          },
+          "checksum_sha256": "7b77859523e8fe6c9cb24fdcc9fd88dd223ac3bdfd31fc698243309fc178ac99",
+          "config_hash": "",
+          "package_version": "0.1.0"
+        },
+        "parquet_files": [
+          "candles.parquet"
+        ],
+        "row_count_parquet": 500,
+        "checksum_ok": true
+      },
+      {
+        "dir": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-410ea8f7c867",
+        "manifest": {
+          "snapshot_id": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-410ea8f7c867",
+          "exchange": "binance",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h",
+          "requested_start": null,
+          "requested_end": null,
+          "actual_start": "2026-10-22T15:00:00+00:00",
+          "actual_end": "2026-11-12T10:00:00+00:00",
+          "fetched_at": "2026-11-12T10:33:18.847371+00:00",
+          "row_count": 500,
+          "schema_version": "1.0",
+          "columns": {
+            "timestamp": "timestamp[ns, tz=UTC]",
+            "open": "float64",
+            "high": "float64",
+            "low": "float64",
+            "close": "float64",
+            "volume": "float64"
+          },
+          "quality": {
+            "duplicates": 0,
+            "missing_intervals": 0,
+            "warnings": []
+          },
+          "checksum_sha256": "6dec47b17b8f4bc1e7cb258efd68d748b20cc32ec49e6da8b00afc49712acdf1",
+          "config_hash": "",
+          "package_version": "0.1.0"
+        },
+        "parquet_files": [
+          "candles.parquet"
+        ],
+        "row_count_parquet": 500,
+        "checksum_ok": true
+      },
+      {
+        "dir": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-6031fbd7ae96",
+        "manifest": {
+          "snapshot_id": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-6031fbd7ae96",
+          "exchange": "binance",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h",
+          "requested_start": null,
+          "requested_end": null,
+          "actual_start": "2026-10-22T15:00:00+00:00",
+          "actual_end": "2026-11-12T10:00:00+00:00",
+          "fetched_at": "2026-11-12T10:51:50.431171+00:00",
+          "row_count": 500,
+          "schema_version": "1.0",
+          "columns": {
+            "timestamp": "timestamp[ns, tz=UTC]",
+            "open": "float64",
+            "high": "float64",
+            "low": "float64",
+            "close": "float64",
+            "volume": "float64"
+          },
+          "quality": {
+            "duplicates": 0,
+            "missing_intervals": 0,
+            "warnings": []
+          },
+          "checksum_sha256": "1f535012cae9659ef6c0d759a46ee1b466567af9485987a73b603b756df0454a",
+          "config_hash": "",
+          "package_version": "0.1.0"
+        },
+        "parquet_files": [
+          "candles.parquet"
+        ],
+        "row_count_parquet": 500,
+        "checksum_ok": true
+      },
+      {
+        "dir": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-81712909559a",
+        "manifest": {
+          "snapshot_id": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-81712909559a",
+          "exchange": "binance",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h",
+          "requested_start": null,
+          "requested_end": null,
+          "actual_start": "2026-10-22T15:00:00+00:00",
+          "actual_end": "2026-11-12T10:00:00+00:00",
+          "fetched_at": "2026-11-12T10:42:33.115379+00:00",
+          "row_count": 500,
+          "schema_version": "1.0",
+          "columns": {
+            "timestamp": "timestamp[ns, tz=UTC]",
+            "open": "float64",
+            "high": "float64",
+            "low": "float64",
+            "close": "float64",
+            "volume": "float64"
+          },
+          "quality": {
+            "duplicates": 0,
+            "missing_intervals": 0,
+            "warnings": []
+          },
+          "checksum_sha256": "bf551633ee30ba0255ce78d341a69dc24882a0d49fd3f2c007bd93fc3be3e627",
+          "config_hash": "",
+          "package_version": "0.1.0"
+        },
+        "parquet_files": [
+          "candles.parquet"
+        ],
+        "row_count_parquet": 500,
+        "checksum_ok": true
+      },
+      {
+        "dir": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8b87adb5d625",
+        "manifest": {
+          "snapshot_id": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8b87adb5d625",
+          "exchange": "binance",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h",
+          "requested_start": null,
+          "requested_end": null,
+          "actual_start": "2026-10-22T15:00:00+00:00",
+          "actual_end": "2026-11-12T10:00:00+00:00",
+          "fetched_at": "2026-11-12T10:53:18.344288+00:00",
+          "row_count": 500,
+          "schema_version": "1.0",
+          "columns": {
+            "timestamp": "timestamp[ns, tz=UTC]",
+            "open": "float64",
+            "high": "float64",
+            "low": "float64",
+            "close": "float64",
+            "volume": "float64"
+          },
+          "quality": {
+            "duplicates": 0,
+            "missing_intervals": 0,
+            "warnings": []
+          },
+          "checksum_sha256": "3d113da1dc60270c0b605105fada9525c1e436f1cefafd0a30757f2d7e2dc742",
+          "config_hash": "",
+          "package_version": "0.1.0"
+        },
+        "parquet_files": [
+          "candles.parquet"
+        ],
+        "row_count_parquet": 500,
+        "checksum_ok": true
+      },
+      {
+        "dir": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8f417cacc4ae",
+        "manifest": {
+          "snapshot_id": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8f417cacc4ae",
+          "exchange": "binance",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h",
+          "requested_start": null,
+          "requested_end": null,
+          "actual_start": "2026-10-22T15:00:00+00:00",
+          "actual_end": "2026-11-12T10:00:00+00:00",
+          "fetched_at": "2026-11-12T10:44:52.717875+00:00",
+          "row_count": 500,
+          "schema_version": "1.0",
+          "columns": {
+            "timestamp": "timestamp[ns, tz=UTC]",
+            "open": "float64",
+            "high": "float64",
+            "low": "float64",
+            "close": "float64",
+            "volume": "float64"
+          },
+          "quality": {
+            "duplicates": 0,
+            "missing_intervals": 0,
+            "warnings": []
+          },
+          "checksum_sha256": "b2163c22b596d64ea430bc5c0414a548a4e4ab923138fdc436d98852d9eff4e0",
+          "config_hash": "",
+          "package_version": "0.1.0"
+        },
+        "parquet_files": [
+          "candles.parquet"
+        ],
+        "row_count_parquet": 500,
+        "checksum_ok": true
+      },
+      {
+        "dir": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-9c125bebd06e",
+        "manifest": {
+          "snapshot_id": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-9c125bebd06e",
+          "exchange": "binance",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h",
+          "requested_start": null,
+          "requested_end": null,
+          "actual_start": "2026-10-22T15:00:00+00:00",
+          "actual_end": "2026-11-12T10:00:00+00:00",
+          "fetched_at": "2026-11-12T10:39:12.217166+00:00",
+          "row_count": 500,
+          "schema_version": "1.0",
+          "columns": {
+            "timestamp": "timestamp[ns, tz=UTC]",
+            "open": "float64",
+            "high": "float64",
+            "low": "float64",
+            "close": "float64",
+            "volume": "float64"
+          },
+          "quality": {
+            "duplicates": 0,
+            "missing_intervals": 0,
+            "warnings": []
+          },
+          "checksum_sha256": "ab6621652a412594e231f3e92a8b37a9142053246346dc1f0e6bea13912432e5",
+          "config_hash": "",
+          "package_version": "0.1.0"
+        },
+        "parquet_files": [
+          "candles.parquet"
+        ],
+        "row_count_parquet": 500,
+        "checksum_ok": true
+      },
+      {
+        "dir": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-aca7bc1926ae",
+        "manifest": {
+          "snapshot_id": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-aca7bc1926ae",
+          "exchange": "binance",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h",
+          "requested_start": null,
+          "requested_end": null,
+          "actual_start": "2026-10-22T15:00:00+00:00",
+          "actual_end": "2026-11-12T10:00:00+00:00",
+          "fetched_at": "2026-11-12T10:26:11.761084+00:00",
+          "row_count": 500,
+          "schema_version": "1.0",
+          "columns": {
+            "timestamp": "timestamp[ns, tz=UTC]",
+            "open": "float64",
+            "high": "float64",
+            "low": "float64",
+            "close": "float64",
+            "volume": "float64"
+          },
+          "quality": {
+            "duplicates": 0,
+            "missing_intervals": 0,
+            "warnings": []
+          },
+          "checksum_sha256": "1059c8358bbc096a987de20ab3094f8de13d13e31cfa248d1960d98b80d7e314",
+          "config_hash": "",
+          "package_version": "0.1.0"
+        },
+        "parquet_files": [
+          "candles.parquet"
+        ],
+        "row_count_parquet": 500,
+        "checksum_ok": true
+      },
+      {
+        "dir": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-b623d0f0fb37",
+        "manifest": {
+          "snapshot_id": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-b623d0f0fb37",
+          "exchange": "binance",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h",
+          "requested_start": null,
+          "requested_end": null,
+          "actual_start": "2026-10-22T15:00:00+00:00",
+          "actual_end": "2026-11-12T10:00:00+00:00",
+          "fetched_at": "2026-11-12T10:49:16.367729+00:00",
+          "row_count": 500,
+          "schema_version": "1.0",
+          "columns": {
+            "timestamp": "timestamp[ns, tz=UTC]",
+            "open": "float64",
+            "high": "float64",
+            "low": "float64",
+            "close": "float64",
+            "volume": "float64"
+          },
+          "quality": {
+            "duplicates": 0,
+            "missing_intervals": 0,
+            "warnings": []
+          },
+          "checksum_sha256": "29a52aa60cd0ee22352c367484d0ef4daab20cd06ac4d6382e4aa454e31ad25f",
+          "config_hash": "",
+          "package_version": "0.1.0"
+        },
+        "parquet_files": [
+          "candles.parquet"
+        ],
+        "row_count_parquet": 500,
+        "checksum_ok": true
+      },
+      {
+        "dir": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cc3cc47f049b",
+        "manifest": {
+          "snapshot_id": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cc3cc47f049b",
+          "exchange": "binance",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h",
+          "requested_start": null,
+          "requested_end": null,
+          "actual_start": "2026-10-22T15:00:00+00:00",
+          "actual_end": "2026-11-12T10:00:00+00:00",
+          "fetched_at": "2026-11-12T10:46:34.633090+00:00",
+          "row_count": 500,
+          "schema_version": "1.0",
+          "columns": {
+            "timestamp": "timestamp[ns, tz=UTC]",
+            "open": "float64",
+            "high": "float64",
+            "low": "float64",
+            "close": "float64",
+            "volume": "float64"
+          },
+          "quality": {
+            "duplicates": 0,
+            "missing_intervals": 0,
+            "warnings": []
+          },
+          "checksum_sha256": "bdc38f1713bae57a0044cea1fe61edb5e0e87b058c872b63bb1e1ee900de9556",
+          "config_hash": "",
+          "package_version": "0.1.0"
+        },
+        "parquet_files": [
+          "candles.parquet"
+        ],
+        "row_count_parquet": 500,
+        "checksum_ok": true
+      },
+      {
+        "dir": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cfbc0f7dfa32",
+        "manifest": {
+          "snapshot_id": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cfbc0f7dfa32",
+          "exchange": "binance",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h",
+          "requested_start": null,
+          "requested_end": null,
+          "actual_start": "2026-10-22T15:00:00+00:00",
+          "actual_end": "2026-11-12T10:00:00+00:00",
+          "fetched_at": "2026-11-12T10:53:33.198730+00:00",
+          "row_count": 500,
+          "schema_version": "1.0",
+          "columns": {
+            "timestamp": "timestamp[ns, tz=UTC]",
+            "open": "float64",
+            "high": "float64",
+            "low": "float64",
+            "close": "float64",
+            "volume": "float64"
+          },
+          "quality": {
+            "duplicates": 0,
+            "missing_intervals": 0,
+            "warnings": []
+          },
+          "checksum_sha256": "33dc32b3b8385fa9cba981eb38d401a5ca5677570a4a7f8623d8aaee62166106",
+          "config_hash": "",
+          "package_version": "0.1.0"
+        },
+        "parquet_files": [
+          "candles.parquet"
+        ],
+        "row_count_parquet": 500,
+        "checksum_ok": true
+      },
+      {
+        "dir": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e924034fe6ee",
+        "manifest": {
+          "snapshot_id": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e924034fe6ee",
+          "exchange": "binance",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h",
+          "requested_start": null,
+          "requested_end": null,
+          "actual_start": "2026-10-22T15:00:00+00:00",
+          "actual_end": "2026-11-12T10:00:00+00:00",
+          "fetched_at": "2026-11-12T10:48:25.555839+00:00",
+          "row_count": 500,
+          "schema_version": "1.0",
+          "columns": {
+            "timestamp": "timestamp[ns, tz=UTC]",
+            "open": "float64",
+            "high": "float64",
+            "low": "float64",
+            "close": "float64",
+            "volume": "float64"
+          },
+          "quality": {
+            "duplicates": 0,
+            "missing_intervals": 0,
+            "warnings": []
+          },
+          "checksum_sha256": "d70cd1a814b3633c306cf9881ed09d3c1537c16a945c05a409d7999c0aaa2b47",
+          "config_hash": "",
+          "package_version": "0.1.0"
+        },
+        "parquet_files": [
+          "candles.parquet"
+        ],
+        "row_count_parquet": 500,
+        "checksum_ok": true
+      },
+      {
+        "dir": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e97c1046cf56",
+        "manifest": {
+          "snapshot_id": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e97c1046cf56",
+          "exchange": "binance",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h",
+          "requested_start": null,
+          "requested_end": null,
+          "actual_start": "2026-10-22T15:00:00+00:00",
+          "actual_end": "2026-11-12T10:00:00+00:00",
+          "fetched_at": "2026-11-12T10:53:03.853976+00:00",
+          "row_count": 500,
+          "schema_version": "1.0",
+          "columns": {
+            "timestamp": "timestamp[ns, tz=UTC]",
+            "open": "float64",
+            "high": "float64",
+            "low": "float64",
+            "close": "float64",
+            "volume": "float64"
+          },
+          "quality": {
+            "duplicates": 0,
+            "missing_intervals": 0,
+            "warnings": []
+          },
+          "checksum_sha256": "52c8c9f0aac75197dcd51f318695ca6e11bae2e23a55a6b10aeac60c62c3f057",
+          "config_hash": "",
+          "package_version": "0.1.0"
+        },
+        "parquet_files": [
+          "candles.parquet"
+        ],
+        "row_count_parquet": 500,
+        "checksum_ok": true
+      },
+      {
+        "dir": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-ee92a94b820f",
+        "manifest": {
+          "snapshot_id": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-ee92a94b820f",
+          "exchange": "binance",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h",
+          "requested_start": null,
+          "requested_end": null,
+          "actual_start": "2026-10-22T15:00:00+00:00",
+          "actual_end": "2026-11-12T10:00:00+00:00",
+          "fetched_at": "2026-11-12T10:36:43.845463+00:00",
+          "row_count": 500,
+          "schema_version": "1.0",
+          "columns": {
+            "timestamp": "timestamp[ns, tz=UTC]",
+            "open": "float64",
+            "high": "float64",
+            "low": "float64",
+            "close": "float64",
+            "volume": "float64"
+          },
+          "quality": {
+            "duplicates": 0,
+            "missing_intervals": 0,
+            "warnings": []
+          },
+          "checksum_sha256": "c0dc51be5f55348513a30496814b47988be452281c63e8b854e781c563f443c3",
+          "config_hash": "",
+          "package_version": "0.1.0"
+        },
+        "parquet_files": [
+          "candles.parquet"
+        ],
+        "row_count_parquet": 500,
+        "checksum_ok": true
+      },
+      {
+        "dir": "binance-BTC-USDT-1h-20261022T1600-20261112T1100-9a0255406631",
+        "manifest": {
+          "snapshot_id": "binance-BTC-USDT-1h-20261022T1600-20261112T1100-9a0255406631",
+          "exchange": "binance",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h",
+          "requested_start": null,
+          "requested_end": null,
+          "actual_start": "2026-10-22T16:00:00+00:00",
+          "actual_end": "2026-11-12T11:00:00+00:00",
+          "fetched_at": "2026-11-12T11:43:35.373912+00:00",
+          "row_count": 500,
+          "schema_version": "1.0",
+          "columns": {
+            "timestamp": "timestamp[ns, tz=UTC]",
+            "open": "float64",
+            "high": "float64",
+            "low": "float64",
+            "close": "float64",
+            "volume": "float64"
+          },
+          "quality": {
+            "duplicates": 0,
+            "missing_intervals": 0,
+            "warnings": []
+          },
+          "checksum_sha256": "efa1517e15228e14411c33d468c6bfa136247e6ef2d902d71fe7a1b18ba2235e",
+          "config_hash": "",
+          "package_version": "0.1.0"
+        },
+        "parquet_files": [
+          "candles.parquet"
+        ],
+        "row_count_parquet": 500,
+        "checksum_ok": true
+      },
+      {
+        "dir": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-9d380c064630",
+        "manifest": {
+          "snapshot_id": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-9d380c064630",
+          "exchange": "binance",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h",
+          "requested_start": null,
+          "requested_end": null,
+          "actual_start": "2026-10-22T17:00:00+00:00",
+          "actual_end": "2026-11-12T12:00:00+00:00",
+          "fetched_at": "2026-11-12T12:14:52.380201+00:00",
+          "row_count": 500,
+          "schema_version": "1.0",
+          "columns": {
+            "timestamp": "timestamp[ns, tz=UTC]",
+            "open": "float64",
+            "high": "float64",
+            "low": "float64",
+            "close": "float64",
+            "volume": "float64"
+          },
+          "quality": {
+            "duplicates": 0,
+            "missing_intervals": 0,
+            "warnings": []
+          },
+          "checksum_sha256": "58e1f9577182ce50f5a85842c93390a9a0550d297e0a774999e9257a3de4ed6f",
+          "config_hash": "",
+          "package_version": "0.1.0"
+        },
+        "parquet_files": [
+          "candles.parquet"
+        ],
+        "row_count_parquet": 500,
+        "checksum_ok": true
+      },
+      {
+        "dir": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-b6a16c80c96d",
+        "manifest": {
+          "snapshot_id": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-b6a16c80c96d",
+          "exchange": "binance",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h",
+          "requested_start": null,
+          "requested_end": null,
+          "actual_start": "2026-10-22T17:00:00+00:00",
+          "actual_end": "2026-11-12T12:00:00+00:00",
+          "fetched_at": "2026-11-12T12:15:49.296797+00:00",
+          "row_count": 500,
+          "schema_version": "1.0",
+          "columns": {
+            "timestamp": "timestamp[ns, tz=UTC]",
+            "open": "float64",
+            "high": "float64",
+            "low": "float64",
+            "close": "float64",
+            "volume": "float64"
+          },
+          "quality": {
+            "duplicates": 0,
+            "missing_intervals": 0,
+            "warnings": []
+          },
+          "checksum_sha256": "949a967003e70a68ab35e9f0a9b649d66b546ccc55cb85c6b07f894cedaae1b0",
+          "config_hash": "",
+          "package_version": "0.1.0"
+        },
+        "parquet_files": [
+          "candles.parquet"
+        ],
+        "row_count_parquet": 500,
+        "checksum_ok": true
+      },
+      {
+        "dir": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-e186e87bd4ea",
+        "manifest": {
+          "snapshot_id": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-e186e87bd4ea",
+          "exchange": "binance",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h",
+          "requested_start": null,
+          "requested_end": null,
+          "actual_start": "2026-10-22T17:00:00+00:00",
+          "actual_end": "2026-11-12T12:00:00+00:00",
+          "fetched_at": "2026-11-12T12:14:04.869122+00:00",
+          "row_count": 500,
+          "schema_version": "1.0",
+          "columns": {
+            "timestamp": "timestamp[ns, tz=UTC]",
+            "open": "float64",
+            "high": "float64",
+            "low": "float64",
+            "close": "float64",
+            "volume": "float64"
+          },
+          "quality": {
+            "duplicates": 0,
+            "missing_intervals": 0,
+            "warnings": []
+          },
+          "checksum_sha256": "83e320e247d84688ab0e1b1a74baf15c23de275eb78dd30ad045176aabc5bcef",
+          "config_hash": "",
+          "package_version": "0.1.0"
+        },
+        "parquet_files": [
+          "candles.parquet"
+        ],
+        "row_count_parquet": 500,
+        "checksum_ok": true
+      },
+      {
+        "dir": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-eda4b6f50181",
+        "manifest": {
+          "snapshot_id": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-eda4b6f50181",
+          "exchange": "binance",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h",
+          "requested_start": null,
+          "requested_end": null,
+          "actual_start": "2026-10-22T17:00:00+00:00",
+          "actual_end": "2026-11-12T12:00:00+00:00",
+          "fetched_at": "2026-11-12T12:02:23.569343+00:00",
+          "row_count": 500,
+          "schema_version": "1.0",
+          "columns": {
+            "timestamp": "timestamp[ns, tz=UTC]",
+            "open": "float64",
+            "high": "float64",
+            "low": "float64",
+            "close": "float64",
+            "volume": "float64"
+          },
+          "quality": {
+            "duplicates": 0,
+            "missing_intervals": 0,
+            "warnings": []
+          },
+          "checksum_sha256": "5f8e2e7a20e6da270ac1922c61f8aba3b94c4ccc6bb0d778a6c1878cbb1fcec5",
+          "config_hash": "",
+          "package_version": "0.1.0"
+        },
+        "parquet_files": [
+          "candles.parquet"
+        ],
+        "row_count_parquet": 500,
+        "checksum_ok": true
+      }
+    ],
+    "overlaps": [
+      {
+        "a": "binance-BTC-USDT-1h-20260701T0000-20261001T0000-103f110e06f0",
+        "b": "binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06",
+        "overlap_start": "2026-09-25T00:00:00+00:00",
+        "overlap_end": "2026-10-01T00:00:00+00:00",
+        "overlap_hours": 144.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06",
+        "b": "binance-BTC-USDT-1h-20261021T2100-20261111T1600-7d0a1d1c5d3e",
+        "overlap_start": "2026-10-21T21:00:00+00:00",
+        "overlap_end": "2026-10-28T00:00:00+00:00",
+        "overlap_hours": 147.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06",
+        "b": "binance-BTC-USDT-1h-20261022T1200-20261112T0700-38ecbd210a9b",
+        "overlap_start": "2026-10-22T12:00:00+00:00",
+        "overlap_end": "2026-10-28T00:00:00+00:00",
+        "overlap_hours": 132.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0089fd051f42",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-10-28T00:00:00+00:00",
+        "overlap_hours": 129.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0ccbfa821f8f",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-10-28T00:00:00+00:00",
+        "overlap_hours": 129.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1453513e7d44",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-10-28T00:00:00+00:00",
+        "overlap_hours": 129.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1d78489108a1",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-10-28T00:00:00+00:00",
+        "overlap_hours": 129.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-410ea8f7c867",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-10-28T00:00:00+00:00",
+        "overlap_hours": 129.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-6031fbd7ae96",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-10-28T00:00:00+00:00",
+        "overlap_hours": 129.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-81712909559a",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-10-28T00:00:00+00:00",
+        "overlap_hours": 129.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8b87adb5d625",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-10-28T00:00:00+00:00",
+        "overlap_hours": 129.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8f417cacc4ae",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-10-28T00:00:00+00:00",
+        "overlap_hours": 129.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-9c125bebd06e",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-10-28T00:00:00+00:00",
+        "overlap_hours": 129.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-aca7bc1926ae",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-10-28T00:00:00+00:00",
+        "overlap_hours": 129.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-b623d0f0fb37",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-10-28T00:00:00+00:00",
+        "overlap_hours": 129.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cc3cc47f049b",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-10-28T00:00:00+00:00",
+        "overlap_hours": 129.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cfbc0f7dfa32",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-10-28T00:00:00+00:00",
+        "overlap_hours": 129.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e924034fe6ee",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-10-28T00:00:00+00:00",
+        "overlap_hours": 129.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e97c1046cf56",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-10-28T00:00:00+00:00",
+        "overlap_hours": 129.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-ee92a94b820f",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-10-28T00:00:00+00:00",
+        "overlap_hours": 129.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06",
+        "b": "binance-BTC-USDT-1h-20261022T1600-20261112T1100-9a0255406631",
+        "overlap_start": "2026-10-22T16:00:00+00:00",
+        "overlap_end": "2026-10-28T00:00:00+00:00",
+        "overlap_hours": 128.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-9d380c064630",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-10-28T00:00:00+00:00",
+        "overlap_hours": 127.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-b6a16c80c96d",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-10-28T00:00:00+00:00",
+        "overlap_hours": 127.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-e186e87bd4ea",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-10-28T00:00:00+00:00",
+        "overlap_hours": 127.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-eda4b6f50181",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-10-28T00:00:00+00:00",
+        "overlap_hours": 127.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261021T2100-20261111T1600-7d0a1d1c5d3e",
+        "b": "binance-BTC-USDT-1h-20261022T1200-20261112T0700-38ecbd210a9b",
+        "overlap_start": "2026-10-22T12:00:00+00:00",
+        "overlap_end": "2026-11-11T16:00:00+00:00",
+        "overlap_hours": 484.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261021T2100-20261111T1600-7d0a1d1c5d3e",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0089fd051f42",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-11T16:00:00+00:00",
+        "overlap_hours": 481.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261021T2100-20261111T1600-7d0a1d1c5d3e",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0ccbfa821f8f",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-11T16:00:00+00:00",
+        "overlap_hours": 481.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261021T2100-20261111T1600-7d0a1d1c5d3e",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1453513e7d44",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-11T16:00:00+00:00",
+        "overlap_hours": 481.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261021T2100-20261111T1600-7d0a1d1c5d3e",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1d78489108a1",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-11T16:00:00+00:00",
+        "overlap_hours": 481.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261021T2100-20261111T1600-7d0a1d1c5d3e",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-410ea8f7c867",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-11T16:00:00+00:00",
+        "overlap_hours": 481.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261021T2100-20261111T1600-7d0a1d1c5d3e",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-6031fbd7ae96",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-11T16:00:00+00:00",
+        "overlap_hours": 481.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261021T2100-20261111T1600-7d0a1d1c5d3e",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-81712909559a",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-11T16:00:00+00:00",
+        "overlap_hours": 481.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261021T2100-20261111T1600-7d0a1d1c5d3e",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8b87adb5d625",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-11T16:00:00+00:00",
+        "overlap_hours": 481.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261021T2100-20261111T1600-7d0a1d1c5d3e",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8f417cacc4ae",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-11T16:00:00+00:00",
+        "overlap_hours": 481.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261021T2100-20261111T1600-7d0a1d1c5d3e",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-9c125bebd06e",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-11T16:00:00+00:00",
+        "overlap_hours": 481.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261021T2100-20261111T1600-7d0a1d1c5d3e",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-aca7bc1926ae",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-11T16:00:00+00:00",
+        "overlap_hours": 481.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261021T2100-20261111T1600-7d0a1d1c5d3e",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-b623d0f0fb37",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-11T16:00:00+00:00",
+        "overlap_hours": 481.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261021T2100-20261111T1600-7d0a1d1c5d3e",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cc3cc47f049b",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-11T16:00:00+00:00",
+        "overlap_hours": 481.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261021T2100-20261111T1600-7d0a1d1c5d3e",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cfbc0f7dfa32",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-11T16:00:00+00:00",
+        "overlap_hours": 481.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261021T2100-20261111T1600-7d0a1d1c5d3e",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e924034fe6ee",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-11T16:00:00+00:00",
+        "overlap_hours": 481.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261021T2100-20261111T1600-7d0a1d1c5d3e",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e97c1046cf56",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-11T16:00:00+00:00",
+        "overlap_hours": 481.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261021T2100-20261111T1600-7d0a1d1c5d3e",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-ee92a94b820f",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-11T16:00:00+00:00",
+        "overlap_hours": 481.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261021T2100-20261111T1600-7d0a1d1c5d3e",
+        "b": "binance-BTC-USDT-1h-20261022T1600-20261112T1100-9a0255406631",
+        "overlap_start": "2026-10-22T16:00:00+00:00",
+        "overlap_end": "2026-11-11T16:00:00+00:00",
+        "overlap_hours": 480.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261021T2100-20261111T1600-7d0a1d1c5d3e",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-9d380c064630",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-11T16:00:00+00:00",
+        "overlap_hours": 479.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261021T2100-20261111T1600-7d0a1d1c5d3e",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-b6a16c80c96d",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-11T16:00:00+00:00",
+        "overlap_hours": 479.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261021T2100-20261111T1600-7d0a1d1c5d3e",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-e186e87bd4ea",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-11T16:00:00+00:00",
+        "overlap_hours": 479.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261021T2100-20261111T1600-7d0a1d1c5d3e",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-eda4b6f50181",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-11T16:00:00+00:00",
+        "overlap_hours": 479.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1200-20261112T0700-38ecbd210a9b",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0089fd051f42",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T07:00:00+00:00",
+        "overlap_hours": 496.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1200-20261112T0700-38ecbd210a9b",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0ccbfa821f8f",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T07:00:00+00:00",
+        "overlap_hours": 496.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1200-20261112T0700-38ecbd210a9b",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1453513e7d44",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T07:00:00+00:00",
+        "overlap_hours": 496.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1200-20261112T0700-38ecbd210a9b",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1d78489108a1",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T07:00:00+00:00",
+        "overlap_hours": 496.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1200-20261112T0700-38ecbd210a9b",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-410ea8f7c867",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T07:00:00+00:00",
+        "overlap_hours": 496.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1200-20261112T0700-38ecbd210a9b",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-6031fbd7ae96",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T07:00:00+00:00",
+        "overlap_hours": 496.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1200-20261112T0700-38ecbd210a9b",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-81712909559a",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T07:00:00+00:00",
+        "overlap_hours": 496.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1200-20261112T0700-38ecbd210a9b",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8b87adb5d625",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T07:00:00+00:00",
+        "overlap_hours": 496.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1200-20261112T0700-38ecbd210a9b",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8f417cacc4ae",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T07:00:00+00:00",
+        "overlap_hours": 496.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1200-20261112T0700-38ecbd210a9b",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-9c125bebd06e",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T07:00:00+00:00",
+        "overlap_hours": 496.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1200-20261112T0700-38ecbd210a9b",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-aca7bc1926ae",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T07:00:00+00:00",
+        "overlap_hours": 496.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1200-20261112T0700-38ecbd210a9b",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-b623d0f0fb37",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T07:00:00+00:00",
+        "overlap_hours": 496.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1200-20261112T0700-38ecbd210a9b",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cc3cc47f049b",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T07:00:00+00:00",
+        "overlap_hours": 496.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1200-20261112T0700-38ecbd210a9b",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cfbc0f7dfa32",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T07:00:00+00:00",
+        "overlap_hours": 496.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1200-20261112T0700-38ecbd210a9b",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e924034fe6ee",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T07:00:00+00:00",
+        "overlap_hours": 496.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1200-20261112T0700-38ecbd210a9b",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e97c1046cf56",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T07:00:00+00:00",
+        "overlap_hours": 496.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1200-20261112T0700-38ecbd210a9b",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-ee92a94b820f",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T07:00:00+00:00",
+        "overlap_hours": 496.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1200-20261112T0700-38ecbd210a9b",
+        "b": "binance-BTC-USDT-1h-20261022T1600-20261112T1100-9a0255406631",
+        "overlap_start": "2026-10-22T16:00:00+00:00",
+        "overlap_end": "2026-11-12T07:00:00+00:00",
+        "overlap_hours": 495.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1200-20261112T0700-38ecbd210a9b",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-9d380c064630",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T07:00:00+00:00",
+        "overlap_hours": 494.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1200-20261112T0700-38ecbd210a9b",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-b6a16c80c96d",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T07:00:00+00:00",
+        "overlap_hours": 494.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1200-20261112T0700-38ecbd210a9b",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-e186e87bd4ea",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T07:00:00+00:00",
+        "overlap_hours": 494.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1200-20261112T0700-38ecbd210a9b",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-eda4b6f50181",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T07:00:00+00:00",
+        "overlap_hours": 494.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0089fd051f42",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0ccbfa821f8f",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0089fd051f42",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1453513e7d44",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0089fd051f42",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1d78489108a1",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0089fd051f42",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-410ea8f7c867",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0089fd051f42",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-6031fbd7ae96",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0089fd051f42",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-81712909559a",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0089fd051f42",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8b87adb5d625",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0089fd051f42",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8f417cacc4ae",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0089fd051f42",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-9c125bebd06e",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0089fd051f42",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-aca7bc1926ae",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0089fd051f42",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-b623d0f0fb37",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0089fd051f42",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cc3cc47f049b",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0089fd051f42",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cfbc0f7dfa32",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0089fd051f42",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e924034fe6ee",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0089fd051f42",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e97c1046cf56",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0089fd051f42",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-ee92a94b820f",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0089fd051f42",
+        "b": "binance-BTC-USDT-1h-20261022T1600-20261112T1100-9a0255406631",
+        "overlap_start": "2026-10-22T16:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 498.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0089fd051f42",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-9d380c064630",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0089fd051f42",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-b6a16c80c96d",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0089fd051f42",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-e186e87bd4ea",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0089fd051f42",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-eda4b6f50181",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0ccbfa821f8f",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1453513e7d44",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0ccbfa821f8f",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1d78489108a1",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0ccbfa821f8f",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-410ea8f7c867",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0ccbfa821f8f",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-6031fbd7ae96",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0ccbfa821f8f",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-81712909559a",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0ccbfa821f8f",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8b87adb5d625",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0ccbfa821f8f",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8f417cacc4ae",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0ccbfa821f8f",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-9c125bebd06e",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0ccbfa821f8f",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-aca7bc1926ae",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0ccbfa821f8f",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-b623d0f0fb37",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0ccbfa821f8f",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cc3cc47f049b",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0ccbfa821f8f",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cfbc0f7dfa32",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0ccbfa821f8f",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e924034fe6ee",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0ccbfa821f8f",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e97c1046cf56",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0ccbfa821f8f",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-ee92a94b820f",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0ccbfa821f8f",
+        "b": "binance-BTC-USDT-1h-20261022T1600-20261112T1100-9a0255406631",
+        "overlap_start": "2026-10-22T16:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 498.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0ccbfa821f8f",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-9d380c064630",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0ccbfa821f8f",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-b6a16c80c96d",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0ccbfa821f8f",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-e186e87bd4ea",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0ccbfa821f8f",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-eda4b6f50181",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1453513e7d44",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1d78489108a1",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1453513e7d44",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-410ea8f7c867",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1453513e7d44",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-6031fbd7ae96",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1453513e7d44",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-81712909559a",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1453513e7d44",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8b87adb5d625",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1453513e7d44",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8f417cacc4ae",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1453513e7d44",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-9c125bebd06e",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1453513e7d44",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-aca7bc1926ae",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1453513e7d44",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-b623d0f0fb37",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1453513e7d44",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cc3cc47f049b",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1453513e7d44",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cfbc0f7dfa32",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1453513e7d44",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e924034fe6ee",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1453513e7d44",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e97c1046cf56",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1453513e7d44",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-ee92a94b820f",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1453513e7d44",
+        "b": "binance-BTC-USDT-1h-20261022T1600-20261112T1100-9a0255406631",
+        "overlap_start": "2026-10-22T16:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 498.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1453513e7d44",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-9d380c064630",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1453513e7d44",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-b6a16c80c96d",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1453513e7d44",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-e186e87bd4ea",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1453513e7d44",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-eda4b6f50181",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1d78489108a1",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-410ea8f7c867",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1d78489108a1",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-6031fbd7ae96",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1d78489108a1",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-81712909559a",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1d78489108a1",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8b87adb5d625",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1d78489108a1",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8f417cacc4ae",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1d78489108a1",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-9c125bebd06e",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1d78489108a1",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-aca7bc1926ae",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1d78489108a1",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-b623d0f0fb37",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1d78489108a1",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cc3cc47f049b",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1d78489108a1",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cfbc0f7dfa32",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1d78489108a1",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e924034fe6ee",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1d78489108a1",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e97c1046cf56",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1d78489108a1",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-ee92a94b820f",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1d78489108a1",
+        "b": "binance-BTC-USDT-1h-20261022T1600-20261112T1100-9a0255406631",
+        "overlap_start": "2026-10-22T16:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 498.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1d78489108a1",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-9d380c064630",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1d78489108a1",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-b6a16c80c96d",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1d78489108a1",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-e186e87bd4ea",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1d78489108a1",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-eda4b6f50181",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-410ea8f7c867",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-6031fbd7ae96",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-410ea8f7c867",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-81712909559a",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-410ea8f7c867",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8b87adb5d625",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-410ea8f7c867",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8f417cacc4ae",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-410ea8f7c867",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-9c125bebd06e",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-410ea8f7c867",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-aca7bc1926ae",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-410ea8f7c867",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-b623d0f0fb37",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-410ea8f7c867",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cc3cc47f049b",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-410ea8f7c867",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cfbc0f7dfa32",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-410ea8f7c867",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e924034fe6ee",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-410ea8f7c867",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e97c1046cf56",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-410ea8f7c867",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-ee92a94b820f",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-410ea8f7c867",
+        "b": "binance-BTC-USDT-1h-20261022T1600-20261112T1100-9a0255406631",
+        "overlap_start": "2026-10-22T16:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 498.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-410ea8f7c867",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-9d380c064630",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-410ea8f7c867",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-b6a16c80c96d",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-410ea8f7c867",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-e186e87bd4ea",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-410ea8f7c867",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-eda4b6f50181",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-6031fbd7ae96",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-81712909559a",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-6031fbd7ae96",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8b87adb5d625",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-6031fbd7ae96",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8f417cacc4ae",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-6031fbd7ae96",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-9c125bebd06e",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-6031fbd7ae96",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-aca7bc1926ae",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-6031fbd7ae96",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-b623d0f0fb37",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-6031fbd7ae96",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cc3cc47f049b",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-6031fbd7ae96",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cfbc0f7dfa32",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-6031fbd7ae96",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e924034fe6ee",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-6031fbd7ae96",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e97c1046cf56",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-6031fbd7ae96",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-ee92a94b820f",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-6031fbd7ae96",
+        "b": "binance-BTC-USDT-1h-20261022T1600-20261112T1100-9a0255406631",
+        "overlap_start": "2026-10-22T16:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 498.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-6031fbd7ae96",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-9d380c064630",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-6031fbd7ae96",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-b6a16c80c96d",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-6031fbd7ae96",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-e186e87bd4ea",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-6031fbd7ae96",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-eda4b6f50181",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-81712909559a",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8b87adb5d625",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-81712909559a",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8f417cacc4ae",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-81712909559a",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-9c125bebd06e",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-81712909559a",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-aca7bc1926ae",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-81712909559a",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-b623d0f0fb37",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-81712909559a",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cc3cc47f049b",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-81712909559a",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cfbc0f7dfa32",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-81712909559a",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e924034fe6ee",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-81712909559a",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e97c1046cf56",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-81712909559a",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-ee92a94b820f",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-81712909559a",
+        "b": "binance-BTC-USDT-1h-20261022T1600-20261112T1100-9a0255406631",
+        "overlap_start": "2026-10-22T16:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 498.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-81712909559a",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-9d380c064630",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-81712909559a",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-b6a16c80c96d",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-81712909559a",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-e186e87bd4ea",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-81712909559a",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-eda4b6f50181",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8b87adb5d625",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8f417cacc4ae",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8b87adb5d625",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-9c125bebd06e",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8b87adb5d625",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-aca7bc1926ae",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8b87adb5d625",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-b623d0f0fb37",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8b87adb5d625",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cc3cc47f049b",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8b87adb5d625",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cfbc0f7dfa32",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8b87adb5d625",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e924034fe6ee",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8b87adb5d625",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e97c1046cf56",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8b87adb5d625",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-ee92a94b820f",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8b87adb5d625",
+        "b": "binance-BTC-USDT-1h-20261022T1600-20261112T1100-9a0255406631",
+        "overlap_start": "2026-10-22T16:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 498.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8b87adb5d625",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-9d380c064630",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8b87adb5d625",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-b6a16c80c96d",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8b87adb5d625",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-e186e87bd4ea",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8b87adb5d625",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-eda4b6f50181",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8f417cacc4ae",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-9c125bebd06e",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8f417cacc4ae",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-aca7bc1926ae",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8f417cacc4ae",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-b623d0f0fb37",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8f417cacc4ae",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cc3cc47f049b",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8f417cacc4ae",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cfbc0f7dfa32",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8f417cacc4ae",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e924034fe6ee",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8f417cacc4ae",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e97c1046cf56",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8f417cacc4ae",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-ee92a94b820f",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8f417cacc4ae",
+        "b": "binance-BTC-USDT-1h-20261022T1600-20261112T1100-9a0255406631",
+        "overlap_start": "2026-10-22T16:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 498.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8f417cacc4ae",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-9d380c064630",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8f417cacc4ae",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-b6a16c80c96d",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8f417cacc4ae",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-e186e87bd4ea",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8f417cacc4ae",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-eda4b6f50181",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-9c125bebd06e",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-aca7bc1926ae",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-9c125bebd06e",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-b623d0f0fb37",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-9c125bebd06e",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cc3cc47f049b",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-9c125bebd06e",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cfbc0f7dfa32",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-9c125bebd06e",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e924034fe6ee",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-9c125bebd06e",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e97c1046cf56",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-9c125bebd06e",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-ee92a94b820f",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-9c125bebd06e",
+        "b": "binance-BTC-USDT-1h-20261022T1600-20261112T1100-9a0255406631",
+        "overlap_start": "2026-10-22T16:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 498.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-9c125bebd06e",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-9d380c064630",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-9c125bebd06e",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-b6a16c80c96d",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-9c125bebd06e",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-e186e87bd4ea",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-9c125bebd06e",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-eda4b6f50181",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-aca7bc1926ae",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-b623d0f0fb37",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-aca7bc1926ae",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cc3cc47f049b",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-aca7bc1926ae",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cfbc0f7dfa32",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-aca7bc1926ae",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e924034fe6ee",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-aca7bc1926ae",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e97c1046cf56",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-aca7bc1926ae",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-ee92a94b820f",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-aca7bc1926ae",
+        "b": "binance-BTC-USDT-1h-20261022T1600-20261112T1100-9a0255406631",
+        "overlap_start": "2026-10-22T16:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 498.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-aca7bc1926ae",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-9d380c064630",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-aca7bc1926ae",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-b6a16c80c96d",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-aca7bc1926ae",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-e186e87bd4ea",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-aca7bc1926ae",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-eda4b6f50181",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-b623d0f0fb37",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cc3cc47f049b",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-b623d0f0fb37",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cfbc0f7dfa32",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-b623d0f0fb37",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e924034fe6ee",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-b623d0f0fb37",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e97c1046cf56",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-b623d0f0fb37",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-ee92a94b820f",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-b623d0f0fb37",
+        "b": "binance-BTC-USDT-1h-20261022T1600-20261112T1100-9a0255406631",
+        "overlap_start": "2026-10-22T16:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 498.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-b623d0f0fb37",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-9d380c064630",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-b623d0f0fb37",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-b6a16c80c96d",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-b623d0f0fb37",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-e186e87bd4ea",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-b623d0f0fb37",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-eda4b6f50181",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cc3cc47f049b",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cfbc0f7dfa32",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cc3cc47f049b",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e924034fe6ee",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cc3cc47f049b",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e97c1046cf56",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cc3cc47f049b",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-ee92a94b820f",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cc3cc47f049b",
+        "b": "binance-BTC-USDT-1h-20261022T1600-20261112T1100-9a0255406631",
+        "overlap_start": "2026-10-22T16:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 498.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cc3cc47f049b",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-9d380c064630",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cc3cc47f049b",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-b6a16c80c96d",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cc3cc47f049b",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-e186e87bd4ea",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cc3cc47f049b",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-eda4b6f50181",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cfbc0f7dfa32",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e924034fe6ee",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cfbc0f7dfa32",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e97c1046cf56",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cfbc0f7dfa32",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-ee92a94b820f",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cfbc0f7dfa32",
+        "b": "binance-BTC-USDT-1h-20261022T1600-20261112T1100-9a0255406631",
+        "overlap_start": "2026-10-22T16:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 498.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cfbc0f7dfa32",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-9d380c064630",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cfbc0f7dfa32",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-b6a16c80c96d",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cfbc0f7dfa32",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-e186e87bd4ea",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cfbc0f7dfa32",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-eda4b6f50181",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e924034fe6ee",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e97c1046cf56",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e924034fe6ee",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-ee92a94b820f",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e924034fe6ee",
+        "b": "binance-BTC-USDT-1h-20261022T1600-20261112T1100-9a0255406631",
+        "overlap_start": "2026-10-22T16:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 498.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e924034fe6ee",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-9d380c064630",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e924034fe6ee",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-b6a16c80c96d",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e924034fe6ee",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-e186e87bd4ea",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e924034fe6ee",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-eda4b6f50181",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e97c1046cf56",
+        "b": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-ee92a94b820f",
+        "overlap_start": "2026-10-22T15:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e97c1046cf56",
+        "b": "binance-BTC-USDT-1h-20261022T1600-20261112T1100-9a0255406631",
+        "overlap_start": "2026-10-22T16:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 498.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e97c1046cf56",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-9d380c064630",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e97c1046cf56",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-b6a16c80c96d",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e97c1046cf56",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-e186e87bd4ea",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e97c1046cf56",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-eda4b6f50181",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-ee92a94b820f",
+        "b": "binance-BTC-USDT-1h-20261022T1600-20261112T1100-9a0255406631",
+        "overlap_start": "2026-10-22T16:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 498.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-ee92a94b820f",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-9d380c064630",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-ee92a94b820f",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-b6a16c80c96d",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-ee92a94b820f",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-e186e87bd4ea",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1500-20261112T1000-ee92a94b820f",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-eda4b6f50181",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T10:00:00+00:00",
+        "overlap_hours": 497.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1600-20261112T1100-9a0255406631",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-9d380c064630",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T11:00:00+00:00",
+        "overlap_hours": 498.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1600-20261112T1100-9a0255406631",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-b6a16c80c96d",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T11:00:00+00:00",
+        "overlap_hours": 498.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1600-20261112T1100-9a0255406631",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-e186e87bd4ea",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T11:00:00+00:00",
+        "overlap_hours": 498.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1600-20261112T1100-9a0255406631",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-eda4b6f50181",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T11:00:00+00:00",
+        "overlap_hours": 498.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-9d380c064630",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-b6a16c80c96d",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T12:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-9d380c064630",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-e186e87bd4ea",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T12:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-9d380c064630",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-eda4b6f50181",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T12:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-b6a16c80c96d",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-e186e87bd4ea",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T12:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-b6a16c80c96d",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-eda4b6f50181",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T12:00:00+00:00",
+        "overlap_hours": 499.0
+      },
+      {
+        "a": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-e186e87bd4ea",
+        "b": "binance-BTC-USDT-1h-20261022T1700-20261112T1200-eda4b6f50181",
+        "overlap_start": "2026-10-22T17:00:00+00:00",
+        "overlap_end": "2026-11-12T12:00:00+00:00",
+        "overlap_hours": 499.0
+      }
+    ],
+    "duplicates": {
+      "binance-BTC-USDT-1h-20260701T0000-20261001T0000-103f110e06f0": {
+        "within_snapshot_duplicates": false,
+        "rows": 2209,
+        "first_ts": "2026-07-01 00:00:00+00:00",
+        "last_ts": "2026-10-01 00:00:00+00:00",
+        "chronological": true
+      },
+      "binance-BTC-USDT-1h-20260925T0000-20261028T0000-2cd144f3eb06": {
+        "within_snapshot_duplicates": false,
+        "rows": 793,
+        "first_ts": "2026-09-25 00:00:00+00:00",
+        "last_ts": "2026-10-28 00:00:00+00:00",
+        "chronological": true
+      },
+      "binance-BTC-USDT-1h-20261021T2100-20261111T1600-7d0a1d1c5d3e": {
+        "within_snapshot_duplicates": false,
+        "rows": 500,
+        "first_ts": "2026-10-21 21:00:00+00:00",
+        "last_ts": "2026-11-11 16:00:00+00:00",
+        "chronological": true
+      },
+      "binance-BTC-USDT-1h-20261022T1200-20261112T0700-38ecbd210a9b": {
+        "within_snapshot_duplicates": false,
+        "rows": 500,
+        "first_ts": "2026-10-22 12:00:00+00:00",
+        "last_ts": "2026-11-12 07:00:00+00:00",
+        "chronological": true
+      },
+      "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0089fd051f42": {
+        "within_snapshot_duplicates": false,
+        "rows": 500,
+        "first_ts": "2026-10-22 15:00:00+00:00",
+        "last_ts": "2026-11-12 10:00:00+00:00",
+        "chronological": true
+      },
+      "binance-BTC-USDT-1h-20261022T1500-20261112T1000-0ccbfa821f8f": {
+        "within_snapshot_duplicates": false,
+        "rows": 500,
+        "first_ts": "2026-10-22 15:00:00+00:00",
+        "last_ts": "2026-11-12 10:00:00+00:00",
+        "chronological": true
+      },
+      "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1453513e7d44": {
+        "within_snapshot_duplicates": false,
+        "rows": 500,
+        "first_ts": "2026-10-22 15:00:00+00:00",
+        "last_ts": "2026-11-12 10:00:00+00:00",
+        "chronological": true
+      },
+      "binance-BTC-USDT-1h-20261022T1500-20261112T1000-1d78489108a1": {
+        "within_snapshot_duplicates": false,
+        "rows": 500,
+        "first_ts": "2026-10-22 15:00:00+00:00",
+        "last_ts": "2026-11-12 10:00:00+00:00",
+        "chronological": true
+      },
+      "binance-BTC-USDT-1h-20261022T1500-20261112T1000-410ea8f7c867": {
+        "within_snapshot_duplicates": false,
+        "rows": 500,
+        "first_ts": "2026-10-22 15:00:00+00:00",
+        "last_ts": "2026-11-12 10:00:00+00:00",
+        "chronological": true
+      },
+      "binance-BTC-USDT-1h-20261022T1500-20261112T1000-6031fbd7ae96": {
+        "within_snapshot_duplicates": false,
+        "rows": 500,
+        "first_ts": "2026-10-22 15:00:00+00:00",
+        "last_ts": "2026-11-12 10:00:00+00:00",
+        "chronological": true
+      },
+      "binance-BTC-USDT-1h-20261022T1500-20261112T1000-81712909559a": {
+        "within_snapshot_duplicates": false,
+        "rows": 500,
+        "first_ts": "2026-10-22 15:00:00+00:00",
+        "last_ts": "2026-11-12 10:00:00+00:00",
+        "chronological": true
+      },
+      "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8b87adb5d625": {
+        "within_snapshot_duplicates": false,
+        "rows": 500,
+        "first_ts": "2026-10-22 15:00:00+00:00",
+        "last_ts": "2026-11-12 10:00:00+00:00",
+        "chronological": true
+      },
+      "binance-BTC-USDT-1h-20261022T1500-20261112T1000-8f417cacc4ae": {
+        "within_snapshot_duplicates": false,
+        "rows": 500,
+        "first_ts": "2026-10-22 15:00:00+00:00",
+        "last_ts": "2026-11-12 10:00:00+00:00",
+        "chronological": true
+      },
+      "binance-BTC-USDT-1h-20261022T1500-20261112T1000-9c125bebd06e": {
+        "within_snapshot_duplicates": false,
+        "rows": 500,
+        "first_ts": "2026-10-22 15:00:00+00:00",
+        "last_ts": "2026-11-12 10:00:00+00:00",
+        "chronological": true
+      },
+      "binance-BTC-USDT-1h-20261022T1500-20261112T1000-aca7bc1926ae": {
+        "within_snapshot_duplicates": false,
+        "rows": 500,
+        "first_ts": "2026-10-22 15:00:00+00:00",
+        "last_ts": "2026-11-12 10:00:00+00:00",
+        "chronological": true
+      },
+      "binance-BTC-USDT-1h-20261022T1500-20261112T1000-b623d0f0fb37": {
+        "within_snapshot_duplicates": false,
+        "rows": 500,
+        "first_ts": "2026-10-22 15:00:00+00:00",
+        "last_ts": "2026-11-12 10:00:00+00:00",
+        "chronological": true
+      },
+      "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cc3cc47f049b": {
+        "within_snapshot_duplicates": false,
+        "rows": 500,
+        "first_ts": "2026-10-22 15:00:00+00:00",
+        "last_ts": "2026-11-12 10:00:00+00:00",
+        "chronological": true
+      },
+      "binance-BTC-USDT-1h-20261022T1500-20261112T1000-cfbc0f7dfa32": {
+        "within_snapshot_duplicates": false,
+        "rows": 500,
+        "first_ts": "2026-10-22 15:00:00+00:00",
+        "last_ts": "2026-11-12 10:00:00+00:00",
+        "chronological": true
+      },
+      "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e924034fe6ee": {
+        "within_snapshot_duplicates": false,
+        "rows": 500,
+        "first_ts": "2026-10-22 15:00:00+00:00",
+        "last_ts": "2026-11-12 10:00:00+00:00",
+        "chronological": true
+      },
+      "binance-BTC-USDT-1h-20261022T1500-20261112T1000-e97c1046cf56": {
+        "within_snapshot_duplicates": false,
+        "rows": 500,
+        "first_ts": "2026-10-22 15:00:00+00:00",
+        "last_ts": "2026-11-12 10:00:00+00:00",
+        "chronological": true
+      },
+      "binance-BTC-USDT-1h-20261022T1500-20261112T1000-ee92a94b820f": {
+        "within_snapshot_duplicates": false,
+        "rows": 500,
+        "first_ts": "2026-10-22 15:00:00+00:00",
+        "last_ts": "2026-11-12 10:00:00+00:00",
+        "chronological": true
+      },
+      "binance-BTC-USDT-1h-20261022T1600-20261112T1100-9a0255406631": {
+        "within_snapshot_duplicates": false,
+        "rows": 500,
+        "first_ts": "2026-10-22 16:00:00+00:00",
+        "last_ts": "2026-11-12 11:00:00+00:00",
+        "chronological": true
+      },
+      "binance-BTC-USDT-1h-20261022T1700-20261112T1200-9d380c064630": {
+        "within_snapshot_duplicates": false,
+        "rows": 500,
+        "first_ts": "2026-10-22 17:00:00+00:00",
+        "last_ts": "2026-11-12 12:00:00+00:00",
+        "chronological": true
+      },
+      "binance-BTC-USDT-1h-20261022T1700-20261112T1200-b6a16c80c96d": {
+        "within_snapshot_duplicates": false,
+        "rows": 500,
+        "first_ts": "2026-10-22 17:00:00+00:00",
+        "last_ts": "2026-11-12 12:00:00+00:00",
+        "chronological": true
+      },
+      "binance-BTC-USDT-1h-20261022T1700-20261112T1200-e186e87bd4ea": {
+        "within_snapshot_duplicates": false,
+        "rows": 500,
+        "first_ts": "2026-10-22 17:00:00+00:00",
+        "last_ts": "2026-11-12 12:00:00+00:00",
+        "chronological": true
+      },
+      "binance-BTC-USDT-1h-20261022T1700-20261112T1200-eda4b6f50181": {
+        "within_snapshot_duplicates": false,
+        "rows": 500,
+        "first_ts": "2026-10-22 17:00:00+00:00",
+        "last_ts": "2026-11-12 12:00:00+00:00",
+        "chronological": true
+      }
+    },
+    "conclusion": "26 snapshots found; 301 pairwise overlaps detected; training snapshot binance-BTC-USDT-1h-20260701T0000-20261001T0000-103f110e06f0 overlaps 1 other snapshot(s); post-Oct-1 snapshots are genuinely unseen vs training data."
+  },
+  "stage2_walkforward": {
+    "n_folds": 3,
+    "train_window": 200,
+    "val_window": 50,
+    "embargo_bars": 24,
+    "total_val_rows": 150,
+    "folds": [
+      {
+        "fold_id": 0,
+        "val_start": 698,
+        "val_end": 748,
+        "n_train": 176,
+        "n_val": 50,
+        "n_purged": 0,
+        "n_embargo": 24,
+        "accuracy": 0.52,
+        "balanced_accuracy": 0.3183990442054958,
+        "macro_f1": 0.3131313131313131,
+        "per_class": {
+          "-1": {
+            "precision": 0.6,
+            "recall": 0.6774193548387096,
+            "f1": 0.6363636363636364,
+            "support": 31
+          },
+          "0": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 1
+          },
+          "1": {
+            "precision": 0.3333333333333333,
+            "recall": 0.2777777777777778,
+            "f1": 0.303030303030303,
+            "support": 18
+          }
+        },
+        "confusion_matrix": [
+          [
+            21,
+            0,
+            10
+          ],
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            13,
+            0,
+            5
+          ]
+        ],
+        "confusion_labels": [
+          -1,
+          0,
+          1
+        ],
+        "realized_dist": {
+          "-1": 31,
+          "0": 1,
+          "1": 18
+        },
+        "predicted_dist": {
+          "-1": 35,
+          "1": 15
+        },
+        "scores_mean": 0.6204971500065227,
+        "scores_std": 0.09741762639165032,
+        "scores_min": 0.4981777499714345,
+        "scores_max": 0.904605214921225
+      },
+      {
+        "fold_id": 1,
+        "val_start": 748,
+        "val_end": 798,
+        "n_train": 176,
+        "n_val": 50,
+        "n_purged": 0,
+        "n_embargo": 24,
+        "accuracy": 0.48,
+        "balanced_accuracy": 0.48,
+        "macro_f1": 0.38095238095238093,
+        "per_class": {
+          "-1": {
+            "precision": 0.4,
+            "recall": 0.08,
+            "f1": 0.13333333333333333,
+            "support": 25
+          },
+          "1": {
+            "precision": 0.4888888888888889,
+            "recall": 0.88,
+            "f1": 0.6285714285714286,
+            "support": 25
+          }
+        },
+        "confusion_matrix": [
+          [
+            2,
+            23
+          ],
+          [
+            3,
+            22
+          ]
+        ],
+        "confusion_labels": [
+          -1,
+          1
+        ],
+        "realized_dist": {
+          "-1": 25,
+          "1": 25
+        },
+        "predicted_dist": {
+          "-1": 5,
+          "1": 45
+        },
+        "scores_mean": 0.5582038765817766,
+        "scores_std": 0.04313463625623061,
+        "scores_min": 0.4910835605443435,
+        "scores_max": 0.664876305711715
+      },
+      {
+        "fold_id": 2,
+        "val_start": 798,
+        "val_end": 848,
+        "n_train": 176,
+        "n_val": 50,
+        "n_purged": 0,
+        "n_embargo": 24,
+        "accuracy": 0.36,
+        "balanced_accuracy": 0.25036075036075034,
+        "macro_f1": 0.23538011695906433,
+        "per_class": {
+          "-1": {
+            "precision": 0.5416666666666666,
+            "recall": 0.3939393939393939,
+            "f1": 0.45614035087719296,
+            "support": 33
+          },
+          "0": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 3
+          },
+          "1": {
+            "precision": 0.19230769230769232,
+            "recall": 0.35714285714285715,
+            "f1": 0.25,
+            "support": 14
+          }
+        },
+        "confusion_matrix": [
+          [
+            13,
+            0,
+            20
+          ],
+          [
+            2,
+            0,
+            1
+          ],
+          [
+            9,
+            0,
+            5
+          ]
+        ],
+        "confusion_labels": [
+          -1,
+          0,
+          1
+        ],
+        "realized_dist": {
+          "-1": 33,
+          "0": 3,
+          "1": 14
+        },
+        "predicted_dist": {
+          "-1": 24,
+          "1": 26
+        },
+        "scores_mean": 0.5851773001501495,
+        "scores_std": 0.057895058913775006,
+        "scores_min": 0.49161037070746927,
+        "scores_max": 0.7178539421457873
+      }
+    ],
+    "aggregate": {
+      "n": 150,
+      "accuracy": 0.4533333333333333,
+      "balanced_accuracy": 0.3219659635981339,
+      "macro_f1": 0.3060468942821884,
+      "per_class": {
+        "-1": {
+          "precision": 0.5625,
+          "recall": 0.4044943820224719,
+          "f1": 0.47058823529411764,
+          "support": 89
+        },
+        "0": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 4
+        },
+        "1": {
+          "precision": 0.37209302325581395,
+          "recall": 0.5614035087719298,
+          "f1": 0.4475524475524475,
+          "support": 57
+        }
+      },
+      "confusion_matrix": [
+        [
+          36,
+          0,
+          53
+        ],
+        [
+          3,
+          0,
+          1
+        ],
+        [
+          25,
+          0,
+          32
+        ]
+      ],
+      "confusion_labels": [
+        -1,
+        0,
+        1
+      ],
+      "realized_dist": {
+        "-1": 89,
+        "0": 4,
+        "1": 57
+      },
+      "predicted_dist": {
+        "-1": 64,
+        "1": 86
+      }
+    },
+    "oos_scores": [
+      0.500481628719678,
+      0.6851354055435505,
+      0.5142198192971651,
+      0.5686811174228653,
+      0.4981777499714345,
+      0.5937138651816875,
+      0.5163019528954542,
+      0.593912312888151,
+      0.5098531558886498,
+      0.5728795123059138,
+      0.6092074092793474,
+      0.6155328351053458,
+      0.5293255655045387,
+      0.5823318096031166,
+      0.5455044687274174,
+      0.5787973626300487,
+      0.6897558441069342,
+      0.6966934063059862,
+      0.6818690376550476,
+      0.5851390259250239,
+      0.6856385825698432,
+      0.5069532376077202,
+      0.8324001979430985,
+      0.6923338248753965,
+      0.904605214921225,
+      0.8625921870153144,
+      0.8309181452572192,
+      0.7566227950468923,
+      0.7566769744227914,
+      0.6487910624222313,
+      0.5546098158911362,
+      0.5074691786776506,
+      0.5374586920097549,
+      0.658992019336658,
+      0.578779036612974,
+      0.6054180405038978,
+      0.6236336323328201,
+      0.5465513789216717,
+      0.5772369140624203,
+      0.6836125935453445,
+      0.552238946303918,
+      0.5656846747431875,
+      0.6063938808972791,
+      0.5887323024934917,
+      0.6460679270142189,
+      0.5840889638850528,
+      0.7458578329752137,
+      0.6183319269803843,
+      0.5888115932183555,
+      0.5098426428816194,
+      0.5101110519911847,
+      0.595603863872525,
+      0.5802737652027765,
+      0.5157833138171782,
+      0.5526442276299055,
+      0.5433362899567525,
+      0.5082889935811781,
+      0.5386998237966865,
+      0.5639533761132008,
+      0.6049765305126661,
+      0.6266978209308794,
+      0.5838036092359175,
+      0.49334771465505367,
+      0.5397741195711904,
+      0.5123782533231589,
+      0.5402604919214039,
+      0.5352102183484349,
+      0.5473345740469723,
+      0.5229421460874735,
+      0.5152446699906178,
+      0.5438447580552773,
+      0.556087752184474,
+      0.5352651211273395,
+      0.5474756386257961,
+      0.5288206405527828,
+      0.5478594128434171,
+      0.532102791291267,
+      0.5299020022698526,
+      0.56735077671042,
+      0.5053415289157795,
+      0.585341502390468,
+      0.5855877381667108,
+      0.6167370641808014,
+      0.621002373321452,
+      0.5796473040501399,
+      0.5825901216263231,
+      0.5625177953169803,
+      0.5342418339841303,
+      0.546743591536599,
+      0.6211520505797372,
+      0.664876305711715,
+      0.625481304186084,
+      0.6330314437394646,
+      0.6526900213306511,
+      0.5324216136075416,
+      0.497062347341468,
+      0.4910835605443435,
+      0.5583994094647073,
+      0.4960327949140379,
+      0.5988383759339173,
+      0.6219109109134396,
+      0.6008011056939881,
+      0.6270016944871989,
+      0.5839606191999088,
+      0.5400321825125287,
+      0.567293914297623,
+      0.6302382962955663,
+      0.5625345211541664,
+      0.5843236465788609,
+      0.5745414891831174,
+      0.5717633296460506,
+      0.5986664257397508,
+      0.5099185872160718,
+      0.49948587661221544,
+      0.49161037070746927,
+      0.703885070808978,
+      0.64936470942317,
+      0.6953682594097156,
+      0.7008135431376594,
+      0.6662124189205103,
+      0.6457419434958758,
+      0.6493053779581044,
+      0.5440806492210831,
+      0.571396102389287,
+      0.6016511531695033,
+      0.4985244493075581,
+      0.6163245488439714,
+      0.6025657440846298,
+      0.6101927984287201,
+      0.55704987956456,
+      0.5660110842204945,
+      0.5021738104031898,
+      0.5342234976832729,
+      0.5541612194129286,
+      0.5146405128499476,
+      0.5609132936301342,
+      0.5373333089125233,
+      0.5417354237243796,
+      0.5698746965490245,
+      0.4982473653539041,
+      0.5671211482897027,
+      0.5743511689142724,
+      0.4952038770282649,
+      0.6278909644888891,
+      0.5562182718762975,
+      0.6023434872551124,
+      0.6212734438272699,
+      0.7178539421457873,
+      0.6726298546086245,
+      0.5681050179321683
+    ],
+    "oos_labels": [
+      1,
+      1,
+      1,
+      -1,
+      -1,
+      1,
+      1,
+      1,
+      1,
+      -1,
+      1,
+      1,
+      1,
+      1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      1,
+      1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      -1,
+      -1,
+      -1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      -1,
+      1,
+      1,
+      1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      -1,
+      1,
+      -1,
+      -1,
+      -1,
+      -1,
+      1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      1,
+      -1,
+      1,
+      1,
+      1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      0,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      1,
+      0,
+      -1,
+      0,
+      -1,
+      -1,
+      1,
+      -1,
+      -1,
+      -1,
+      1,
+      -1,
+      1,
+      1,
+      1,
+      1,
+      -1,
+      -1,
+      1,
+      -1,
+      -1,
+      -1,
+      1,
+      1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  "stage3_calibration": {
+    "calibration_fitted": true,
+    "method": "sigmoid",
+    "min_cal_samples": 20,
+    "cal_samples": 150,
+    "brier_score_calibrated": 0.235485323582885,
+    "log_loss_calibrated": 0.6638216297932502,
+    "ece_l1": 0.08567254304476647,
+    "brier_score_raw": 0.2873030277123582,
+    "log_loss_raw": 0.7724866726452844,
+    "reliability_warnings": [],
+    "reliability_table": [
+      {
+        "bin": 0,
+        "n": 15,
+        "mean_pred": 0.373009243065823,
+        "frac_pos": 0.26666666666666666,
+        "bin_low": 0.0,
+        "bin_high": 0.3758277522256822
+      },
+      {
+        "bin": 1,
+        "n": 15,
+        "mean_pred": 0.3769925617498146,
+        "frac_pos": 0.3333333333333333,
+        "bin_low": 0.3758277522256822,
+        "bin_high": 0.37825497432472155
+      },
+      {
+        "bin": 2,
+        "n": 15,
+        "mean_pred": 0.3786058647420665,
+        "frac_pos": 0.4,
+        "bin_low": 0.37825497432472155,
+        "bin_high": 0.37915876050383657
+      },
+      {
+        "bin": 3,
+        "n": 15,
+        "mean_pred": 0.37955999516030053,
+        "frac_pos": 0.4666666666666667,
+        "bin_low": 0.37915876050383657,
+        "bin_high": 0.38009232554173433
+      },
+      {
+        "bin": 4,
+        "n": 15,
+        "mean_pred": 0.3802820138882518,
+        "frac_pos": 0.26666666666666666,
+        "bin_low": 0.38009232554173433,
+        "bin_high": 0.3805991265917653
+      },
+      {
+        "bin": 5,
+        "n": 15,
+        "mean_pred": 0.38087969328202226,
+        "frac_pos": 0.3333333333333333,
+        "bin_low": 0.3805991265917653,
+        "bin_high": 0.38118695611392733
+      },
+      {
+        "bin": 6,
+        "n": 15,
+        "mean_pred": 0.3815635506214587,
+        "frac_pos": 0.4666666666666667,
+        "bin_low": 0.38118695611392733,
+        "bin_high": 0.3818691451675727
+      },
+      {
+        "bin": 7,
+        "n": 15,
+        "mean_pred": 0.38213878906298154,
+        "frac_pos": 0.4,
+        "bin_low": 0.3818691451675727,
+        "bin_high": 0.3823992983904865
+      },
+      {
+        "bin": 8,
+        "n": 15,
+        "mean_pred": 0.38305055617126393,
+        "frac_pos": 0.6,
+        "bin_low": 0.3823992983904865,
+        "bin_high": 0.38340717972323024
+      },
+      {
+        "bin": 9,
+        "n": 15,
+        "mean_pred": 0.3838140075531574,
+        "frac_pos": 0.26666666666666666,
+        "bin_low": 0.38340717972323024,
+        "bin_high": 1.0
+      }
+    ],
+    "positive_class": 1,
+    "negative_class": -1,
+    "note": "Raw logistic scores are UNCALIBRATED rankings, not probabilities. Sigmoid calibration fitted only if >= 20 calibration samples with both classes present."
+  },
+  "stage4_backtest": {
+    "config": {
+      "fee_bp": 10.0,
+      "slippage_bp": 5.0,
+      "spread_bp": 0.0,
+      "funding_bp": 0.0,
+      "position_pct": 100.0,
+      "starting_equity": 10000.0,
+      "max_holding_bars": 24
+    },
+    "n_trades": 135,
+    "n_skipped": 713,
+    "gross_pnl": -1420.7244302734564,
+    "costs_total": 2199.7007978607435,
+    "net_pnl": -3620.4252281342,
+    "win_rate": 0.32592592592592595,
+    "profit_factor": 0.3887621363790752,
+    "expectancy_per_trade": -26.817964652845927,
+    "max_drawdown_pct": 37.10696385649983,
+    "return_pct": -36.204252281342,
+    "sharpe": -16.378342399117198,
+    "exposure_bars": 663,
+    "bar_start": "2026-09-29T23:00:00+00:00",
+    "bar_end": "2026-11-04T06:00:00+00:00",
+    "n_bars": 848,
+    "buy_and_hold_return_pct": -6.7601034905716535,
+    "benchmark_vs_strategy_pct": -29.44414879077035,
+    "skipped_reasons": {
+      "NO_TRADE": 211,
+      "NO_FUTURE_BAR": 1,
+      "ALREADY_POSITIONED": 501
+    },
+    "warnings": []
+  },
+  "stage5_robustness": {
+    "fold_accuracies": [
+      0.52,
+      0.48,
+      0.36
+    ],
+    "fold_balanced_accuracies": [
+      0.3183990442054958,
+      0.48,
+      0.25036075036075034
+    ],
+    "accuracy_mean": 0.4533333333333333,
+    "accuracy_std": 0.08326663997864532,
+    "leave_one_fold_out": [
+      {
+        "excluded_fold": 0,
+        "mean_excl": 0.42,
+        "n_used": 2
+      },
+      {
+        "excluded_fold": 1,
+        "mean_excl": 0.44,
+        "n_used": 2
+      },
+      {
+        "excluded_fold": 2,
+        "mean_excl": 0.5,
+        "n_used": 2
+      }
+    ],
+    "bootstrap_accuracy_ci": {
+      "statistic": "mean",
+      "observed": 0.4533333333333333,
+      "lo": 0.39999999999999997,
+      "hi": 0.5066666666666667,
+      "ci": 0.95,
+      "n": 3,
+      "n_boot": 200,
+      "block_len": 2,
+      "seed": 42,
+      "warning": "robustness: n=3 < 100; block-bootstrap CI is indicative only (serial dependence + small sample)."
+    },
+    "permutation_mc_sign_agreement": {
+      "observed": 0.4066666666666667,
+      "perm_mean": 0.40666666666666657,
+      "perm_std": 1.1130090340862554e-16,
+      "p_two_sided": 1.0,
+      "n": 150,
+      "n_perm": 200,
+      "seed": 42,
+      "note": "Structure-robustness check only: small p means the mean depends on order, not that the strategy is profitable."
+    },
+    "note": "Block bootstrap preserves serial dependence; permutation MC tests order-dependence only."
+  },
+  "stage6_research_quality": {
+    "model_id": "logistic-ee482c-3e3324f2-20261028T132236",
+    "model_artifact_hash": "42a8ea4bafd248c727538e233e5335337917bcd1664d28421daa70331eccf4db",
+    "dataset_snapshot_id": "binance-BTC-USDT-1h-20260701T0000-20261001T0000-103f110e06f0",
+    "feature_schema_hash": "592fdd3c59c4253b781c1a74f4402ba0a4316d99e041b676d9dd3531e770a918",
+    "label_hash": "74bd147242856a17ea17cd17916cf9c674d98e25c7fbb4c526445875e366a072",
+    "no_trade_first_class": true,
+    "ai_advisory_only": true,
+    "fee_bp": 10.0,
+    "slippage_bp": 5.0,
+    "spread_bp": 0.0,
+    "funding_bp": 0.0,
+    "chronological_folds": true,
+    "missing_metrics": []
+  }
+}

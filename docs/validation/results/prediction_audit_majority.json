@@ -1,0 +1,1070 @@
+{
+  "abstain_count": 0,
+  "audit_id": "audit-majority-baseline-2bf522fab97f11c9",
+  "candidate_id": "majority-baseline",
+  "candidate_lock_hash": "",
+  "dataset_id": "hist-accel-7c0a166d4f93",
+  "dataset_type": "HISTORICAL_ACCELERATED_VALIDATION",
+  "eligible_prediction_count": 0,
+  "excluded_observations": [
+    {
+      "index": 0,
+      "open_time": "2026-11-06T00:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 1,
+      "open_time": "2026-11-06T01:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 2,
+      "open_time": "2026-11-06T02:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 3,
+      "open_time": "2026-11-06T03:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 4,
+      "open_time": "2026-11-06T04:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 5,
+      "open_time": "2026-11-06T05:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 6,
+      "open_time": "2026-11-06T06:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 7,
+      "open_time": "2026-11-06T07:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 8,
+      "open_time": "2026-11-06T08:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 9,
+      "open_time": "2026-11-06T09:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 10,
+      "open_time": "2026-11-06T10:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 11,
+      "open_time": "2026-11-06T11:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 12,
+      "open_time": "2026-11-06T12:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 13,
+      "open_time": "2026-11-06T13:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 14,
+      "open_time": "2026-11-06T14:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 15,
+      "open_time": "2026-11-06T15:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 16,
+      "open_time": "2026-11-06T16:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 17,
+      "open_time": "2026-11-06T17:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 18,
+      "open_time": "2026-11-06T18:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 19,
+      "open_time": "2026-11-06T19:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 20,
+      "open_time": "2026-11-06T20:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 21,
+      "open_time": "2026-11-06T21:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 22,
+      "open_time": "2026-11-06T22:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 23,
+      "open_time": "2026-11-06T23:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 24,
+      "open_time": "2026-11-07T00:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 25,
+      "open_time": "2026-11-07T01:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 26,
+      "open_time": "2026-11-07T02:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 27,
+      "open_time": "2026-11-07T03:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 28,
+      "open_time": "2026-11-07T04:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 29,
+      "open_time": "2026-11-07T05:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 30,
+      "open_time": "2026-11-07T06:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 31,
+      "open_time": "2026-11-07T07:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 32,
+      "open_time": "2026-11-07T08:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 33,
+      "open_time": "2026-11-07T09:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 34,
+      "open_time": "2026-11-07T10:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 35,
+      "open_time": "2026-11-07T11:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 36,
+      "open_time": "2026-11-07T12:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 37,
+      "open_time": "2026-11-07T13:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 38,
+      "open_time": "2026-11-07T14:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 39,
+      "open_time": "2026-11-07T15:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 40,
+      "open_time": "2026-11-07T16:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 41,
+      "open_time": "2026-11-07T17:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 42,
+      "open_time": "2026-11-07T18:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 43,
+      "open_time": "2026-11-07T19:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 44,
+      "open_time": "2026-11-07T20:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 45,
+      "open_time": "2026-11-07T21:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 46,
+      "open_time": "2026-11-07T22:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 47,
+      "open_time": "2026-11-07T23:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 48,
+      "open_time": "2026-11-08T00:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 49,
+      "open_time": "2026-11-08T01:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 50,
+      "open_time": "2026-11-08T02:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 51,
+      "open_time": "2026-11-08T03:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 52,
+      "open_time": "2026-11-08T04:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 53,
+      "open_time": "2026-11-08T05:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 54,
+      "open_time": "2026-11-08T06:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 55,
+      "open_time": "2026-11-08T07:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 56,
+      "open_time": "2026-11-08T08:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 57,
+      "open_time": "2026-11-08T09:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 58,
+      "open_time": "2026-11-08T10:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 59,
+      "open_time": "2026-11-08T11:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 60,
+      "open_time": "2026-11-08T12:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 61,
+      "open_time": "2026-11-08T13:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 62,
+      "open_time": "2026-11-08T14:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 63,
+      "open_time": "2026-11-08T15:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 64,
+      "open_time": "2026-11-08T16:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 65,
+      "open_time": "2026-11-08T17:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 66,
+      "open_time": "2026-11-08T18:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 67,
+      "open_time": "2026-11-08T19:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 68,
+      "open_time": "2026-11-08T20:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 69,
+      "open_time": "2026-11-08T21:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 70,
+      "open_time": "2026-11-08T22:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 71,
+      "open_time": "2026-11-08T23:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 72,
+      "open_time": "2026-11-09T00:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 73,
+      "open_time": "2026-11-09T01:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 74,
+      "open_time": "2026-11-09T02:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 75,
+      "open_time": "2026-11-09T03:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 76,
+      "open_time": "2026-11-09T04:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 77,
+      "open_time": "2026-11-09T05:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 78,
+      "open_time": "2026-11-09T06:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 79,
+      "open_time": "2026-11-09T07:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 80,
+      "open_time": "2026-11-09T08:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 81,
+      "open_time": "2026-11-09T09:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 82,
+      "open_time": "2026-11-09T10:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 83,
+      "open_time": "2026-11-09T11:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 84,
+      "open_time": "2026-11-09T12:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 85,
+      "open_time": "2026-11-09T13:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 86,
+      "open_time": "2026-11-09T14:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 87,
+      "open_time": "2026-11-09T15:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 88,
+      "open_time": "2026-11-09T16:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 89,
+      "open_time": "2026-11-09T17:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 90,
+      "open_time": "2026-11-09T18:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 91,
+      "open_time": "2026-11-09T19:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 92,
+      "open_time": "2026-11-09T20:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 93,
+      "open_time": "2026-11-09T21:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 94,
+      "open_time": "2026-11-09T22:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 95,
+      "open_time": "2026-11-09T23:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 96,
+      "open_time": "2026-11-10T00:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 97,
+      "open_time": "2026-11-10T01:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 98,
+      "open_time": "2026-11-10T02:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 99,
+      "open_time": "2026-11-10T03:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 100,
+      "open_time": "2026-11-10T04:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 101,
+      "open_time": "2026-11-10T05:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 102,
+      "open_time": "2026-11-10T06:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 103,
+      "open_time": "2026-11-10T07:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 104,
+      "open_time": "2026-11-10T08:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 105,
+      "open_time": "2026-11-10T09:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 106,
+      "open_time": "2026-11-10T10:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 107,
+      "open_time": "2026-11-10T11:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 108,
+      "open_time": "2026-11-10T12:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 109,
+      "open_time": "2026-11-10T13:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 110,
+      "open_time": "2026-11-10T14:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 111,
+      "open_time": "2026-11-10T15:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 112,
+      "open_time": "2026-11-10T16:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 113,
+      "open_time": "2026-11-10T17:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 114,
+      "open_time": "2026-11-10T18:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 115,
+      "open_time": "2026-11-10T19:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 116,
+      "open_time": "2026-11-10T20:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 117,
+      "open_time": "2026-11-10T21:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 118,
+      "open_time": "2026-11-10T22:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 119,
+      "open_time": "2026-11-10T23:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 120,
+      "open_time": "2026-11-11T00:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 121,
+      "open_time": "2026-11-11T01:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 122,
+      "open_time": "2026-11-11T02:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 123,
+      "open_time": "2026-11-11T03:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 124,
+      "open_time": "2026-11-11T04:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 125,
+      "open_time": "2026-11-11T05:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 126,
+      "open_time": "2026-11-11T06:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 127,
+      "open_time": "2026-11-11T07:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 128,
+      "open_time": "2026-11-11T08:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 129,
+      "open_time": "2026-11-11T09:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 130,
+      "open_time": "2026-11-11T10:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 131,
+      "open_time": "2026-11-11T11:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 132,
+      "open_time": "2026-11-11T12:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 133,
+      "open_time": "2026-11-11T13:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 134,
+      "open_time": "2026-11-11T14:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 135,
+      "open_time": "2026-11-11T15:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 136,
+      "open_time": "2026-11-11T16:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 137,
+      "open_time": "2026-11-11T17:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 138,
+      "open_time": "2026-11-11T18:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 139,
+      "open_time": "2026-11-11T19:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 140,
+      "open_time": "2026-11-11T20:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 141,
+      "open_time": "2026-11-11T21:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 142,
+      "open_time": "2026-11-11T22:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 143,
+      "open_time": "2026-11-11T23:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 144,
+      "open_time": "2026-11-12T00:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 145,
+      "open_time": "2026-11-12T01:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 146,
+      "open_time": "2026-11-12T02:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 147,
+      "open_time": "2026-11-12T03:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 148,
+      "open_time": "2026-11-12T04:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 149,
+      "open_time": "2026-11-12T05:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 150,
+      "open_time": "2026-11-12T06:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 151,
+      "open_time": "2026-11-12T07:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 152,
+      "open_time": "2026-11-12T08:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 153,
+      "open_time": "2026-11-12T09:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 154,
+      "open_time": "2026-11-12T10:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 155,
+      "open_time": "2026-11-12T11:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 156,
+      "open_time": "2026-11-12T12:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 157,
+      "open_time": "2026-11-12T13:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 158,
+      "open_time": "2026-11-12T14:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 159,
+      "open_time": "2026-11-12T15:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 160,
+      "open_time": "2026-11-12T16:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 161,
+      "open_time": "2026-11-12T17:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 162,
+      "open_time": "2026-11-12T18:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 163,
+      "open_time": "2026-11-12T19:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 164,
+      "open_time": "2026-11-12T20:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 165,
+      "open_time": "2026-11-12T21:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 166,
+      "open_time": "2026-11-12T22:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 167,
+      "open_time": "2026-11-12T23:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    },
+    {
+      "index": 168,
+      "open_time": "2026-11-13T00:00:00+00:00",
+      "reason": "not_evaluable: NOT_EVALUABLE: no training labels available to determine majority class"
+    }
+  ],
+  "generated_at_utc": "2026-11-13T14:12:51.661808+00:00",
+  "inference_errors": [
+    "NOT_EVALUABLE: no training labels available to determine majority class"
+  ],
+  "inference_implementation": "frozen_inference.v1 (majority)",
+  "long_count": 0,
+  "model_artifact_hash": "majority-baseline-no-labels",
+  "model_name": "majority",
+  "n_candles": 169,
+  "n_predictions": 0,
+  "official_prospective_evidence": false,
+  "prediction_counts": {},
+  "prediction_provenance": {
+    "candle_count": 169,
+    "collection_id": "collect-52cefa0dda64",
+    "dataset_hash": "2d66e31e11e808331a39332e3c6a89c2bc3e65117e40655907f6c7c042e79707",
+    "freeze_id": "freeze-aaa4dd57057a",
+    "generated_at_utc": "2026-11-13T14:12:51.661808+00:00",
+    "source": "historical_accelerated_storage",
+    "storage_root": "data\\historical_accelerated"
+  },
+  "prediction_timestamps": [
+    "2026-11-06T00:00:00+00:00",
+    "2026-11-06T01:00:00+00:00",
+    "2026-11-06T02:00:00+00:00",
+    "2026-11-06T03:00:00+00:00",
+    "2026-11-06T04:00:00+00:00",
+    "2026-11-06T05:00:00+00:00",
+    "2026-11-06T06:00:00+00:00",
+    "2026-11-06T07:00:00+00:00",
+    "2026-11-06T08:00:00+00:00",
+    "2026-11-06T09:00:00+00:00",
+    "2026-11-06T10:00:00+00:00",
+    "2026-11-06T11:00:00+00:00",
+    "2026-11-06T12:00:00+00:00",
+    "2026-11-06T13:00:00+00:00",
+    "2026-11-06T14:00:00+00:00",
+    "2026-11-06T15:00:00+00:00",
+    "2026-11-06T16:00:00+00:00",
+    "2026-11-06T17:00:00+00:00",
+    "2026-11-06T18:00:00+00:00",
+    "2026-11-06T19:00:00+00:00",
+    "2026-11-06T20:00:00+00:00",
+    "2026-11-06T21:00:00+00:00",
+    "2026-11-06T22:00:00+00:00",
+    "2026-11-06T23:00:00+00:00",
+    "2026-11-07T00:00:00+00:00",
+    "2026-11-07T01:00:00+00:00",
+    "2026-11-07T02:00:00+00:00",
+    "2026-11-07T03:00:00+00:00",
+    "2026-11-07T04:00:00+00:00",
+    "2026-11-07T05:00:00+00:00",
+    "2026-11-07T06:00:00+00:00",
+    "2026-11-07T07:00:00+00:00",
+    "2026-11-07T08:00:00+00:00",
+    "2026-11-07T09:00:00+00:00",
+    "2026-11-07T10:00:00+00:00",
+    "2026-11-07T11:00:00+00:00",
+    "2026-11-07T12:00:00+00:00",
+    "2026-11-07T13:00:00+00:00",
+    "2026-11-07T14:00:00+00:00",
+    "2026-11-07T15:00:00+00:00",
+    "2026-11-07T16:00:00+00:00",
+    "2026-11-07T17:00:00+00:00",
+    "2026-11-07T18:00:00+00:00",
+    "2026-11-07T19:00:00+00:00",
+    "2026-11-07T20:00:00+00:00",
+    "2026-11-07T21:00:00+00:00",
+    "2026-11-07T22:00:00+00:00",
+    "2026-11-07T23:00:00+00:00",
+    "2026-11-08T00:00:00+00:00",
+    "2026-11-08T01:00:00+00:00",
+    "2026-11-08T02:00:00+00:00",
+    "2026-11-08T03:00:00+00:00",
+    "2026-11-08T04:00:00+00:00",
+    "2026-11-08T05:00:00+00:00",
+    "2026-11-08T06:00:00+00:00",
+    "2026-11-08T07:00:00+00:00",
+    "2026-11-08T08:00:00+00:00",
+    "2026-11-08T09:00:00+00:00",
+    "2026-11-08T10:00:00+00:00",
+    "2026-11-08T11:00:00+00:00",
+    "2026-11-08T12:00:00+00:00",
+    "2026-11-08T13:00:00+00:00",
+    "2026-11-08T14:00:00+00:00",
+    "2026-11-08T15:00:00+00:00",
+    "2026-11-08T16:00:00+00:00",
+    "2026-11-08T17:00:00+00:00",
+    "2026-11-08T18:00:00+00:00",
+    "2026-11-08T19:00:00+00:00",
+    "2026-11-08T20:00:00+00:00",
+    "2026-11-08T21:00:00+00:00",
+    "2026-11-08T22:00:00+00:00",
+    "2026-11-08T23:00:00+00:00",
+    "2026-11-09T00:00:00+00:00",
+    "2026-11-09T01:00:00+00:00",
+    "2026-11-09T02:00:00+00:00",
+    "2026-11-09T03:00:00+00:00",
+    "2026-11-09T04:00:00+00:00",
+    "2026-11-09T05:00:00+00:00",
+    "2026-11-09T06:00:00+00:00",
+    "2026-11-09T07:00:00+00:00",
+    "2026-11-09T08:00:00+00:00",
+    "2026-11-09T09:00:00+00:00",
+    "2026-11-09T10:00:00+00:00",
+    "2026-11-09T11:00:00+00:00",
+    "2026-11-09T12:00:00+00:00",
+    "2026-11-09T13:00:00+00:00",
+    "2026-11-09T14:00:00+00:00",
+    "2026-11-09T15:00:00+00:00",
+    "2026-11-09T16:00:00+00:00",
+    "2026-11-09T17:00:00+00:00",
+    "2026-11-09T18:00:00+00:00",
+    "2026-11-09T19:00:00+00:00",
+    "2026-11-09T20:00:00+00:00",
+    "2026-11-09T21:00:00+00:00",
+    "2026-11-09T22:00:00+00:00",
+    "2026-11-09T23:00:00+00:00",
+    "2026-11-10T00:00:00+00:00",
+    "2026-11-10T01:00:00+00:00",
+    "2026-11-10T02:00:00+00:00",
+    "2026-11-10T03:00:00+00:00",
+    "2026-11-10T04:00:00+00:00",
+    "2026-11-10T05:00:00+00:00",
+    "2026-11-10T06:00:00+00:00",
+    "2026-11-10T07:00:00+00:00",
+    "2026-11-10T08:00:00+00:00",
+    "2026-11-10T09:00:00+00:00",
+    "2026-11-10T10:00:00+00:00",
+    "2026-11-10T11:00:00+00:00",
+    "2026-11-10T12:00:00+00:00",
+    "2026-11-10T13:00:00+00:00",
+    "2026-11-10T14:00:00+00:00",
+    "2026-11-10T15:00:00+00:00",
+    "2026-11-10T16:00:00+00:00",
+    "2026-11-10T17:00:00+00:00",
+    "2026-11-10T18:00:00+00:00",
+    "2026-11-10T19:00:00+00:00",
+    "2026-11-10T20:00:00+00:00",
+    "2026-11-10T21:00:00+00:00",
+    "2026-11-10T22:00:00+00:00",
+    "2026-11-10T23:00:00+00:00",
+    "2026-11-11T00:00:00+00:00",
+    "2026-11-11T01:00:00+00:00",
+    "2026-11-11T02:00:00+00:00",
+    "2026-11-11T03:00:00+00:00",
+    "2026-11-11T04:00:00+00:00",
+    "2026-11-11T05:00:00+00:00",
+    "2026-11-11T06:00:00+00:00",
+    "2026-11-11T07:00:00+00:00",
+    "2026-11-11T08:00:00+00:00",
+    "2026-11-11T09:00:00+00:00",
+    "2026-11-11T10:00:00+00:00",
+    "2026-11-11T11:00:00+00:00",
+    "2026-11-11T12:00:00+00:00",
+    "2026-11-11T13:00:00+00:00",
+    "2026-11-11T14:00:00+00:00",
+    "2026-11-11T15:00:00+00:00",
+    "2026-11-11T16:00:00+00:00",
+    "2026-11-11T17:00:00+00:00",
+    "2026-11-11T18:00:00+00:00",
+    "2026-11-11T19:00:00+00:00",
+    "2026-11-11T20:00:00+00:00",
+    "2026-11-11T21:00:00+00:00",
+    "2026-11-11T22:00:00+00:00",
+    "2026-11-11T23:00:00+00:00",
+    "2026-11-12T00:00:00+00:00",
+    "2026-11-12T01:00:00+00:00",
+    "2026-11-12T02:00:00+00:00",
+    "2026-11-12T03:00:00+00:00",
+    "2026-11-12T04:00:00+00:00",
+    "2026-11-12T05:00:00+00:00",
+    "2026-11-12T06:00:00+00:00",
+    "2026-11-12T07:00:00+00:00",
+    "2026-11-12T08:00:00+00:00",
+    "2026-11-12T09:00:00+00:00",
+    "2026-11-12T10:00:00+00:00",
+    "2026-11-12T11:00:00+00:00",
+    "2026-11-12T12:00:00+00:00",
+    "2026-11-12T13:00:00+00:00",
+    "2026-11-12T14:00:00+00:00",
+    "2026-11-12T15:00:00+00:00",
+    "2026-11-12T16:00:00+00:00",
+    "2026-11-12T17:00:00+00:00",
+    "2026-11-12T18:00:00+00:00",
+    "2026-11-12T19:00:00+00:00",
+    "2026-11-12T20:00:00+00:00",
+    "2026-11-12T21:00:00+00:00",
+    "2026-11-12T22:00:00+00:00",
+    "2026-11-12T23:00:00+00:00",
+    "2026-11-13T00:00:00+00:00"
+  ],
+  "promotion_eligible": false,
+  "promotion_gate": "BLOCKED",
+  "promotion_gate_details": {
+    "checks": {
+      "holdout_eligible": false,
+      "preflight": true
+    },
+    "eligible_for_human_review": false,
+    "execution_authorized": false,
+    "human_authorized": false,
+    "reasons": [
+      "Prospective holdout not ELIGIBLE_FOR_EVALUATION"
+    ],
+    "status": "BLOCKED"
+  },
+  "q4_decision": "NO_STRATEGY_ELIGIBLE",
+  "q4_decision_preserved": true,
+  "q5_2_eligible": false,
+  "q6_evaluation": null,
+  "schema_version": "prediction_audit.v1",
+  "short_count": 0,
+  "status": "NOT_EVALUABLE"
+}

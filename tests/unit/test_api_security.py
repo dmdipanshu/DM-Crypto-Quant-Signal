@@ -107,6 +107,7 @@ def test_no_secret_leakage(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> N
         "/api/v1/validation/summary",
         "/api/v1/experiments",
         "/api/v1/research/reports",
+        "/api/v1/research/release",
         "/api/v1/backtests",
         "/api/v1/paper/status",
         "/api/v1/paper/state",

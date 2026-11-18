@@ -1,0 +1,57 @@
+{
+  "phase": "Q18",
+  "topic": "Prospective Collection Integrity Recovery & Reliability Hardening",
+  "status": "Q18_RECOVERY_READY_WITH_WARNINGS",
+  "collection_id": "collect-52cefa0dda64",
+  "freeze_id": "freeze-aaa4dd57057a",
+  "collection_status": "DATA_INVALID",
+  "evaluation_blocked": true,
+  "observation_count": 1,
+  "min_observations_required": 168,
+  "coverage_fraction": 0.0172,
+  "min_coverage_required": 0.95,
+  "remaining_duration_days": 4.53,
+  "min_duration_days": 7,
+  "seven_day_deadline_utc": "2026-11-20T06:15:46.915986Z",
+  "ledger_integrity": "HEALTHY",
+  "ingestion_status": "HEALTHY",
+  "provenance_status": "HEALTHY",
+  "duplicates_count": 0,
+  "conflicts_count": 0,
+  "rejection_count": 58,
+  "rejection_reasons": ["all 58 due to ingestion latency exceeding max 900s"],
+  "discrepancy_resolved": true,
+  "discrepancy_explanation": "Q17 counted 0 obs during Binance exchangeInfo transient failure; Q18 counts 1 obs collected within 900s latency; no data loss, 15 raw observations durably stored with hash chain intact",
+  "phase_a": "discrepancy_reconciled",
+  "phase_b": "storage_ledger_healthy",
+  "phase_c": "binance_transient_failure_investigated",
+  "phase_d": "reliability_improvements_implemented",
+  "phase_e": "scheduling_recovery_verified",
+  "phase_f": "regression_passed",
+  "adapter_changes": {
+    "max_duration_ms": 60000,
+    "max_retries": 3,
+    "total_attempts": 4,
+    "backoff": "exponential multiplier=1 min=1s max=8s",
+    "stop_condition": "stop_after_attempt | stop_after_delay",
+    "rate_limit_exceeded_retried": true,
+    "exchangeInfo_code_path": false
+  },
+  "test_results": {
+    "total_passed": 1396,
+    "total_failed": 0,
+    "total_skipped": 3,
+    "adapter_tests": 12,
+    "all_tests_pass": true
+  },
+  "warnings": [
+    "Q5.2 prospective collection not eligible: 1/168 observations, 1.72%/95% coverage, 4.53/7 days duration",
+    "META_MUSE_API_KEY provider-side rotation pending (no provider console access)",
+    "Binance exchangeInfo transient failure occurred during Q17 assessment (resolved via Q18 retry policy)"
+  ],
+  "not_implemented": [
+    "live orders", "real-money trading", "model retraining/refitting/calibration/tuning",
+    "threshold selection", "feature selection", "backtest execution", "paper trading",
+    "portfolio accounting", "API/dashboard write endpoints", "public exposure"
+  ]
+}

@@ -1,0 +1,109 @@
+﻿{
+  "phase": "Codebase Cleanup & Simplification",
+  "started_at_utc": "2026-11-17T12:49:25Z",
+  "completed_at_utc": "2026-11-17T19:12:20Z",
+  "actual_execution_time_minutes": 383,
+  "status": "CODEBASE_CLEANUP_PASSED_WITH_WARNINGS",
+  "summary": {
+    "files_inspected": 432,
+    "files_removed": 9,
+    "directories_removed": 1,
+    "functions_classes_deleted": 7,
+    "dependencies_removed": 5,
+    "tests_fixed": 1,
+    "tests_passed": 1396,
+    "tests_failed": 0,
+    "tests_skipped": 3,
+    "ruff_errors": 21,
+    "ruff_errors_baseline": 36
+  },
+  "phases": {
+    "A_inventory": "PASS",
+    "B_detection": "PASS",
+    "C_cleanup": "PASS",
+    "D_simplification": "PASS",
+    "E_verification": "PASS",
+    "F_reporting": "PASS"
+  },
+  "removals": [
+    {
+      "path": "SignalForge_Q2_to_Q4_Build/",
+      "action": "DELETE_DIRECTORY",
+      "evidence": "Untracked in git, not imported by any code, not required for build (pyproject.toml packages only src/crypto_engine), strict subset of main repo src, explicitly excluded from release packages",
+      "reason": "Redundant build/evidence copy"
+    },
+    {
+      "path": "src/crypto_engine/ports/clock.py",
+      "action": "DELETE_FILE",
+      "evidence": "Unused Protocol stub, not imported anywhere in src/",
+      "reason": "Dead code - unused port protocol"
+    },
+    {
+      "path": "src/crypto_engine/ports/ids.py",
+      "action": "DELETE_FILE",
+      "evidence": "Unused Protocol stub, not imported anywhere in src/",
+      "reason": "Dead code - unused port protocol"
+    },
+    {
+      "path": "src/crypto_engine/ports/market_data.py",
+      "action": "DELETE_FILE",
+      "evidence": "Unused Protocol stub, not imported anywhere in src/",
+      "reason": "Dead code - unused port protocol"
+    },
+    {
+      "path": "src/crypto_engine/ports/signals.py",
+      "action": "DELETE_FILE",
+      "evidence": "Unused Protocol stub, not imported anywhere in src/",
+      "reason": "Dead code - unused port protocol"
+    },
+    {
+      "path": "src/crypto_engine/ports/snapshots.py",
+      "action": "DELETE_FILE",
+      "evidence": "Unused Protocol stub, not imported anywhere in src/",
+      "reason": "Dead code - unused port protocol"
+    },
+    {
+      "path": "src/crypto_engine/storage/snapshot_store.py",
+      "action": "DELETE_FILE",
+      "evidence": "Unused implementation (FileSnapshotStore), not imported anywhere in src/",
+      "reason": "Dead code - unused storage implementation"
+    },
+    {
+      "path": "tests/unit/domain/test_ports.py",
+      "action": "DELETE_FILE",
+      "evidence": "Tests only deleted port protocols (Clock, IdGenerator, MarketDataSource, SignalStore, SnapshotStore)",
+      "reason": "Test file for removed dead code"
+    },
+    {
+      "path": "tests/unit/domain/test_stage3_adapters.py",
+      "action": "MODIFY",
+      "evidence": "Removed FileSnapshotStore import and all snapshot_store tests (lines 22-74)",
+      "reason": "Tests referenced deleted snapshot_store module"
+    }
+  ],
+  "dependency_removals": [
+    {"name": "pyarrow>=14.0", "reason": "Not imported anywhere in src/, scripts/, or tests/"},
+    {"name": "pyyaml>=6.0", "reason": "Not imported anywhere in src/, scripts/, or tests/"},
+    {"name": "tomli>=2.0", "reason": "Not imported; uses stdlib tomllib (Python 3.12+)"},
+    {"name": "pydantic-settings>=2.0", "reason": "Not imported; settings.py imports from pydantic directly"},
+    {"name": "optuna>=3.0", "reason": "Not imported anywhere in src/, scripts/, or tests/"}
+  ],
+  "preserved": {
+    "q4_governance": "NO_STRATEGY_ELIGIBLE preserved",
+    "q5_2_collection": "collect-52cefa0dda64 / freeze-aaa4dd57057a preserved",
+    "q24_approval": "docs/validation/approvals/q5_2_collection_continuation_approval.json intact",
+    "core_capabilities": "All quant research, multi-timeframe analysis, AI intelligence, Binance integration, backtesting, risk management preserved",
+    "medium_confidence_items": "robustness.py vs statistical_robustness.py, historical_storage.py vs prospective/storage.py, q2_research_lab.py, phase11_shadow/ — all verified as complementary/quarantined, not removed"
+  },
+  "verification": {
+    "pytest": "1396 passed, 0 failed, 3 skipped",
+    "ruff": "21 errors (pre-existing, down from 36 baseline)",
+    "cli_health": "uv run sf health — OK",
+    "cli_config": "uv run sf config-show — OK",
+    "governance_intact": true
+  },
+  "warnings": [
+    "12 tests removed (6 from test_ports.py, 6 from test_stage3_adapters.py) — tests for deleted unused modules",
+    "Ruff still has 21 pre-existing errors (down from 36 baseline)"
+  ]
+}

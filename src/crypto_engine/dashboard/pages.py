@@ -23,6 +23,8 @@ NAV = (
     ("progress", "Progress", "/dashboard/progress/"),
     ("signals", "Signals", "/dashboard/signals"),
     ("research", "Research", "/dashboard/research"),
+    ("q5", "Q5 Prospective", "/dashboard/q5"),
+    ("q6", "Q6 Evaluation", "/dashboard/q6"),
     ("backtests", "Backtests", "/dashboard/backtests"),
     ("paper", "Paper", "/dashboard/paper"),
     ("models", "Models", "/dashboard/models"),
@@ -224,8 +226,12 @@ def signals_page(signals: list[dict[str, Any]], total: int) -> str:
     return layout("signals", "Signals", body)
 
 
-def research_page(summary: dict[str, Any], experiments: list[dict[str, Any]]) -> str:
-    """Recorded evaluation results (research metrics, never merged into one score)."""
+def research_page(
+    summary: dict[str, Any],
+    experiments: list[dict[str, Any]],
+    release_payload: dict[str, Any] | None = None,
+) -> str:
+    """Recorded evaluation results and Q4 release (metrics never merged)."""
     parts = ["<h2>Quant research</h2>"]
     if not summary.get("experiments_available"):
         parts.append(_empty("recorded experiments", "Run walk-forward validation first."))
@@ -244,6 +250,70 @@ def research_page(summary: dict[str, Any], experiments: list[dict[str, Any]]) ->
             else "USED — no longer an untouched holdout"
         )
         parts.append(f"<div class='card'><p>Holdout ledger: <b>{html.escape(state)}</b></p></div>")
+    release_doc = (
+        release_payload.get("release", {})
+        if isinstance(release_payload, dict) and release_payload.get("available")
+        else {}
+    )
+    if release_doc:
+        status = release_doc.get("research_status", {})
+        authority = release_doc.get("authority", {})
+        models = release_doc.get("models", [])
+        model_rows: list[str] = []
+        for model in models if isinstance(models, list) else []:
+            if not isinstance(model, dict):
+                continue
+            gate = model.get("promotion_gate", {})
+            candidate_ai = model.get("ai_advisory", {})
+            candidate_ai_text = (
+                candidate_ai.get("summary") or candidate_ai.get("note") or "disabled"
+                if isinstance(candidate_ai, dict)
+                else "unavailable"
+            )
+            model_rows.append(
+                "<tr>"
+                f"<td>{_esc(model.get('model'))}</td>"
+                f"<td>{_esc(model.get('trade_count'))}</td>"
+                f"<td>{_esc(model.get('net_return_bp'))}</td>"
+                f"<td>{_esc(model.get('profit_factor'))}</td>"
+                f"<td>{_status_badge(str(gate.get('status', 'unknown')))}</td>"
+                f"<td class='small'>{_esc(candidate_ai_text)}</td>"
+                "</tr>"
+            )
+        verdict = str(status.get("overall_verdict", "NOT_AVAILABLE"))
+        holdout_state = status.get("historical_holdout_integrity", {})
+        holdout_status = (
+            holdout_state.get("status", "unknown") if isinstance(holdout_state, dict) else "unknown"
+        )
+        body = (
+            "<div class='card'><h3>Q4 Quantitative Release</h3>"
+            f"<p>Verdict: <b>{_esc(verdict)}</b> · Historical holdout: "
+            f"<b>{_esc(holdout_status)}</b></p>"
+            f"<p class='small'>Models evaluated: {_esc(status.get('models_evaluated', 0))} · "
+            f"Eligible for human review: {_esc(status.get('models_eligible_for_human_review', 0))}</p>"
+        )
+        if model_rows:
+            body += (
+                "<table><tr><th>Model</th><th>Trades</th><th>Net bp</th>"
+                "<th>Profit factor</th><th>Gate</th><th>Candidate AI advisory</th></tr>"
+                + "".join(model_rows)
+                + "</table>"
+            )
+        ai = release_doc.get("ai_advisory", {})
+        if isinstance(ai, dict):
+            ai_text = ai.get("summary") or ai.get("note") or "Advisory disabled."
+            body += f"<p class='small'>AI advisory ({_esc(ai.get('status', 'disabled'))}): {_esc(ai_text)}</p>"
+        if authority.get("order_execution_authorized") is False:
+            body += "<p class='small'>Execution: disabled · Paper trading: disabled · Human authorization: required.</p>"
+        else:
+            body += "<p class='small'>Release authority declaration unavailable or unsafe.</p>"
+        body += "</div>"
+        parts.append(body)
+    elif isinstance(release_payload, dict) and not release_payload.get("available"):
+        parts.append(
+            f"<div class='card'><p>Q4 release: {_esc(release_payload.get('reason', 'unavailable'))} — "
+            f"{_esc(release_payload.get('detail', 'Run the Q2→Q4 research sequence.'))}</p></div>"
+        )
     if experiments:
         rows = "".join(
             f"<tr><td class='mono'>{_esc(e.get('experiment_id'))}</td><td>{_esc(e.get('status'))}</td>"
@@ -351,6 +421,235 @@ def models_page(models: list[dict[str, Any]]) -> str:
     )
 
 
+def q5_page(collection: dict[str, Any], governance: dict[str, Any]) -> str:
+    """Q5 prospective collection dashboard (read-only, no secrets)."""
+    coll_state = _status_badge(str(collection.get("manifest_status", "unknown")))
+    gov_state = _status_badge(str(governance.get("prospective_state", "unknown")))
+    hist_state = _status_badge(str(governance.get("historical_holdout_state", "unknown")))
+
+    body = (
+        "<h2>Q5 Prospective Data Collection</h2>"
+        "<p class='small'>Read-only public Binance market-data collection. No trading, no credentials, no execution.</p>"
+        "<div class='card'>"
+        "<h3>Collection</h3>"
+        f"<table>"
+        f"<tr><th>Collection ID</th><td class='mono'>{_esc(collection.get('collection_id'))}</td></tr>"
+        f"<tr><th>Manifest Status</th><td>{coll_state}</td></tr>"
+        f"<tr><th>Collection Started</th><td>{_esc(collection.get('collection_started_at_utc'))}</td></tr>"
+        f"<tr><th>Associated Freeze ID</th><td class='mono'>{_esc(collection.get('associated_freeze_id'))}</td></tr>"
+        f"<tr><th>Freeze Timestamp</th><td>{_esc(collection.get('associated_freeze_timestamp'))}</td></tr>"
+        f"<tr><th>Exchange</th><td>{_esc(collection.get('exchange'))}</td></tr>"
+        f"<tr><th>Market Type</th><td>{_esc(collection.get('market_type'))}</td></tr>"
+        f"<tr><th>Symbols</th><td>{_esc(', '.join(collection.get('symbols') or []))}</td></tr>"
+        f"<tr><th>Timeframes</th><td>{_esc(', '.join(collection.get('timeframes') or []))}</td></tr>"
+        f"<tr><th>Observations</th><td>{_esc(collection.get('observation_count', 0))}</td></tr>"
+        f"<tr><th>Coverage</th><td>{collection.get('coverage_fraction', 0):.2%}</td></tr>"
+        f"<tr><th>Ledger Events</th><td>{_esc(collection.get('ledger_events', 0))}</td></tr>"
+        f"<tr><th>Ledger Valid</th><td>{_esc(collection.get('ledger_valid', False))}</td></tr>"
+        f"</table>"
+        "</div>"
+        "<div class='card'>"
+        "<h3>Prospective Holdout Governance</h3>"
+        f"<table>"
+        f"<tr><th>Historical Holdout</th><td>{hist_state}</td></tr>"
+        f"<tr><th>Prospective State</th><td>{gov_state}</td></tr>"
+        f"<tr><th>Eligible for Evaluation</th><td>{_esc(governance.get('eligible_for_evaluation', False))}</td></tr>"
+        f"<tr><th>Evaluated</th><td>{_esc(governance.get('evaluated', False))}</td></tr>"
+        f"<tr><th>Data Quality Passed</th><td>{_esc(governance.get('data_quality_passed', False))}</td></tr>"
+        f"<tr><th>First-Seen Provenance Valid</th><td>{_esc(governance.get('first_seen_provenance_valid', False))}</td></tr>"
+        f"<tr><th>No Backfill</th><td>{_esc(governance.get('no_backfill', True))}</td></tr>"
+        f"<tr><th>No Development Inspection</th><td>{_esc(governance.get('no_development_inspection', True))}</td></tr>"
+        f"</table>"
+        "</div>"
+        "<p class='small'>Q4 remains NO_STRATEGY_ELIGIBLE. Q5 does not train, calibrate, or optimize models using prospective data.</p>"
+    )
+    return layout("q5", "Q5 Prospective Collection", body)
+
+
+def q6_page(
+    collection: dict[str, Any], governance: dict[str, Any], evaluation: dict[str, Any] | None = None
+) -> str:
+    """Q6 prospective strategy evaluation dashboard (read-only, no secrets)."""
+    coll_state = _status_badge(str(collection.get("manifest_status", "unknown")))
+    gov_state = _status_badge(str(governance.get("prospective_state", "unknown")))
+    hist_state = _status_badge(str(governance.get("historical_holdout_state", "unknown")))
+    eval_state = (
+        _status_badge(str(evaluation.get("status", "not run")))
+        if evaluation
+        else _badge("not run", "muted")
+    )
+
+    body = (
+        "<h2>Q6 Prospective Strategy Evaluation</h2>"
+        "<p class='small'>Read-only prospective strategy evaluation. No training, "
+        "no recalibration, no threshold tuning, no model promotion.</p>"
+        "<div class='card'>"
+        "<h3>Collection &amp; Freeze</h3>"
+        f"<table>"
+        f"<tr><th>Collection ID</th><td class='mono'>{_esc(collection.get('collection_id'))}</td></tr>"
+        f"<tr><th>Manifest Status</th><td>{coll_state}</td></tr>"
+        f"<tr><th>Collection Started</th><td>{_esc(collection.get('collection_started_at_utc'))}</td></tr>"
+        f"<tr><th>Associated Freeze ID</th><td class='mono'>{_esc(collection.get('associated_freeze_id'))}</td></tr>"
+        f"<tr><th>Freeze Timestamp</th><td>{_esc(collection.get('associated_freeze_timestamp'))}</td></tr>"
+        f"<tr><th>Exchange</th><td>{_esc(collection.get('exchange'))}</td></tr>"
+        f"<tr><th>Market Type</th><td>{_esc(collection.get('market_type'))}</td></tr>"
+        f"<tr><th>Symbols</th><td>{_esc(', '.join(collection.get('symbols') or []))}</td></tr>"
+        f"<tr><th>Timeframes</th><td>{_esc(', '.join(collection.get('timeframes') or []))}</td></tr>"
+        f"<tr><th>Observations</th><td>{_esc(collection.get('observation_count', 0))}</td></tr>"
+        f"<tr><th>Coverage</th><td>{collection.get('coverage_fraction', 0):.2%}</td></tr>"
+        f"</table>"
+        "</div>"
+        "<div class='card'>"
+        "<h3>Holdout Governance</h3>"
+        f"<table>"
+        f"<tr><th>Historical Holdout</th><td>{hist_state}</td></tr>"
+        f"<tr><th>Prospective State</th><td>{gov_state}</td></tr>"
+        f"<tr><th>Eligible for Evaluation</th><td>{_esc(governance.get('eligible_for_evaluation', False))}</td></tr>"
+        f"<tr><th>Data Quality Passed</th><td>{_esc(governance.get('data_quality_passed', False))}</td></tr>"
+        f"<tr><th>Evaluation Blocked</th><td>{_esc(governance.get('evaluation_blocked', True))}</td></tr>"
+        f"</table>"
+        "</div>"
+        "<div class='card'>"
+        "<h3>Evaluation</h3>"
+        f"<table>"
+        f"<tr><th>Status</th><td>{eval_state}</td></tr>"
+    )
+
+    if evaluation:
+        body += (
+            f"<tr><th>Candidate ID</th><td class='mono'>{_esc(evaluation.get('candidate_id', 'n/a'))}</td></tr>"
+            f"<tr><th>Trade Count</th><td>{_esc(evaluation.get('trade_count', 0))}</td></tr>"
+            f"<tr><th>Net Return</th><td>{_esc(evaluation.get('net_return_bp', 'n/a'))} bp</td></tr>"
+            f"<tr><th>Gross Return</th><td>{_esc(evaluation.get('gross_return_bp', 'n/a'))} bp</td></tr>"
+            f"<tr><th>Profit Factor</th><td>{_esc(evaluation.get('profit_factor', 'n/a'))}</td></tr>"
+            f"<tr><th>Promotion Decision</th><td>{_status_badge(str(evaluation.get('promotion_decision', 'n/a')))}</td></tr>"
+        )
+    else:
+        body += (
+            "<tr><td colspan='2'><span class='small muted'>No evaluation run yet.</span></td></tr>"
+        )
+
+    body += (
+        "</table>"
+        "</div>"
+        "<p class='small'>Q4 remains NO_STRATEGY_ELIGIBLE. Q6 does not train, calibrate, "
+        "or optimize models using prospective data. Maximum outcome is human review request only.</p>"
+    )
+    return layout("q6", "Q6 Prospective Evaluation", body)
+
+
+def q6_historical_page(
+    collection: dict[str, Any],
+    governance: dict[str, Any],
+    evaluation: dict[str, Any] | None = None,
+    h_comparison: dict[str, Any] | None = None,
+) -> str:
+    """Q6 Historical Accelerated Validation dashboard (read-only, no secrets)."""
+    coll_state = _status_badge(str(collection.get("manifest_status", "unknown")))
+    gov_state = _status_badge(str(governance.get("prospective_state", "unknown")))
+    hist_state = _status_badge(str(governance.get("historical_holdout_state", "unknown")))
+    eval_state = (
+        _status_badge(str(evaluation.get("status", "not run")))
+        if evaluation
+        else _badge("not run", "muted")
+    )
+
+    body = (
+        "<h2>Q6 Historical Accelerated Validation</h2>"
+        "<p class='small'>Read-only historical evaluation. NOT prospective data. "
+        "Does NOT imply Q5.2 eligibility. Q4 = NO_STRATEGY_ELIGIBLE preserved.</p>"
+        "<div class='card'>"
+        "<h3>Historical Collection</h3>"
+        f"<table>"
+        f"<tr><th>Dataset ID</th><td class='mono'>{_esc(collection.get('dataset_id', 'n/a'))}</td></tr>"
+        f"<tr><th>Manifest Status</th><td>{coll_state}</td></tr>"
+        f"<tr><th>Dataset Started</th><td>{_esc(collection.get('dataset_started_at_utc'))}</td></tr>"
+        f"<tr><th>Exchange</th><td>{_esc(collection.get('exchange'))}</td></tr>"
+        f"<tr><th>Market Type</th><td>{_esc(collection.get('market_type'))}</td></tr>"
+        f"<tr><th>Symbol</th><td>{_esc(collection.get('symbol'))}</td></tr>"
+        f"<tr><th>Timeframe</th><td>{_esc(collection.get('timeframe'))}</td></tr>"
+        f"<tr><th>Observations</th><td>{_esc(collection.get('observation_count', 0))}</td></tr>"
+        f"<tr><th>Expected Intervals</th><td>{_esc(collection.get('expected_intervals', 0))}</td></tr>"
+        f"<tr><th>Coverage</th><td>{collection.get('coverage_fraction', 0):.2%}</td></tr>"
+        f"<tr><th>Dataset Hash</th><td class='mono'>{_esc(collection.get('dataset_hash', 'n/a'))}</td></tr>"
+        f"</table>"
+        "</div>"
+        "<div class='card'>"
+        "<h3>Data Quality</h3>"
+        f"<table>"
+        f"<tr><th>Duplicates</th><td>{_esc(collection.get('duplicate_count', 0))}</td></tr>"
+        f"<tr><th>Conflicts</th><td>{_esc(collection.get('conflicting_count', 0))}</td></tr>"
+        f"<tr><th>Missing Intervals</th><td>{_esc(collection.get('missing_interval_count', 0))}</td></tr>"
+        f"</table>"
+        "</div>"
+        "<div class='card'>"
+        "<h3>Holdout Governance</h3>"
+        f"<table>"
+        f"<tr><th>Historical Holdout</th><td>{hist_state}</td></tr>"
+        f"<tr><th>Prospective State</th><td>{gov_state}</td></tr>"
+        f"<tr><th>Historical Eligible for Eval</th><td>{_esc(governance.get('eligible_for_evaluation', False))}</td></tr>"
+        f"<tr><th>Q5.2 Eligible</th><td>{_esc(governance.get('q5_2_eligible', False))}</td></tr>"
+        f"<tr><th>Evaluation Blocked</th><td>{_esc(governance.get('evaluation_blocked', True))}</td></tr>"
+        f"</table>"
+        "</div>"
+        "<div class='card'>"
+        "<h3>Evaluation</h3>"
+        f"<table>"
+        f"<tr><th>Status</th><td>{eval_state}</td></tr>"
+    )
+
+    if evaluation:
+        body += (
+            f"<tr><th>Candidate ID</th><td class='mono'>{_esc(evaluation.get('candidate_id', 'n/a'))}</td></tr>"
+            f"<tr><th>Trade Count</th><td>{_esc(evaluation.get('trade_count', 0))}</td></tr>"
+            f"<tr><th>Net Return</th><td>{_esc(evaluation.get('net_return_bp', 'n/a'))} bp</td></tr>"
+            f"<tr><th>Gross Return</th><td>{_esc(evaluation.get('gross_return_bp', 'n/a'))} bp</td></tr>"
+            f"<tr><th>Profit Factor</th><td>{_esc(evaluation.get('profit_factor', 'n/a'))}</td></tr>"
+            f"<tr><th>Promotion Decision</th><td>{_status_badge(str(evaluation.get('promotion_decision', 'n/a')))}</td></tr>"
+        )
+    else:
+        body += (
+            "<tr><td colspan='2'><span class='small muted'>No evaluation run yet.</span></td></tr>"
+        )
+
+    if h_comparison and h_comparison.get("summary"):
+        cmp_rows = ""
+        for _c in h_comparison.get("summary", []):
+            cmp_rows += (
+                f"<tr><td class='mono'>{_esc(_c.get('candidate_id', 'n/a'))}</td>"
+                f"<td>{_status_badge(str(_c.get('status', 'n/a')))}</td>"
+                f"<td>{_esc(_c.get('trade_count', 0))}</td>"
+                f"<td>{_esc(_c.get('net_return_bp', 'n/a'))} bp</td>"
+                f"<td>{_esc(_c.get('gross_return_bp', 'n/a'))} bp</td>"
+                f"<td>{_esc(_c.get('profit_factor', 'n/a'))}</td>"
+                f"<td>{_esc(_c.get('max_drawdown_bp', 'n/a'))} bp</td>"
+                f"<td>{_esc(_c.get('win_rate', 'n/a'))}</td>"
+                f"<td>{_status_badge(str(_c.get('promotion_gate', 'n/a')))}</td></tr>"
+            )
+        body += (
+            "<div class='card'>"
+            "<h3>Historical Candidate Comparison</h3>"
+            "<p class='small'>HISTORICAL COMPARISON — NOT PROSPECTIVE — NOT PROMOTION ELIGIBLE. "
+            "Limited statistical evidence (169 hourly observations). No candidate is statistically proven.</p>"
+            "<table>"
+            "<tr><th>Candidate</th><th>Status</th><th>Trade Count</th>"
+            "<th>Net Return (bp)</th><th>Gross Return (bp)</th><th>Profit Factor</th>"
+            "<th>Max Drawdown (bp)</th><th>Win Rate</th><th>Promotion Gate</th></tr>"
+            + cmp_rows
+            + "</table>"
+            "</div>"
+        )
+
+    body += (
+        "</table>"
+        "</div>"
+        "<p class='small'>Q4 remains NO_STRATEGY_ELIGIBLE. Historical validation does NOT imply "
+        "prospective validation. Maximum outcome is HISTORICAL_VALIDATION_COMPLETE - "
+        "never human promotion.</p>"
+    )
+    return layout("q6-historical", "Q6 Historical Validation", body)
+
+
 __all__ = [
     "APP_NAME",
     "NAV",
@@ -359,6 +658,9 @@ __all__ = [
     "models_page",
     "overview",
     "paper_page",
+    "q5_page",
+    "q6_historical_page",
+    "q6_page",
     "research_page",
     "signals_page",
 ]

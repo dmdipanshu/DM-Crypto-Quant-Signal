@@ -92,13 +92,32 @@ def env_secret_values() -> list[str]:
     return values
 
 
+def get_api_token() -> str | None:
+    """Return the configured API token from `SIGNALFORGE_API_TOKEN`, or None."""
+    return os.environ.get("SIGNALFORGE_API_TOKEN")
+
+
+def verify_api_token(authorization: str | None = None) -> None:
+    """FastAPI dependency: enforce Bearer token auth when configured."""
+    if get_api_token() is None:
+        return None
+    if authorization is None or not authorization.startswith("Bearer "):
+        raise ApiError(401, "missing_token", "Authorization header with Bearer token is required.")
+    token = authorization[len("Bearer "):]
+    if token != get_api_token():
+        raise ApiError(401, "invalid_token", "Invalid API token.")
+    return None
+
+
 __all__ = [
     "ID_PATTERN",
     "SECRET_KEY_HINTS",
     "ApiError",
     "confine",
     "env_secret_values",
+    "get_api_token",
     "sanitize_error",
     "scan_for_secrets",
     "validate_id",
+    "verify_api_token",
 ]

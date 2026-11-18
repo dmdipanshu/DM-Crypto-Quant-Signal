@@ -1,0 +1,104 @@
+{
+  "phase": "Q28",
+  "title": "Docker Release Qualification Manifest",
+  "version": "0.1.0",
+  "timestamp_utc": "2026-11-18T13:52:46Z",
+  "release_type": "docker_release_qualification",
+  "python_requires": ">=3.12,<3.14",
+  "files": [
+    {
+      "relative_path": ".dockerignore",
+      "size_bytes": 580,
+      "sha256": "efc841f9a8f66c3559d6a35e677a7a875178b4f32d08157d4e9224e350f0749c"
+    },
+    {
+      "relative_path": "Dockerfile",
+      "size_bytes": 2930,
+      "sha256": "8dcc7133ae8a10bf52c970adc6d41ff894cfb0526fbdcee8a45da618bc764580"
+    },
+    {
+      "relative_path": "compose.yaml",
+      "size_bytes": 3183,
+      "sha256": "5024f0a6bfb29e709410b17e6651e9cdcdd007ec0c1169aa15fb60788ed994b6"
+    },
+    {
+      "relative_path": "docker/README.md",
+      "size_bytes": 1203,
+      "sha256": "1de1cdcc29ba4e368f0e27b6ffb01ca9e9e5dd87c0ef0a573c6b2119db522947"
+    },
+    {
+      "relative_path": "docs/operations/DOCKER_DEPLOYMENT_RUNBOOK.md",
+      "size_bytes": 8026,
+      "sha256": "d5cdee87f0cfba5f7fff34934282bfb0c5b70d12507b6c1c36daace477ee5f32"
+    },
+    {
+      "relative_path": "docs/validation/results/q27_docker_readiness.json",
+      "size_bytes": 10677,
+      "sha256": "de1c47e534cc43ed080a213fc00b8396754a371964568bded04db99ba8d5408a"
+    },
+    {
+      "relative_path": "docs/validation/results/q27_docker_readiness.md",
+      "size_bytes": 9460,
+      "sha256": "e49f33b1487b2658e09fe3f03b24598aa1800c234d07367363e771e28ba0d9b0"
+    },
+    {
+      "relative_path": "docs/validation/results/q28_docker_release_qualification.json",
+      "size_bytes": 205,
+      "sha256": "b60364493ce37a7b84d5d82db4858d3c26c4968c9503c49e00a95380451ab732"
+    },
+    {
+      "relative_path": "docs/validation/results/q28_docker_release_qualification.md",
+      "size_bytes": 173,
+      "sha256": "e493918fa0a75f1c25ee19d6ea48fd7088177f88536f230525ee71d30a03760d"
+    },
+    {
+      "relative_path": "src/crypto_engine/ai/telemetry.py",
+      "size_bytes": 13489,
+      "sha256": "684129abfa8a6b574e11ae5272ec4761384c294893db9d06e4b6a7d3a5193c60"
+    },
+    {
+      "relative_path": "docs/validation/approvals/q5_2_collection_continuation_approval.json",
+      "size_bytes": 1469,
+      "sha256": "7abf6d10eff2e2a5bd438788b64089cba46a03ca6135a0d422686e92c2bbfed1"
+    },
+    {
+      "relative_path": "config/default.toml",
+      "size_bytes": 11063,
+      "sha256": "ed18ca536a780fea8af606a8d7100da557088e407ebce6347b8e25fa985dc0ba"
+    },
+    {
+      "relative_path": "pyproject.toml",
+      "size_bytes": 1847,
+      "sha256": "05e7ae5ffe40bdb0c17094201eb7c08f0c7101da9bdfadd1f4e91f797873d1a4"
+    },
+    {
+      "relative_path": "uv.lock",
+      "size_bytes": 215367,
+      "sha256": "77e5d495c05a1c858a3a3c502ebb353e519ccb5ccb08f0acb8858271b9a7414f"
+    },
+    {
+      "relative_path": "AGENTS.md",
+      "size_bytes": 8955,
+      "sha256": "92d579072054efb7acca567dc3d43028dad3acbfc39a8a2df123878f998a990b"
+    },
+    {
+      "relative_path": "README.md",
+      "size_bytes": 3640,
+      "sha256": "7f2ce08b44fa299c53bb9370790649815873cc0e6cfe2d603a75cf990439c94c"
+    }
+  ],
+  "file_count": 16,
+  "exclusions": [
+    ".env*",
+    "__pycache__",
+    ".venv",
+    "data/prospective/",
+    "backups/",
+    "*.pkl"
+  ],
+  "verification": {
+    "all_files_verified": true,
+    "hashes_verified": true
+  },
+  "missing_files": []
+}

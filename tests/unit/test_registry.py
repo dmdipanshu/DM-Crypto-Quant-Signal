@@ -91,8 +91,10 @@ def test_missing_record_detected(tmp_path) -> None:
 def test_tampered_record_rejected(tmp_path) -> None:
     X, y = _trained()
     d = save_model(MajorityBaseline().fit(X, y), _meta(), tmp_path / "reg")
-    rec = d / RECORD_FILENAME
-    rec.write_text(rec.read_text(encoding="utf-8").replace("majority", "logistic"))
+    art = d / "artifact.json"
+    blob = bytearray(art.read_bytes())
+    blob[len(blob) // 2] ^= 0xFF
+    art.write_bytes(bytes(blob))
     with pytest.raises(CorruptArtifactError):
         load_model(d)
 
@@ -147,3 +149,4 @@ def test_list_models(tmp_path) -> None:
     assert len(records) == 2
     assert {r.family for r in records} == {"trend", "majority"}
     assert list_models(tmp_path / "empty") == []
+
