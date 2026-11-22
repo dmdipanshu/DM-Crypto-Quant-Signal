@@ -5,6 +5,7 @@ All tests use mocked exchange responses. No external Binance availability requir
 
 from __future__ import annotations
 
+import importlib.util
 import json
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -3272,3 +3273,257 @@ class TestEpoch3AnchorAndGovernance:
             == "collect-epoch3-4e1b55cd-ee07-4f2a-8f4c-d0be0e848b2d"
         )
         assert rec["append_only"] is True
+
+class TestSystemdTimerAndRetry:
+    """Regression tests for Epoch 3 systemd timer and retry behavior."""
+
+    def _load_runner(self):
+        spec = importlib.util.spec_from_file_location(
+            "run_q5_prospective_collection", Path("scripts/run_q5_prospective_collection.py")
+        )
+        module = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(module)
+        return module
+
+    def test_timer_template_has_required_calendar_and_settings(self):
+        timer = Path("docker/systemd/signalforge-collector@.timer").read_text(encoding="utf-8")
+        service = Path("docker/systemd/signalforge-collector.service").read_text(encoding="utf-8")
+        assert "OnCalendar=*-*-* *:%i:00 UTC" in timer
+        assert "*-%m-%d %H:%i:00 UTC" not in timer
+        assert "Persistent=false" in timer
+        assert "AccuracySec=1s" in timer
+        assert "Unit=signalforge-collector.service" in timer
+        assert "--scheduled-minute %i" in service
+        assert "TimeoutStartSec=900" in service
+
+    def test_timer_instances_resolve_08_and_12(self):
+        import re
+
+        timer = Path("docker/systemd/signalforge-collector@.timer").read_text(encoding="utf-8")
+        m = re.search(r"^OnCalendar=(.+)$", timer, re.MULTILINE)
+        assert m, "OnCalendar missing"
+        template = m.group(1)
+        for minute in ("08", "12"):
+            resolved = template.replace("%i", minute)
+            assert resolved == f"*-*-* *:{minute}:00 UTC"
+            assert resolved.endswith(f":{minute}:00 UTC")
+
+    def test_retry_skips_when_primary_accepted_same_slot(self, tmp_path, monkeypatch):
+        runner = self._load_runner()
+        output_dir = tmp_path / "reports"
+        output_dir.mkdir()
+        slot = "2026-11-22T10:00:00+00:00"
+        (output_dir / "latest_status.json").write_text(
+            json.dumps(
+                {
+                    "schema": "q5-latest-status.v1",
+                    "slot_utc": slot,
+                    "scheduled_minute": 8,
+                    "accepted_observation_for_slot": True,
+                }
+            ),
+            encoding="utf-8",
+        )
+        manifest = tmp_path / "collection.json"
+        manifest.write_text(
+            json.dumps(
+                {
+                    "collection_id": "collect-epoch3-4e1b55cd-ee07-4f2a-8f4c-d0be0e848b2d",
+                    "associated_freeze_id": "freeze-epoch3-ba777bcd-df63-4cfe-9aa3-18dde1fef46f",
+                    "exchange": "binance",
+                    "market_type": "spot",
+                    "symbols": ["BTC/USDT"],
+                    "timeframes": ["1h"],
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        called = {"collect": False}
+
+        class FakeCollector:
+            def __init__(self, *args, **kwargs):
+                self.policy = type(
+                    "P",
+                    (),
+                    {
+                        "min_elapsed_observation_period_s": 604800,
+                        "min_observation_count": 168,
+                        "min_coverage_fraction": 0.95,
+                    },
+                )()
+
+            def validate_freeze(self):
+                return {
+                    "freeze_id": "freeze-epoch3-ba777bcd-df63-4cfe-9aa3-18dde1fef46f",
+                    "created_at_utc": "2026-11-22T08:00:00+00:00",
+                }
+
+            def verify_collection_integrity(self):
+                return {
+                    "status": "VALID",
+                    "collection_id": "collect-epoch3-4e1b55cd-ee07-4f2a-8f4c-d0be0e848b2d",
+                    "collection_started_at_utc": None,
+                    "associated_freeze_id": "freeze-epoch3-ba777bcd-df63-4cfe-9aa3-18dde1fef46f",
+                }
+
+            def collect_once(self):
+                called["collect"] = True
+                return {
+                    "status": CollectionStatus.HEALTHY,
+                    "observations": [{"open_time": "2026-11-22T09:00:00+00:00"}],
+                    "gaps": [],
+                    "duplicates": [],
+                    "conflicts": [],
+                    "rejections": [],
+                    "errors": [],
+                }
+
+        monkeypatch.setattr(runner, "ProspectiveCollector", FakeCollector)
+        monkeypatch.setattr(runner, "check_collection_authorization", lambda **k: type("A", (), {"authorized": True, "reason": "ok", "approval_record": {"approval_id": "a"}})())
+        monkeypatch.setattr(runner, "check_scheduler_authorization", lambda **k: type("A", (), {"authorized": True, "reason": "ok", "approval_record": {"approval_id": "s"}})())
+        monkeypatch.setattr(
+            runner,
+            "compute_quality_report",
+            lambda collection_result: {
+                "observation_count": 1,
+                "coverage_fraction": 1.0,
+                "collector_status": "HEALTHY",
+                "ingestion_status": "HEALTHY",
+                "dataset_quality_status": "HEALTHY",
+                "provenance_status": "HEALTHY",
+                "ledger_status": "HEALTHY",
+                "expected_intervals": 1,
+                "evaluation_blocked": True,
+                "evaluation_block_reasons": ["min not met"],
+                "reasons": [],
+            },
+        )
+        monkeypatch.setattr(runner, "_write_q5_collection_report", lambda *a, **k: None)
+        monkeypatch.setattr(runner, "_write_q5_governance_report", lambda *a, **k: None)
+        monkeypatch.setattr(runner.ProspectiveStorage, "verify_collection_start_anchor", lambda self: {"status": "NOT_STARTED", "collection_started_at_utc": None})
+        monkeypatch.setattr(runner.ProspectiveStorage, "read_dataset_manifest", lambda self: {})
+        monkeypatch.setattr(
+            runner,
+            "_utc_now_iso",
+            lambda: "2026-11-22T10:12:05+00:00",
+        )
+        monkeypatch.setattr(
+            runner,
+            "_scheduled_slot_utc",
+            lambda now, minute: slot,
+        )
+
+        args = type(
+            "Args",
+            (),
+            {
+                "freeze_manifest": "docs/validation/RESEARCH_FREEZE_MANIFEST_EPOCH3.json",
+                "collection_manifest": str(manifest),
+                "storage_root": str(tmp_path / "storage"),
+                "approvals_dir": "docs/validation/approvals",
+                "output_dir": str(output_dir),
+                "scheduled_minute": 12,
+                "require_scheduler_authorization": False,
+            },
+        )()
+        rc = runner.run_once(args)
+        assert rc == 0
+        assert called["collect"] is False
+        status = json.loads((output_dir / "latest_status.json").read_text(encoding="utf-8"))
+        assert status["retry_skipped"] is True
+        assert status["retry_skip_reason"] == "primary_08_accepted"
+        assert status["accepted_observation_for_slot"] is True
+
+    def test_retry_runs_when_primary_not_accepted(self, tmp_path, monkeypatch):
+        runner = self._load_runner()
+        output_dir = tmp_path / "reports"
+        output_dir.mkdir()
+        slot = "2026-11-22T10:00:00+00:00"
+        (output_dir / "latest_status.json").write_text(
+            json.dumps(
+                {
+                    "schema": "q5-latest-status.v1",
+                    "slot_utc": slot,
+                    "scheduled_minute": 8,
+                    "accepted_observation_for_slot": False,
+                }
+            ),
+            encoding="utf-8",
+        )
+        manifest = tmp_path / "collection.json"
+        manifest.write_text(
+            json.dumps(
+                {
+                    "collection_id": "collect-epoch3-4e1b55cd-ee07-4f2a-8f4c-d0be0e848b2d",
+                    "associated_freeze_id": "freeze-epoch3-ba777bcd-df63-4cfe-9aa3-18dde1fef46f",
+                    "exchange": "binance",
+                    "market_type": "spot",
+                    "symbols": ["BTC/USDT"],
+                    "timeframes": ["1h"],
+                    "collection_started_at_utc": None,
+                }
+            ),
+            encoding="utf-8",
+        )
+        # minimal freeze manifest expected by collector validation
+        freeze = tmp_path / "freeze.json"
+        freeze.write_text(
+            json.dumps(
+                {
+                    "freeze_id": "freeze-epoch3-ba777bcd-df63-4cfe-9aa3-18dde1fef46f",
+                    "created_at_utc": "2026-11-22T08:00:00+00:00",
+                    "scope": {"exchange": "binance", "market_type": "spot", "symbols": ["BTC/USDT"], "timeframes": ["1h"]},
+                    "git_commit_hash": "0" * 40,
+                    "config_hash": "a" * 64,
+                    "schema_version": "research-freeze-manifest.v1",
+                    "q4_overall_decision": "NO_STRATEGY_ELIGIBLE",
+                    "q4_strategy_evaluation_authorized": False,
+                }
+            ),
+            encoding="utf-8",
+        )
+        (tmp_path / "storage").mkdir()
+
+        monkeypatch.setattr(runner, "_scheduled_slot_utc", lambda now, minute: slot)
+        monkeypatch.setattr(runner, "_utc_now_iso", lambda: "2026-11-22T10:12:05+00:00")
+        monkeypatch.setattr(runner, "check_collection_authorization", lambda **k: type("A", (), {"authorized": True, "reason": "ok", "approval_record": {"approval_id": "a"}, "collection_id": k["collection_id"], "freeze_id": k["freeze_id"]})())
+        monkeypatch.setattr(runner, "check_scheduler_authorization", lambda **k: type("A", (), {"authorized": True, "reason": "ok", "approval_record": {"approval_id": "s"}})())
+
+        class FakeCollector:
+            def __init__(self, *a, **k):
+                self.policy = type("P", (), {"min_elapsed_observation_period_s": 604800, "min_observation_count": 168, "min_coverage_fraction": 0.95})()
+            def validate_freeze(self):
+                return {"freeze_id": "freeze-epoch3-ba777bcd-df63-4cfe-9aa3-18dde1fef46f", "created_at_utc": "2026-11-22T08:00:00+00:00"}
+            def verify_collection_integrity(self):
+                return {"status": "VALID", "collection_id": "collect-epoch3-4e1b55cd-ee07-4f2a-8f4c-d0be0e848b2d", "collection_started_at_utc": None, "associated_freeze_id": "freeze-epoch3-ba777bcd-df63-4cfe-9aa3-18dde1fef46f"}
+            def collect_once(self):
+                return {
+                    "status": CollectionStatus.HEALTHY,
+                    "observations": [{"open_time": "2026-11-22T09:00:00+00:00"}],
+                    "gaps": [], "duplicates": [], "conflicts": [], "rejections": [], "errors": [],
+                }
+
+        monkeypatch.setattr(runner, "ProspectiveCollector", FakeCollector)
+        monkeypatch.setattr(runner, "compute_quality_report", lambda collection_result: {"observation_count": 1, "coverage_fraction": 1.0, "collector_status": "HEALTHY", "ingestion_status": "HEALTHY", "dataset_quality_status": "HEALTHY", "provenance_status": "HEALTHY", "ledger_status": "HEALTHY", "expected_intervals": 1, "evaluation_blocked": True, "evaluation_block_reasons": ["min not met"], "reasons": []})
+        monkeypatch.setattr(runner, "_write_q5_collection_report", lambda *a, **k: None)
+        monkeypatch.setattr(runner, "_write_q5_governance_report", lambda *a, **k: None)
+        monkeypatch.setattr(runner.ProspectiveStorage, "verify_collection_start_anchor", lambda self: {"status": "NOT_STARTED", "collection_started_at_utc": None})
+        monkeypatch.setattr(runner.ProspectiveStorage, "read_dataset_manifest", lambda self: {})
+
+        args = type("Args", (), {
+            "freeze_manifest": str(freeze),
+            "collection_manifest": str(manifest),
+            "storage_root": str(tmp_path / "storage"),
+            "approvals_dir": "docs/validation/approvals",
+            "output_dir": str(output_dir),
+            "scheduled_minute": 12,
+            "require_scheduler_authorization": False,
+        })()
+        rc = runner.run_once(args)
+        assert rc == 0
+        status = json.loads((output_dir / "latest_status.json").read_text(encoding="utf-8"))
+        assert status["retry_skipped"] is False
+        assert status["accepted_observation_for_slot"] is True
+        assert status["scheduled_minute"] == 12

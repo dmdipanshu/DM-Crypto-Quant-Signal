@@ -1,5 +1,5 @@
 [Unit]
-Description=SignalForge Q5.2 Prospective Collection Epoch 3 (oneshot)
+Description=SignalForge Q5.2 Prospective Collection Epoch 3 (oneshot, minute %i)
 Documentation=https://github.com/dmdipanshu/DM-Crypto-Quant-Signal
 After=docker.service network-online.target
 Wants=network-online.target
@@ -8,7 +8,7 @@ Requires=docker.service
 [Service]
 Type=oneshot
 WorkingDirectory=/home/ubuntu/DM-Crypto-Quant-Signal
-ExecStart=/usr/bin/docker compose -f /home/ubuntu/DM-Crypto-Quant-Signal/compose.yaml --profile q5-collector run --rm collector
+ExecStart=/usr/bin/docker compose -f /home/ubuntu/DM-Crypto-Quant-Signal/compose.yaml --profile q5-collector run --rm collector python scripts/run_q5_prospective_collection.py --once --freeze-manifest docs/validation/RESEARCH_FREEZE_MANIFEST_EPOCH3.json --collection-manifest docs/validation/PROSPECTIVE_COLLECTION_MANIFEST_EPOCH3.json --storage-root data/prospective --approvals-dir docs/validation/approvals --output-dir reports/q5-epoch3 --epoch epoch3 --scheduled-minute %i
 User=ubuntu
 Group=docker
 TimeoutStartSec=900

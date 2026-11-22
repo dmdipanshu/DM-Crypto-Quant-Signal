@@ -57,11 +57,11 @@ This checklist verifies Ubuntu 26.04 VPS deployment security before API is consi
 |---|-------|---------|----------|----------|
 | E1 | Service verify | `systemd-analyze verify /etc/systemd/system/signalforge-collector.service` | pass | |
 | E2 | Timer verify | `systemd-analyze verify /etc/systemd/system/signalforge-collector@.timer` | pass | |
-| E3 | Primary schedule | `systemd-analyze calendar --iterations=3 '*-%m-%d %H:08:00 UTC'` | next runs at :08 UTC | |
-| E4 | Retry schedule | `systemd-analyze calendar --iterations=3 '*-%m-%d %H:12:00 UTC'` | next runs at :12 UTC | |
-| E5 | No catch-up | `systemctl cat signalforge-collector@08.timer` | `Persistent=false` | |
-| E6 | No overlap | timer/service design | oneshot `docker compose run --rm`, no concurrent timer units beyond 08/12 | |
-| E7 | Timers not enabled by default | `systemctl list-timers --all | grep signalforge-collector || true` | empty unless explicitly authorized | |
+| E3 | Primary schedule | `systemd-analyze calendar --iterations=3 '*-*-* *:08:00 UTC'` | next runs at :08 UTC | |
+| E4 | Retry schedule | `systemd-analyze calendar --iterations=3 '*-*-* *:12:00 UTC'` | next runs at :12 UTC | |
+| E5 | No catch-up | `systemctl cat signalforge-collector@08.timer` | `Persistent=false`, `AccuracySec=1s` | |
+| E6 | No overlap/repeated retry | service+status logic | oneshot; :12 skips if `latest_status.json` shows slot accepted by :08 | |
+| E7 | Timers not enabled by default | `systemctl list-timers --all \| grep signalforge-collector \|\| true` | empty unless explicitly authorized | |
 | E8 | Correct path/user | `systemctl cat signalforge-collector.service` | `/home/ubuntu/DM-Crypto-Quant-Signal`, `User=ubuntu`, `Group=docker` | |
 
 ## F. Trading/safety disabled

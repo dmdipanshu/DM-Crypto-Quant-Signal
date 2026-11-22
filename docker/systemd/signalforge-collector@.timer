@@ -5,11 +5,12 @@ After=docker.service network-online.target
 Wants=network-online.target
 
 [Timer]
-# Run once per hour at the specified minute (UTC)
-OnCalendar=*-%m-%d %H:%i:00 UTC
+# Run once per hour at the specified minute (UTC); %i is instantiated by
+# signalforge-collector@08.timer and signalforge-collector@12.timer.
+OnCalendar=*-*-* *:%i:00 UTC
 Persistent=false
 # No catch-up: if a scheduled run is missed, do not run it later
-AccuracySec=1min
+AccuracySec=1s
 Unit=signalforge-collector.service
 
 [Install]

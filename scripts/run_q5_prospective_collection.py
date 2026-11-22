@@ -40,6 +40,7 @@ import json
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT / "src") not in sys.path:
@@ -80,6 +81,31 @@ def _write_json(path: Path, data: dict) -> None:
     path.write_text(json.dumps(data, indent=2, sort_keys=True, default=str), encoding="utf-8")
 
 
+def _scheduled_slot_utc(now: datetime, scheduled_minute: int) -> str:
+    slot = now.astimezone(UTC).replace(minute=0, second=0, microsecond=0)
+    return slot.isoformat()
+
+
+def _load_latest_status(path: Path) -> dict[str, Any] | None:
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def _write_latest_status(path: Path, data: dict[str, Any]) -> None:
+    _write_json(path, data)
+
+
+def _scheduled_candle_accepted(result: dict[str, Any], quality: dict[str, Any]) -> bool:
+    obs = result.get("observations") or []
+    if isinstance(obs, list) and len(obs) > 0:
+        return True
+    count = quality.get("observation_count")
+    return isinstance(count, int) and count > 0 and str(result.get("status")) == CollectionStatus.HEALTHY
+
+
 def run_once(args: argparse.Namespace) -> int:
     """Run one collection cycle and generate reports.
 
@@ -92,6 +118,39 @@ def run_once(args: argparse.Namespace) -> int:
     storage_root = Path(args.storage_root)
     approvals_dir = Path(args.approvals_dir)
     output_dir = Path(args.output_dir)
+
+    scheduled_minute = getattr(args, "scheduled_minute", None)
+    latest_status_path = output_dir / "latest_status.json"
+    now_utc = datetime.now(UTC)
+
+    if scheduled_minute is not None:
+        if scheduled_minute not in (8, 12):
+            print(f"Invalid scheduled minute: {scheduled_minute}; expected 08 or 12.")
+            return 3
+        slot_utc = _scheduled_slot_utc(now_utc, int(scheduled_minute))
+        latest = _load_latest_status(latest_status_path) or {}
+        if (
+            scheduled_minute == 12
+            and latest.get("slot_utc") == slot_utc
+            and latest.get("accepted_observation_for_slot") is True
+        ):
+            print(
+                f"Retry skipped for slot {slot_utc}: primary 08 run already accepted scheduled candle."
+            )
+            _write_latest_status(
+                latest_status_path,
+                {
+                    **latest,
+                    "schema": "q5-latest-status.v1",
+                    "slot_utc": slot_utc,
+                    "scheduled_minute": scheduled_minute,
+                    "retry_skipped": True,
+                    "retry_skip_reason": "primary_08_accepted",
+                    "checked_at_utc": _utc_now_iso(),
+                },
+            )
+            return 0
+        # Duplicate ingestion/candle identity is idempotent in storage; rerun is safe.
 
     # --- Step 0: Authorization check BEFORE any collection ---
     # Load the collection manifest to get collection_id and freeze_id.
@@ -247,7 +306,24 @@ def run_once(args: argparse.Namespace) -> int:
     _write_q5_collection_report(result, quality, freeze_info, manifest, output_dir)
     _write_q5_governance_report(result, quality, freeze_info, manifest, output_dir)
 
-    exit_code = 0 if result["status"] == CollectionStatus.HEALTHY else 1
+    accepted = _scheduled_candle_accepted(result, quality)
+    exit_code = 0 if accepted else 1
+    if scheduled_minute is not None:
+        slot_utc = _scheduled_slot_utc(now_utc, int(scheduled_minute))
+        status = {
+            "schema": "q5-latest-status.v1",
+            "slot_utc": slot_utc,
+            "scheduled_minute": int(scheduled_minute),
+            "collection_id": collection_id,
+            "freeze_id": freeze_id,
+            "accepted_observation_for_slot": accepted,
+            "retry_skipped": False,
+            "exit_code": exit_code,
+            "status": result.get("status"),
+            "observation_count": quality.get("observation_count"),
+            "completed_at_utc": _utc_now_iso(),
+        }
+        _write_latest_status(output_dir / "latest_status.json", status)
     return exit_code
 
 
@@ -746,6 +822,13 @@ def main() -> int:
         "--require-scheduler-authorization",
         action="store_true",
         help="Require active scheduler authorization for this collection/freeze before execution.",
+    )
+    parser.add_argument(
+        "--scheduled-minute",
+        type=int,
+        choices=[8, 12],
+        default=None,
+        help="Scheduled minute instance (08 primary, 12 retry). Retry runs only when slot not already accepted.",
     )
     args = parser.parse_args()
 
