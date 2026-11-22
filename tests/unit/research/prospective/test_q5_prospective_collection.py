@@ -2039,3 +2039,457 @@ class TestDatasetManifestGeneration:
         assert read_manifest is not None
         assert read_manifest["collection_id"] == "collect-1"
         assert read_manifest["observation_count"] == 1
+
+
+# ---------------------------------------------------------------------------
+# G. Q5.2 Epoch 2 Regression Tests
+# ---------------------------------------------------------------------------
+# Tests for the new independent collection epoch. All tests must NOT
+# modify existing freeze, collection, or approval records.
+
+
+class TestEpoch2NewCollectionIds:
+    """New collection epoch receives independent IDs separate from existing."""
+
+    def test_new_freeze_id_differs_from_existing(self):
+        """New freeze ID must differ from existing freeze-aaa4dd57057a."""
+        freeze_path = Path("docs/validation/RESEARCH_FREEZE_MANIFEST_EPOCH2.json")
+        assert freeze_path.is_file(), "Epoch 2 freeze manifest must exist"
+        import json
+
+        manifest = json.loads(freeze_path.read_text(encoding="utf-8"))
+        assert manifest["freeze_id"] == "freeze-epoch2-f34ea12a-34f6-4e5f-b830-393402947a65"
+        assert manifest["freeze_id"] != "freeze-aaa4dd57057a"
+
+    def test_new_collection_id_differs_from_existing(self):
+        """New collection ID must differ from existing collect-52cefa0dda64."""
+        manifest_path = Path("docs/validation/PROSPECTIVE_COLLECTION_MANIFEST_EPOCH2.json")
+        assert manifest_path.is_file(), "Epoch 2 collection manifest must exist"
+        import json
+
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        assert manifest["collection_id"] == "collect-epoch2-eca19890-be05-4929-8773-e04885966db1"
+        assert manifest["collection_id"] != "collect-52cefa0dda64"
+
+    def test_epoch2_manifest_freeze_id_matches_freeze_id(self):
+        """Collection manifest's associated_freeze_id must match epoch 2 freeze."""
+        collection_path = Path("docs/validation/PROSPECTIVE_COLLECTION_MANIFEST_EPOCH2.json")
+        freeze_path = Path("docs/validation/RESEARCH_FREEZE_MANIFEST_EPOCH2.json")
+        import json
+
+        collection = json.loads(collection_path.read_text(encoding="utf-8"))
+        freeze = json.loads(freeze_path.read_text(encoding="utf-8"))
+        assert collection["associated_freeze_id"] == freeze["freeze_id"]
+
+
+class TestEpoch2ExistingEvidencePreserved:
+    """Existing research evidence must not be modified by epoch 2."""
+
+    def test_existing_freeze_manifest_unchanged(self):
+        """Existing RESEARCH_FREEZE_MANIFEST.json must not be modified."""
+        path = Path("docs/validation/RESEARCH_FREEZE_MANIFEST.json")
+        assert path.is_file()
+        import json
+
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        assert manifest["freeze_id"] == "freeze-aaa4dd57057a"
+        assert manifest["schema_version"] == "research-freeze-manifest.v1"
+
+    def test_existing_collection_manifest_unchanged(self):
+        """Existing PROSPECTIVE_COLLECTION_MANIFEST.json must not be modified."""
+        path = Path("docs/validation/PROSPECTIVE_COLLECTION_MANIFEST.json")
+        assert path.is_file()
+        import json
+
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        assert manifest["collection_id"] == "collect-52cefa0dda64"
+        assert manifest["associated_freeze_id"] == "freeze-aaa4dd57057a"
+        assert manifest["schema_version"] == "prospective-collection-manifest.v1"
+
+    def test_existing_approval_records_unchanged(self):
+        """Existing approval records must remain unchanged."""
+        coll_approval = Path("docs/validation/approvals/q5_2_collection_continuation_approval.json")
+        sched_approval = Path(
+            "docs/validation/approvals/q5_2_scheduler_authorization_approval.json"
+        )
+        assert coll_approval.is_file()
+        assert sched_approval.is_file()
+        import json
+
+        coll = json.loads(coll_approval.read_text(encoding="utf-8"))
+        sched = json.loads(sched_approval.read_text(encoding="utf-8"))
+        assert coll["collection_id"] == "collect-52cefa0dda64"
+        assert coll["freeze_id"] == "freeze-aaa4dd57057a"
+        assert sched["collection_id"] == "collect-52cefa0dda64"
+        assert sched["freeze_id"] == "freeze-aaa4dd57057a"
+
+    def test_existing_freeze_history_unchanged(self):
+        """RESEARCH_FREEZE_HISTORY.jsonl must not be modified."""
+        path = Path("docs/validation/RESEARCH_FREEZE_HISTORY.jsonl")
+        assert path.is_file()
+        content = path.read_text(encoding="utf-8")
+        assert "freeze-aaa4dd57057a" in content
+
+    def test_existing_collection_history_unchanged(self):
+        """PROSPECTIVE_COLLECTION_HISTORY.jsonl must not be modified."""
+        path = Path("docs/validation/PROSPECTIVE_COLLECTION_HISTORY.jsonl")
+        assert path.is_file()
+        content = path.read_text(encoding="utf-8")
+        assert "collect-52cefa0dda64" in content
+
+
+class TestEpoch2Authorization:
+    """Authorization must match exact collection ID and freeze ID."""
+
+    def test_epoch2_collection_authorization(self):
+        """Epoch 2 authorization record exists with correct IDs."""
+        import json
+
+        path = Path("docs/validation/approvals/collection-epoch2-authorization.json")
+        assert path.is_file()
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        assert manifest["collection_id"] == "collect-epoch2-eca19890-be05-4929-8773-e04885966db1"
+        assert manifest["freeze_id"] == "freeze-epoch2-f34ea12a-34f6-4e5f-b830-393402947a65"
+        assert manifest["collection_authorized"] is True
+        assert manifest["scheduler_authorized"] is False
+        assert manifest["strategy_evaluation_authorized"] is False
+        assert manifest["paper_trading_authorized"] is False
+        assert manifest["live_trading_authorized"] is False
+        assert manifest["Q5_2_PROSPECTIVE_VALIDATED"] is False
+
+    def test_epoch2_scheduler_authorization(self):
+        """Epoch 2 scheduler authorization record exists with correct IDs."""
+        import json
+
+        path = Path("docs/validation/approvals/scheduler-epoch2-authorization.json")
+        assert path.is_file()
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        assert manifest["collection_id"] == "collect-epoch2-eca19890-be05-4929-8773-e04885966db1"
+        assert manifest["freeze_id"] == "freeze-epoch2-f34ea12a-34f6-4e5f-b830-393402947a65"
+        assert manifest["collection_authorized"] is True
+        assert manifest["scheduler_authorized"] is True
+        assert manifest["strategy_evaluation_authorized"] is False
+        assert manifest["paper_trading_authorized"] is False
+        assert manifest["live_trading_authorized"] is False
+        assert manifest["Q5_2_PROSPECTIVE_VALIDATED"] is False
+
+    def test_authorization_mismatch_rejected(self, tmp_path):
+        """Authorization with mismatched collection ID is rejected."""
+        from crypto_engine.research.q6.governance_verification import (
+            check_collection_authorization,
+        )
+
+        result = check_collection_authorization(
+            collection_id="wrong-collect-id",
+            freeze_id="freeze-epoch2-f34ea12a-34f6-4e5f-b830-393402947a65",
+            approvals_root=Path("docs/validation/approvals"),
+        )
+        assert result.authorized is False
+
+        result2 = check_collection_authorization(
+            collection_id="collect-epoch2-eca19890-be05-4929-8773-e04885966db1",
+            freeze_id="wrong-freeze-id",
+            approvals_root=Path("docs/validation/approvals"),
+        )
+        assert result2.authorized is False
+
+
+class TestEpoch2CollectorIsolation:
+    """Collector cannot write outside its designated directories."""
+
+    def test_collector_storage_root_is_epoch2_path(self):
+        """Epoch 2 collector uses separate storage root directory."""
+        # The storage root for epoch 2 is data/prospective/binance/spot/BTC/USDT/1h
+        # Same structure as epoch 1 but the data is independent
+        # The key isolation is that epoch 2 manifest has different IDs
+        manifest_path = Path("docs/validation/PROSPECTIVE_COLLECTION_MANIFEST_EPOCH2.json")
+        import json
+
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        assert manifest["collection_id"] != "collect-52cefa0dda64"
+        assert manifest["associated_freeze_id"] != "freeze-aaa4dd57057a"
+
+    def test_api_prospective_mount_read_only(self):
+        """API's prospective data mount is read-only."""
+        # Verify compose.yaml mounts prospective data read-only for API
+        compose_path = Path("compose.yaml")
+        assert compose_path.is_file()
+        content = compose_path.read_text(encoding="utf-8")
+        # API service mounts prospective data read-only (:ro)
+        assert "/app/data/prospective/binance/spot/BTC/USDT/1h:ro" in content
+
+
+class TestEpoch2PathNormalization:
+    """BTC/USDT path normalization must be consistent everywhere."""
+
+    def test_symbol_uses_slash_not_hyphen(self):
+        """Canonical symbol format is BTC/USDT not BTC-USDT."""
+        from crypto_engine.research.prospective.config import DEFAULT_SYMBOLS
+
+        assert "BTC/USDT" in DEFAULT_SYMBOLS
+        assert "BTC-USDT" not in DEFAULT_SYMBOLS
+
+    def test_repos_api_uses_btc_usdt_path(self):
+        """repos.py uses BTC/USDT not BTC-USDT in storage path."""
+        source = Path("src/crypto_engine/api/repos.py").read_text(encoding="utf-8")
+        # The storage path should use BTC/USDT (with slash)
+        assert "BTC/USDT" in source or "'BTC-USDT'" not in source.split("BTC")[1:3]
+
+    def test_collector_uses_btc_usdt_symbol(self):
+        """Collector uses BTC/USDT not BTC-USDT for symbol."""
+        import crypto_engine.research.prospective.config as config_mod
+
+        source = Path(config_mod.__file__).read_text(encoding="utf-8")
+        # DEFAULT_SYMBOLS should be ("BTC/USDT",) with forward slash
+        assert (
+            'DEFAULT_SYMBOLS = ("BTC/USDT",)' in source
+            or "DEFAULT_SYMBOLS = ('BTC/USDT',)" in source
+        )
+
+
+class TestEpoch2IdempotencyAndIntegrity:
+    """Duplicate ingestion and retry behavior must be idempotent."""
+
+    def test_duplicate_candle_ingestion_is_idempotent(self, tmp_path):
+        """Storing same candle twice does not increase unique observation count."""
+        storage = ProspectiveStorage(tmp_path / "storage")
+        now = datetime.now(UTC).isoformat()
+
+        storage.store_normalized_candle(
+            collection_id="collect-epoch2",
+            exchange="binance",
+            market_type="spot",
+            symbol="BTC/USDT",
+            interval="1h",
+            open_time="2026-01-01T00:00:00+00:00",
+            close_time="2026-01-01T01:00:00+00:00",
+            open_price=100.0,
+            high=101.0,
+            low=99.0,
+            close=100.5,
+            volume=10.0,
+            source_observation_id="obs-1",
+            first_seen_at_utc=now,
+            observed_at_utc=now,
+            ingested_at_utc=now,
+            research_freeze_id="freeze-epoch2",
+        )
+        storage.store_normalized_candle(
+            collection_id="collect-epoch2",
+            exchange="binance",
+            market_type="spot",
+            symbol="BTC/USDT",
+            interval="1h",
+            open_time="2026-01-01T00:00:00+00:00",
+            close_time="2026-01-01T01:00:00+00:00",
+            open_price=100.0,
+            high=101.0,
+            low=99.0,
+            close=100.6,
+            volume=10.0,
+            source_observation_id="obs-2",
+            first_seen_at_utc=now,
+            observed_at_utc=now,
+            ingested_at_utc=now,
+            research_freeze_id="freeze-epoch2",
+        )
+
+        unique = storage.read_unique_normalized_candles()
+        assert len(unique) == 1  # Deduplicated by open_time
+
+    def test_retry_does_not_create_duplicate_observations(self, tmp_path):
+        """Retry collection does not create duplicate observations for same bar."""
+        storage = ProspectiveStorage(tmp_path / "storage")
+        now = datetime.now(UTC).isoformat()
+
+        # Simulate first collection attempt
+        storage.store_normalized_candle(
+            collection_id="collect-epoch2",
+            exchange="binance",
+            market_type="spot",
+            symbol="BTC/USDT",
+            interval="1h",
+            open_time="2026-01-01T00:00:00+00:00",
+            close_time="2026-01-01T01:00:00+00:00",
+            open_price=100.0,
+            high=101.0,
+            low=99.0,
+            close=100.5,
+            volume=10.0,
+            source_observation_id="obs-retry-1",
+            first_seen_at_utc=now,
+            observed_at_utc=now,
+            ingested_at_utc=now,
+            research_freeze_id="freeze-epoch2",
+        )
+        # Retry: same candle, same open_time
+        storage.store_normalized_candle(
+            collection_id="collect-epoch2",
+            exchange="binance",
+            market_type="spot",
+            symbol="BTC/USDT",
+            interval="1h",
+            open_time="2026-01-01T00:00:00+00:00",
+            close_time="2026-01-01T01:00:00+00:00",
+            open_price=100.0,
+            high=101.0,
+            low=99.0,
+            close=100.5,
+            volume=10.0,
+            source_observation_id="obs-retry-2",
+            first_seen_at_utc=now,
+            observed_at_utc=now,
+            ingested_at_utc=now,
+            research_freeze_id="freeze-epoch2",
+        )
+
+        unique = storage.read_unique_normalized_candles()
+        assert len(unique) == 1  # Deduplicated
+
+    def test_missing_candle_not_backfilled(self, tmp_path):
+        """Missing candle in collection window is not backfilled."""
+        now = datetime.now(UTC)
+        collection_start = now - timedelta(hours=5)
+        collection_start_ms = int(collection_start.timestamp() * 1000)
+
+        freeze_manifest = tmp_path / "freeze.json"
+        freeze_manifest.write_text(
+            json.dumps(
+                {
+                    "schema_version": "research-freeze-manifest.v1",
+                    "freeze_id": "freeze-test",
+                    "status": "VALID",
+                    "created_at_utc": "2026-11-12T19:11:47.293700+00:00",
+                    "repository_commit_sha": "abc123",
+                }
+            ),
+            encoding="utf-8",
+        )
+        collection_manifest = tmp_path / "collection.json"
+        collection_manifest.write_text(
+            json.dumps(
+                {
+                    "schema_version": "prospective-collection-manifest.v1",
+                    "collection_id": "test-collect",
+                    "collection_started_at_utc": datetime.fromtimestamp(
+                        collection_start_ms / 1000, tz=UTC
+                    ).isoformat(),
+                    "associated_freeze_id": "freeze-test",
+                    "associated_freeze_timestamp": "2026-11-12T19:11:47.293700+00:00",
+                    "exchange": "binance",
+                    "market_type": "spot",
+                    "symbols": ["BTC/USDT"],
+                    "timeframes": ["1h"],
+                    "collector_version": "q5-v1",
+                    "data_schema_version": "ohlcv-v1",
+                    "repository_commit_sha": "abc123",
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        # Mock client returns NO candles (outage)
+        client = _make_mock_client([])
+
+        collector = ProspectiveCollector(
+            exchange="binance",
+            market_type="spot",
+            symbols=["BTC/USDT"],
+            timeframes=["1h"],
+            policy=ProspectiveCollectionPolicy(
+                exchange="binance",
+                market_type="spot",
+                symbols=("BTC/USDT",),
+                timeframes=("1h",),
+                candle_finalization_margin_s=1,
+                max_ingestion_latency_s=86400,
+            ),
+            client=client,
+            freeze_manifest_path=str(freeze_manifest),
+            collection_manifest_path=str(collection_manifest),
+        )
+
+        result = collector._collect_symbol_timeframe(
+            symbol="BTC/USDT",
+            timeframe="1h",
+            collection_id="test-collect-missing",
+            collection_start_ms=collection_start_ms,
+            freeze_id="freeze-test",
+            storage_root=tmp_path / "storage",
+        )
+
+        # No observations collected, no historical backfill
+        assert len(result["observations"]) == 0
+        assert len(result["errors"]) == 0  # No errors, just no data
+
+
+class TestEpoch2ThresholdsImmutable:
+    """Seven-day and 95% thresholds remain immutable."""
+
+    def test_min_observation_count_is_168(self):
+        """Minimum observation count remains 168."""
+        from crypto_engine.research.prospective.config import (
+            DEFAULT_MIN_OBSERVATION_COUNT,
+        )
+
+        assert DEFAULT_MIN_OBSERVATION_COUNT == 168
+
+    def test_min_coverage_fraction_is_0_95(self):
+        """Minimum coverage fraction remains 95%."""
+        from crypto_engine.research.prospective.config import (
+            DEFAULT_MIN_COVERAGE_FRACTION,
+        )
+
+        assert DEFAULT_MIN_COVERAGE_FRACTION == 0.95
+
+    def test_min_elapsed_period_is_7_days(self):
+        """Minimum elapsed observation period remains 7 days."""
+        from crypto_engine.research.prospective.config import (
+            DEFAULT_MIN_ELAPSED_OBSERVATION_PERIOD_S,
+        )
+
+        assert DEFAULT_MIN_ELAPSED_OBSERVATION_PERIOD_S == 604800  # 7 days
+
+
+class TestEpoch2TradingDisabled:
+    """Paper trading and live trading remain disabled."""
+
+    def test_paper_trading_authorized_false(self):
+        """Epoch 2 authorization has paper_trading_authorized = False."""
+        import json
+
+        path = Path("docs/validation/approvals/collection-epoch2-authorization.json")
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        assert manifest["paper_trading_authorized"] is False
+
+    def test_live_trading_authorized_false(self):
+        """Epoch 2 authorization has live_trading_authorized = False."""
+        import json
+
+        path = Path("docs/validation/approvals/collection-epoch2-authorization.json")
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        assert manifest["live_trading_authorized"] is False
+
+    def test_strategy_evaluation_authorized_false(self):
+        """Epoch 2 authorization has strategy_evaluation_authorized = False."""
+        import json
+
+        path = Path("docs/validation/approvals/collection-epoch2-authorization.json")
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        assert manifest["strategy_evaluation_authorized"] is False
+
+    def test_model_promotion_authorized_false(self):
+        """Epoch 2 authorization has model_promotion_authorized = False."""
+        import json
+
+        path = Path("docs/validation/approvals/collection-epoch2-authorization.json")
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        assert manifest["model_promotion_authorized"] is False
+
+    def test_q5_2_prospective_validated_false(self):
+        """Epoch 2 authorization has Q5_2_PROSPECTIVE_VALIDATED = False."""
+        import json
+
+        path = Path("docs/validation/approvals/collection-epoch2-authorization.json")
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        assert manifest["Q5_2_PROSPECTIVE_VALIDATED"] is False

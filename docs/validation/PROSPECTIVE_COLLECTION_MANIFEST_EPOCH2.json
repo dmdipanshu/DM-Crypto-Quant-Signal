@@ -1,0 +1,19 @@
+{
+  "associated_freeze_id": "freeze-epoch2-f34ea12a-34f6-4e5f-b830-393402947a65",
+  "associated_freeze_timestamp": "2026-11-20T08:00:00.000000+00:00",
+  "collection_config_hash": "748a2a1e1e8a01c6b47c61ad595d9a8076196e414b19ddc8ded741cc52577f89",
+  "collection_id": "collect-epoch2-eca19890-be05-4929-8773-e04885966db1",
+  "collection_started_at_utc": "2026-11-20T08:00:00.000000+00:00",
+  "collector_version": "q5-v1",
+  "data_schema_version": "ohlcv-v1",
+  "exchange": "binance",
+  "market_type": "spot",
+  "repository_commit_sha": "8d7beb729d5f326c14700713f76fe1b858e348db",
+  "schema_version": "prospective-collection-manifest.v1",
+  "symbols": [
+    "BTC/USDT"
+  ],
+  "timeframes": [
+    "1h"
+  ]
+}

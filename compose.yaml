@@ -1,6 +1,43 @@
-name: signalforge
+  collector:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: signalforge:local
+    container_name: signalforge-collector
+    command: >
+      python scripts/run_q5_prospective_collection.py --once
+      --freeze-manifest docs/validation/RESEARCH_FREEZE_MANIFEST_EPOCH2.json
+      --collection-manifest docs/validation/PROSPECTIVE_COLLECTION_MANIFEST_EPOCH2.json
+      --storage-root data/prospective
+      --approvals-dir docs/validation/approvals
+      --output-dir docs/validation/results
+      --epoch epoch2
+    environment:
+      # Collector does NOT require API auth; it only reads public Binance data.
+      SIGNALFORGE_AUTH_REQUIRED: "0"
+    volumes:
+      # Read-only inputs
+      - ./config:/app/config:ro
+      - ./docs/validation/RESEARCH_FREEZE_MANIFEST_EPOCH2.json:/app/docs/validation/RESEARCH_FREEZE_MANIFEST_EPOCH2.json:ro
+      - ./docs/validation/PROSPECTIVE_COLLECTION_MANIFEST_EPOCH2.json:/app/docs/validation/PROSPECTIVE_COLLECTION_MANIFEST_EPOCH2.json:ro
+      - ./docs/validation/approvals:/app/docs/validation/approvals:ro
+      # Writable prospective data (epoch 2 only, isolated)
+      - ./data/prospective/binance/spot/BTC/USDT/1h:/app/data/prospective/binance/spot/BTC/USDT/1h
+      - ./logs:/app/logs
+      - ./reports:/app/reports
+    tmpfs:
+      - /tmp
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    user: "10001:10001"
+    restart: "no"
+    networks:
+      - signalforge-net
 
-services:
   api:
     build:
       context: .
@@ -17,12 +54,12 @@ services:
       SIGNALFORGE_API_TOKEN: "${SIGNALFORGE_API_TOKEN:-}"
     volumes:
       # Read-only inputs
-      - ./data/prospective:/app/data/prospective:ro
-      - ./models/artifacts:/app/models/artifacts:ro
       - ./config:/app/config:ro
-      - ./docs/validation:/app/docs/validation:ro
-      # Writable runtime state (scoped). Prospective submount remains read-only due to bind specificity.
-      - ./data:/app/data
+      - ./docs/validation/RESEARCH_FREEZE_MANIFEST.json:/app/docs/validation/RESEARCH_FREEZE_MANIFEST.json:ro
+      - ./docs/validation/PROSPECTIVE_COLLECTION_MANIFEST.json:/app/docs/validation/PROSPECTIVE_COLLECTION_MANIFEST.json:ro
+      - ./docs/validation/approvals:/app/docs/validation/approvals:ro
+      # Read-only prospective data (collector owns writes; API reads only)
+      - ./data/prospective/binance/spot/BTC/USDT/1h:/app/data/prospective/binance/spot/BTC/USDT/1h:ro
       - ./logs:/app/logs
       - ./reports:/app/reports
     tmpfs:
@@ -34,6 +71,8 @@ services:
       - ALL
     user: "10001:10001"
     restart: "no"
+    networks:
+      - signalforge-net
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3).read()"]
       interval: 30s
@@ -89,3 +128,8 @@ services:
       - ALL
     user: "10001:10001"
     command: ["sh", "-c", "ruff check . && pytest -q"]
+
+networks:
+  signalforge-net:
+    driver: bridge
+

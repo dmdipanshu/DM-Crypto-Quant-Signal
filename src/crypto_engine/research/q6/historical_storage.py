@@ -1,7 +1,7 @@
 """Append-only storage for historical accelerated validation data.
 
 Completely separate from the prospective storage at
-data/prospective/binance/spot/BTC-USDT/1h/.
+data/prospective/binance/spot/BTC/USDT/1h/.
 This module must never write to or read from the prospective dataset.
 """
 

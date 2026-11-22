@@ -73,7 +73,7 @@ class ProspectiveStorage:
     Parameters
     ----------
     root:
-        Storage root directory, e.g. ``data/prospective/binance/spot/BTC-USDT/1h``.
+        Storage root directory, e.g. ``data/prospective/binance/spot/BTC/USDT/1h``.
     """
 
     def __init__(self, root: Path | str) -> None:

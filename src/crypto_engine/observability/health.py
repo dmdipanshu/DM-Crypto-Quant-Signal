@@ -174,7 +174,11 @@ def check_signal_ledger(settings: Settings) -> tuple[HealthStatus, str, dict[str
         details["errors"] = errors
         if ok:
             return HealthStatus.HEALTHY, "signal ledger chain verifies", details
-        return HealthStatus.UNHEALTHY, f"signal ledger chain broken ({len(errors)} error(s))", details
+        return (
+            HealthStatus.UNHEALTHY,
+            f"signal ledger chain broken ({len(errors)} error(s))",
+            details,
+        )
     except Exception as exc:
         return HealthStatus.UNHEALTHY, f"signal ledger check failed: {exc}", details
 
@@ -313,7 +317,7 @@ def check_prospective_collection() -> tuple[HealthStatus, str, dict[str, Any]]:
     """
     from crypto_engine.research.prospective.storage import ProspectiveStorage
 
-    path = Path("data/prospective/binance/spot/BTC-USDT/1h")
+    path = Path("data/prospective/binance/spot/BTC/USDT/1h")
     details: dict[str, Any] = {"storage_path": str(path)}
     try:
         if not path.is_dir():
@@ -403,12 +407,13 @@ def check_pipeline_freshness(settings: Settings) -> tuple[HealthStatus, str, dic
         statuses.append(HealthStatus.UNHEALTHY)
 
     # --- Collection freshness ---
-    coll_path = Path("data/prospective/binance/spot/BTC-USDT/1h/dataset_manifest.json")
+    coll_path = Path("data/prospective/binance/spot/BTC/USDT/1h/dataset_manifest.json")
     details["collection_manifest_path"] = str(coll_path)
     last_coll_ts: str | None = None
     if coll_path.is_file():
         try:
             import json
+
             manifest = json.loads(coll_path.read_text(encoding="utf-8"))
             started = manifest.get("collection_started_at_utc")
             details["collection_started_at_utc"] = started
@@ -420,7 +425,9 @@ def check_pipeline_freshness(settings: Settings) -> tuple[HealthStatus, str, dic
                     age_s = (now - coll_dt).total_seconds()
                     details["collection_age_seconds"] = age_s
                     if age_s > 604800:  # 7 days
-                        stale_reasons.append(f"collection window expired {age_s / 86400:.1f} days ago")
+                        stale_reasons.append(
+                            f"collection window expired {age_s / 86400:.1f} days ago"
+                        )
                         statuses.append(HealthStatus.DEGRADED)
                     else:
                         statuses.append(HealthStatus.HEALTHY)
@@ -460,23 +467,13 @@ health_checker = HealthChecker()
 
 health_checker.register_check("config", lambda: check_config(load_settings()))
 health_checker.register_check("storage", lambda: check_storage(load_settings()))
-health_checker.register_check(
-    "signal_ledger", lambda: check_signal_ledger(load_settings())
-)
-health_checker.register_check(
-    "paper_account", lambda: check_paper_account(load_settings())
-)
-health_checker.register_check(
-    "event_ledger", lambda: check_event_ledger(load_settings())
-)
-health_checker.register_check(
-    "model_registry", lambda: check_model_registry(load_settings())
-)
+health_checker.register_check("signal_ledger", lambda: check_signal_ledger(load_settings()))
+health_checker.register_check("paper_account", lambda: check_paper_account(load_settings()))
+health_checker.register_check("event_ledger", lambda: check_event_ledger(load_settings()))
+health_checker.register_check("model_registry", lambda: check_model_registry(load_settings()))
 health_checker.register_check("system_health", check_system_health)
 health_checker.register_check("metrics_collector", check_metrics_collector)
-health_checker.register_check(
-    "prospective_collection", lambda: check_prospective_collection()
-)
+health_checker.register_check("prospective_collection", lambda: check_prospective_collection())
 health_checker.register_check(
     "pipeline_freshness", lambda: check_pipeline_freshness(load_settings())
 )
@@ -497,5 +494,3 @@ __all__ = [
     "check_system_health",
     "health_checker",
 ]
-
-

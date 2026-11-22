@@ -1,0 +1,29 @@
+[Unit]
+Description=SignalForge Q5.2 Prospective Collection Epoch 2 (oneshot)
+Documentation=https://github.com/dmdipanshu/DM-Crypto-Quant-Signal
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/signalforge
+ExecStart=/usr/bin/docker compose -f /opt/signalforge/compose.yaml run --rm collector
+User=signalforge
+Group=signalforge
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ProtectClock=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictNamespaces=true
+LockPersonality=true
+# No network except Docker (which handles outbound to Binance)
+# No write access except the mounted prospective data volume
+# No scheduler auto-restart; timer controls execution
+
+[Install]
+WantedBy=multi-user.target

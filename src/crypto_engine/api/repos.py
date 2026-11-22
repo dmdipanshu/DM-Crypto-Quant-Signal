@@ -640,7 +640,7 @@ def read_q5_collection_status(roots: RepoRoots) -> dict[str, Any]:
     integrity = collector.verify_collection_integrity()
 
     # Read storage state
-    storage = ProspectiveStorage(Path("data/prospective/binance/spot/BTC-USDT/1h"))
+    storage = ProspectiveStorage(Path("data/prospective/binance/spot/BTC/USDT/1h"))
     dataset_manifest = storage.read_dataset_manifest() or {}
     ledger = storage.verify_ledger_chain()
 
@@ -656,8 +656,7 @@ def read_q5_collection_status(roots: RepoRoots) -> dict[str, Any]:
     if collection_started_at:
         try:
             start_ms = int(
-                datetime.fromisoformat(collection_started_at.replace("Z", "+00:00"))
-                .timestamp()
+                datetime.fromisoformat(collection_started_at.replace("Z", "+00:00")).timestamp()
                 * 1000
             )
             elapsed_ms = now_ms - start_ms
@@ -669,11 +668,7 @@ def read_q5_collection_status(roots: RepoRoots) -> dict[str, Any]:
     # Compute whether requirements are met
     obs_below_min = observation_count < collector.policy.min_observation_count
     cov_below_min = coverage < collector.policy.min_coverage_fraction
-    requirements_met = (
-        not obs_below_min
-        and not cov_below_min
-        and data_quality_passed
-    )
+    requirements_met = not obs_below_min and not cov_below_min and data_quality_passed
 
     # Derive lifecycle state
     if not window_expired and not requirements_met:
@@ -709,7 +704,16 @@ def read_q5_collection_status(roots: RepoRoots) -> dict[str, Any]:
         "observation_count_min": collector.policy.min_observation_count,
         "coverage_fraction_min": collector.policy.min_coverage_fraction,
         "min_elapsed_period_s": collector.policy.min_elapsed_observation_period_s,
-        "elapsed_seconds": (now_ms - int(datetime.fromisoformat(collection_started_at.replace("Z", "+00:00")).timestamp() * 1000)) / 1000.0 if collection_started_at else None,
+        "elapsed_seconds": (
+            now_ms
+            - int(
+                datetime.fromisoformat(collection_started_at.replace("Z", "+00:00")).timestamp()
+                * 1000
+            )
+        )
+        / 1000.0
+        if collection_started_at
+        else None,
         "requirements_met": requirements_met,
     }
 
@@ -751,7 +755,7 @@ def read_q5_prospective_governance(roots: RepoRoots) -> dict[str, Any]:
     freeze_info = freeze_check
     manifest = collector.validate_or_create_collection_manifest()
 
-    storage = ProspectiveStorage(Path("data/prospective/binance/spot/BTC-USDT/1h"))
+    storage = ProspectiveStorage(Path("data/prospective/binance/spot/BTC/USDT/1h"))
     dataset_manifest = storage.read_dataset_manifest() or {}
     ledger = storage.verify_ledger_chain()
 
@@ -765,9 +769,7 @@ def read_q5_prospective_governance(roots: RepoRoots) -> dict[str, Any]:
     now_ms = int(datetime.now(UTC).timestamp() * 1000)
     try:
         start_ms = int(
-            datetime.fromisoformat(collection_started_at.replace("Z", "+00:00"))
-            .timestamp()
-            * 1000
+            datetime.fromisoformat(collection_started_at.replace("Z", "+00:00")).timestamp() * 1000
         )
         elapsed_ms = now_ms - start_ms
         min_elapsed_ms = collector.policy.min_elapsed_observation_period_s * 1000
@@ -777,11 +779,7 @@ def read_q5_prospective_governance(roots: RepoRoots) -> dict[str, Any]:
 
     obs_below_min = observation_count < collector.policy.min_observation_count
     cov_below_min = coverage < collector.policy.min_coverage_fraction
-    requirements_met = (
-        not obs_below_min
-        and not cov_below_min
-        and data_quality_passed
-    )
+    requirements_met = not obs_below_min and not cov_below_min and data_quality_passed
 
     # If the collection window has expired and requirements are not met,
     # the holdout is EXPIRED/INCOMPLETE, not ACCUMULATING.
@@ -838,7 +836,9 @@ def read_q5_prospective_governance(roots: RepoRoots) -> dict[str, Any]:
         "research_freeze_timestamp": freeze_info["created_at_utc"],
         "collection_started_at_utc": manifest["collection_started_at_utc"],
         "read_only": True,
-        "lifecycle_state": "EXPIRED" if (window_expired and not requirements_met) else readiness["state"],
+        "lifecycle_state": "EXPIRED"
+        if (window_expired and not requirements_met)
+        else readiness["state"],
         "window_expired": window_expired,
         "requirements_met": requirements_met,
         "elapsed_seconds": (now_ms - start_ms) / 1000.0,
