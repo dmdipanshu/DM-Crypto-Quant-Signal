@@ -23,7 +23,7 @@ def _run(coro: Any) -> Any:
 
 
 async def _call(
-    app: Any, method: str, path: str, query: str = "", body: bytes = b""
+    app: Any, method: str, path: str, query: str = "", body: bytes = b"", headers: list[tuple[bytes, bytes]] | None = None
 ) -> tuple[int, dict[str, str], bytes]:
     status_holder: dict[str, int] = {}
     headers_out: dict[str, str] = {}
@@ -50,6 +50,13 @@ async def _call(
         elif message["type"] == "http.response.body":
             chunks.append(bytes(message.get("body", b"")))
 
+    base_headers: list[tuple[bytes, bytes]] = [
+        (b"host", b"testserver"),
+        (b"accept", b"application/json"),
+    ]
+    if headers:
+        base_headers = headers
+
     scope = {
         "type": "http",
         "asgi": {"version": "3.0"},
@@ -59,7 +66,7 @@ async def _call(
         "path": path,
         "raw_path": path.encode("latin-1"),
         "query_string": query.encode("latin-1"),
-        "headers": [(b"host", b"testserver"), (b"accept", b"application/json")],
+        "headers": base_headers,
         "server": ("testserver", 80),
         "client": ("testclient", 50000),
         "state": {},
@@ -75,14 +82,29 @@ def _split(path: str) -> tuple[str, str]:
     return path, ""
 
 
-def api_get(app: Any, path: str, query: str = "") -> tuple[int, dict[str, str], Any]:
-    """GET ``path``; returns ``(status, headers, parsed_json_or_text)``."""
+def api_get(
+    app: Any, path: str, query: str = "", headers: dict[str, str] | None = None
+) -> tuple[int, dict[str, str], Any]:
+    """GET ``path``; returns ``(status, headers, parsed_json_or_text)``.
+
+    Optional ``headers`` are merged into the ASGI request headers (lowercased,
+    byte-encoded) so tests can send ``Authorization`` etc.
+    """
     head, tail = _split(path)
-    status, headers, raw = _run(_call(app, "GET", head, query or tail))
-    ctype = headers.get("content-type", "")
+    base_headers: list[tuple[bytes, bytes]] = [
+        (b"host", b"testserver"),
+        (b"accept", b"application/json"),
+    ]
+    if headers:
+        for key, value in headers.items():
+            base_headers.append((key.lower().encode("latin-1"), value.encode("latin-1")))
+    status, headers_out, raw = _run(
+        _call(app, "GET", head, query or tail, headers=base_headers)
+    )
+    ctype = headers_out.get("content-type", "")
     if "application/json" in ctype and raw:
-        return status, headers, json.loads(raw.decode("utf-8"))
-    return status, headers, raw.decode("utf-8", errors="replace")
+        return status, headers_out, json.loads(raw.decode("utf-8"))
+    return status, headers_out, raw.decode("utf-8", errors="replace")
 
 
 def api_request(

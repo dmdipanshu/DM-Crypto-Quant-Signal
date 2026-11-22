@@ -69,7 +69,7 @@ EXPOSE 8000
 # Container binds to 0.0.0.0 internally; host exposure is restricted to 127.0.0.1 by compose port mapping.
 # --allow-remote is required by the CLI for non-loopback binds; network exposure is controlled by compose.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-    CMD python -c "import urllib.request, os; token = os.environ.get('SIGNALFORGE_API_TOKEN', '') ; req = urllib.request.Request('http://127.0.0.1:8000/health', headers={'Authorization': 'Bearer ' + token}) ; urllib.request.urlopen(req, timeout=3).read()" || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3).read()" || exit 1
 
 CMD ["sf", "serve", "--host", "0.0.0.0", "--port", "8000", "--allow-remote"]
 

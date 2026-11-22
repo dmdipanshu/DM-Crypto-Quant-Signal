@@ -347,4 +347,29 @@ def test_apply_gate_veto_helper() -> None:
     assert vetoed.decision.gate == "risk:max_drawdown"
     assert "RISK_GATE_DRAWDOWN" in vetoed.decision.reason_codes
     assert "OK" in vetoed.decision.reason_codes
-    assert rec.decision.status == "approved"
+
+
+def test_apply_gate_veto_preserves_first_gate_when_already_rejected() -> None:
+    """When policy vetoes first (UNCALIBRATED at policy:calibration) and a
+    downstream risk gate vetoes (RISK_GATE_EXPOSURE), the decision gate must
+    preserve the first gate (policy:calibration), not overwrite with
+    risk:exposure. Both reason codes are retained.
+    """
+    # Policy abstains with UNCALIBRATED (calibration_required=True, no calibrator)
+    rec, _ = decide(
+        _base_inputs(
+            calibrator=None,
+            calibration_required=True,
+        )
+    )
+    assert rec.decision.status == "abstained"
+    assert rec.decision.gate == "policy:calibration"
+    assert rec.decision.reason_codes == ["UNCALIBRATED"]
+
+    # Downstream risk gate vetoes with RISK_GATE_EXPOSURE (status → "rejected")
+    vetoed = apply_gate_veto(rec, "risk:exposure", "RISK_GATE_EXPOSURE")
+    assert vetoed.decision.status == "rejected"
+    # Gate preserved: first rejection was policy:calibration, not risk:exposure
+    assert vetoed.decision.gate == "policy:calibration"
+    # Both reason codes retained
+    assert vetoed.decision.reason_codes == ["UNCALIBRATED", "RISK_GATE_EXPOSURE"]

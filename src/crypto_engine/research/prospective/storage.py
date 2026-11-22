@@ -611,18 +611,42 @@ class ProspectiveStorage:
         return records
 
     def compute_dataset_hash(self) -> str | None:
-        """Compute sha256 over all normalized candle records."""
+        """Compute sha256 over all normalized candle records.
+
+        Uses only canonical OHLCV fields and sorts by open_time so the
+        hash is deterministic regardless of insertion order or metadata
+        differences (event_id, recorded_at_utc, etc.).
+        """
         candles = self.read_normalized_candles()
         if not candles:
-            return None
-        return _sha256_json(candles)
+            return _sha256_json([])
+        canonical = [
+            {
+                "open_time": c["open_time"],
+                "close_time": c["close_time"],
+                "open": c["open"],
+                "high": c["high"],
+                "low": c["low"],
+                "close": c["close"],
+                "volume": c["volume"],
+            }
+            for c in candles
+        ]
+        canonical_sorted = sorted(canonical, key=lambda c: c["open_time"])
+        return _sha256_json(canonical_sorted)
 
     def compute_raw_payload_hash(self) -> str | None:
-        """Compute sha256 over all raw observation records."""
+        """Compute sha256 over all raw observation records.
+
+        Uses raw_payload_hash values (already deterministic exchange-response
+        hashes) sorted lexicographically so the result is deterministic
+        regardless of insertion order or metadata differences.
+        """
         observations = self.read_raw_observations()
         if not observations:
-            return None
-        return _sha256_json(observations)
+            return _sha256_json([])
+        raw_hashes = sorted(o["raw_payload_hash"] for o in observations)
+        return _sha256_json(raw_hashes)
 
 
 # ------------------------------------------------------------------

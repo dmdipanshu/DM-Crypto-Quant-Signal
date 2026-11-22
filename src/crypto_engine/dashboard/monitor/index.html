@@ -1,0 +1,459 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>SignalForge — Monitoring Dashboard</title>
+  <meta name="description" content="Read-only SignalForge monitoring dashboard: Q5.2 data collection, paper trading (simulation), signal monitor, risk &amp; governance, and system health.">
+  <link rel="stylesheet" href="/dashboard/monitor/monitor.css">
+</head>
+<body>
+  <a class="skip-link" href="#view-root">Skip to main content</a>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar" aria-label="Dashboard navigation">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">SF</span>
+        <div class="brand-text">
+          <strong>SignalForge</strong>
+          <span>Monitoring Dashboard</span>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="Monitor sections">
+        <a href="#status-bar" class="nav-link" data-view="status-bar">Status Bar</a>
+        <a href="#q52-section" class="nav-link" data-view="q52">Q5.2 Collection</a>
+        <a href="#pipeline-section" class="nav-link" data-view="pipeline">Data Pipeline</a>
+        <a href="#paper-section" class="nav-link" data-view="paper-trading">Paper Trading</a>
+        <a href="#positions-section" class="nav-link" data-view="positions">Open Positions</a>
+        <a href="#history-section" class="nav-link" data-view="trade-history">Trade History</a>
+        <a href="#pnl-section" class="nav-link" data-view="pnl">P&amp;L Visualization</a>
+        <a href="#signals-section" class="nav-link" data-view="signals">Signal Monitor</a>
+        <a href="#muse-section" class="nav-link" data-view="meta-muse">Meta Muse</a>
+        <a href="#governance-section" class="nav-link" data-view="governance">Risk &amp; Governance</a>
+        <a href="#health-section" class="nav-link" data-view="system-health">System Health</a>
+        <a href="#events-section" class="nav-link" data-view="events">Activity Stream</a>
+      </nav>
+
+      <div class="sidebar-foot">
+        <p class="muted">Read-only. No trading, no orders, no writes through this page.</p>
+        <p class="muted">Paper values are SIMULATION only — not live, not real money.</p>
+        <a class="back-link" href="/dashboard/">← Research dashboard</a>
+      </div>
+    </aside>
+
+    <div class="workspace">
+      <header class="topbar">
+        <button type="button" class="icon-btn menu-btn" id="menu-toggle" aria-expanded="false" aria-controls="sidebar" aria-label="Toggle navigation">☰</button>
+
+        <div class="identity">
+          <h1>SignalForge <span class="identity-sub">Monitoring</span></h1>
+          <div class="identity-meta">
+            <span class="chip" id="system-status-chip" data-status="NOT_VERIFIED">Loading…</span>
+          </div>
+        </div>
+
+        <div class="topbar-controls">
+          <div class="connection" id="connection" data-state="loading" role="status" aria-live="polite">
+            <span class="dot" aria-hidden="true"></span>
+            <span id="connection-text">Connecting…</span>
+          </div>
+          <span class="updated"><span class="label">Last update:</span> <span id="last-update">—</span></span>
+          <button type="button" class="btn" id="refresh-btn">Refresh</button>
+        </div>
+      </header>
+
+      <div class="searchbar">
+        <label class="search-label" for="global-search">Search</label>
+        <input type="search" id="global-search" class="search-input" placeholder="Search signals, events, positions, health…" autocomplete="off">
+        <span class="search-hint" id="search-hint" aria-live="polite"></span>
+      </div>
+
+      <div class="stale-banner" id="stale-banner" role="alert" hidden>
+        <strong>Stale data.</strong>
+        <span id="stale-text">The last recorded monitoring snapshot is older than the freshness window. Showing the last valid state.</span>
+      </div>
+
+      <div class="ist-banner" role="region" aria-label="Timezone indicator">
+        <span class="ist-label">All times: IST (Asia/Kolkata, UTC+05:30)</span>
+      </div>
+
+      <div class="error-banner" id="error-banner" role="alert" hidden>
+        <strong>Monitoring source unavailable.</strong>
+        <span id="error-text">Could not reach the read-only monitoring endpoint.</span>
+      </div>
+
+      <main id="view-root" class="view" tabindex="-1" aria-live="polite">
+        <div class="loading-state">
+          <p class="muted">Loading monitoring state…</p>
+        </div>
+
+        <!-- 2. Status bar row -->
+        <section class="section" id="status-bar-section">
+          <div class="section-head" id="status-bar-heading"><h2>Status Bar</h2></div>
+          <div class="status-row pill-row" role="status" aria-live="polite">
+            <span class="chip" id="chip-api-connectivity" data-status="NOT_VERIFIED">API</span>
+            <span class="chip" id="chip-system-health" data-status="NOT_VERIFIED">System</span>
+            <span class="chip" id="chip-paper-trading" data-status="INERT">Paper Trading</span>
+            <span class="chip" id="chip-live-trading" data-status="FAILED">Live Trading</span>
+            <span class="chip" id="chip-q52" data-status="NOT_VERIFIED">Q5.2</span>
+            <span class="chip" id="chip-meta-muse" data-status="NOT_VERIFIED">Meta Muse</span>
+          </div>
+        </section>
+
+        <!-- 3. Q5.2 Data Collection panel -->
+        <section class="section" id="q52-section" aria-labelledby="q52-heading">
+          <div class="section-head" id="q52-heading"><h2>Q5.2 Data Collection</h2></div>
+          <div class="grid grid-auto">
+            <div class="card metric">
+              <div class="metric-label">Collection ID</div>
+              <div class="metric-value" id="q52-collection-id" data-value="">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Freeze ID</div>
+              <div class="metric-value" id="q52-freeze-id" data-value="">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Authorization</div>
+              <div class="metric-value" id="q52-authorization" data-status="NOT_VERIFIED">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Scheduler</div>
+              <div class="metric-value" id="q52-scheduler" data-status="NOT_VERIFIED">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Observations</div>
+              <div class="metric-value" id="q52-observations" data-value="">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Coverage</div>
+              <div class="metric-value" id="q52-coverage" data-value="">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Duration</div>
+              <div class="metric-value" id="q52-duration" data-value="">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Collection Started (IST)</div>
+              <div class="metric-value" id="q52-collection-started" data-value="">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Collection Expires (IST)</div>
+              <div class="metric-value" id="q52-collection-expires" data-value="">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Latest Observation</div>
+              <div class="metric-value" id="q52-latest-observation" data-value="">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Next Window</div>
+              <div class="metric-value" id="q52-next-window" data-value="">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Last Result</div>
+              <div class="metric-value" id="q52-last-result" data-status="NOT_VERIFIED">N/A</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. Data Pipeline visualization -->
+        <section class="section" id="pipeline-section" aria-labelledby="pipeline-heading">
+          <div class="section-head" id="pipeline-heading"><h2>Data Pipeline</h2></div>
+          <div class="card">
+            <div class="flow" id="pipeline-flow" role="list" aria-label="Data pipeline stages">
+              <span class="flow-step" id="step-market-data" data-stage="market-data">Market Data</span>
+              <span class="flow-arrow">→</span>
+              <span class="flow-step" id="step-validation" data-stage="validation">Validation</span>
+              <span class="flow-arrow">→</span>
+              <span class="flow-step" id="step-features" data-stage="features">Features</span>
+              <span class="flow-arrow">→</span>
+              <span class="flow-step" id="step-model" data-stage="model">Model</span>
+              <span class="flow-arrow">→</span>
+              <span class="flow-step" id="step-signal" data-stage="signal">Signal</span>
+              <span class="flow-arrow">→</span>
+              <span class="flow-step" id="step-risk" data-stage="risk">Risk</span>
+              <span class="flow-arrow">→</span>
+              <span class="flow-step" id="step-ai-explanation" data-stage="ai-explanation">AI Explanation</span>
+              <span class="flow-arrow">→</span>
+              <span class="flow-step" id="step-paper-execution" data-stage="paper-execution">Paper Execution</span>
+            </div>
+            <p class="muted metric-note mt-sm">Public market data only. Paper execution is simulation — no real orders.</p>
+          </div>
+        </section>
+
+        <!-- 5. Paper Trading panel -->
+        <section class="section" id="paper-section" aria-labelledby="paper-heading">
+          <div class="section-head" id="paper-heading">
+            <h2>Paper Trading <span class="chip" id="paper-mode-badge" data-status="INERT">SIMULATION ONLY — NO REAL ORDERS</span></h2>
+          </div>
+          <div class="notice mt-sm" role="status" aria-live="polite">
+            <strong>LIVE TRADING DISABLED</strong>
+            <span id="live-trading-note">No live orders, no real-money exposure, no production use.</span>
+          </div>
+          <div class="grid grid-4">
+            <div class="card metric">
+              <div class="metric-label">Starting Balance (PAPER)</div>
+              <div class="metric-value" id="paper-starting-balance" data-value="">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Current Equity (PAPER)</div>
+              <div class="metric-value" id="paper-current-equity" data-value="">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Available Balance (PAPER)</div>
+              <div class="metric-value" id="paper-available-balance" data-value="">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Realized P&amp;L (PAPER)</div>
+              <div class="metric-value" id="paper-realized-pnl" data-value="">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Unrealized P&amp;L (PAPER)</div>
+              <div class="metric-value" id="paper-unrealized-pnl" data-value="">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Total P&amp;L (PAPER)</div>
+              <div class="metric-value" id="paper-total-pnl" data-value="">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Return % (PAPER)</div>
+              <div class="metric-value" id="paper-return-pct" data-value="">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Max Drawdown (PAPER)</div>
+              <div class="metric-value" id="paper-max-drawdown" data-value="">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Open Positions (PAPER)</div>
+              <div class="metric-value" id="paper-open-positions" data-value="">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Total Trades (PAPER)</div>
+              <div class="metric-value" id="paper-total-trades" data-value="">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Win Rate (PAPER)</div>
+              <div class="metric-value" id="paper-win-rate" data-value="">N/A</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6. Paper Positions table -->
+        <section class="section" id="positions-section" aria-labelledby="positions-heading">
+          <div class="section-head" id="positions-heading"><h2>Paper Positions (SIMULATION)</h2></div>
+          <div class="table-wrap">
+            <table>
+              <caption>Open paper positions — simulation state only, no real orders.</caption>
+              <thead>
+                <tr>
+                  <th>Symbol</th>
+                  <th>Side</th>
+                  <th>Quantity</th>
+                  <th>Entry Price</th>
+                  <th>Current Price</th>
+                  <th>Stop / Risk</th>
+                  <th>Unrealized P&amp;L (PAPER)</th>
+                  <th>Opened (IST)</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="positions-body">
+                <tr><td colspan="9" class="empty">No open paper positions.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- 7. Paper Trade History table -->
+        <section class="section" id="history-section" aria-labelledby="history-heading">
+          <div class="section-head" id="history-heading"><h2>Paper Trade History (SIMULATION)</h2></div>
+          <div class="table-wrap">
+            <table>
+              <caption>Paper trade history — simulated fills, no real orders.</caption>
+              <thead>
+                <tr>
+                  <th>Time (IST)</th>
+                  <th>Symbol</th>
+                  <th>Side</th>
+                  <th>Entry</th>
+                  <th>Exit</th>
+                  <th>Quantity</th>
+                  <th>P&amp;L (PAPER)</th>
+                  <th>Reason</th>
+                  <th>Signal</th>
+                  <th>AI Explanation</th>
+                </tr>
+              </thead>
+              <tbody id="trade-history-body">
+                <tr><td colspan="10" class="empty">No paper trades recorded.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- 8. P&L visualization -->
+        <section class="section" id="pnl-section" aria-labelledby="pnl-heading">
+          <div class="section-head" id="pnl-heading"><h2>P&amp;L Visualization (PAPER Equity Curve)</h2></div>
+          <div class="card">
+            <div class="pnl-canvas" id="pnl-canvas" role="img" aria-label="Paper equity curve">
+              <svg id="pnl-equity-curve" data-min="N/A" data-max="N/A" data-points="" preserveAspectRatio="xMidYMid meet" focusable="false" aria-hidden="true">
+              </svg>
+            </div>
+            <div class="mt-sm">
+              <span class="chip" id="pnl-range-chip" data-status="NOT_VERIFIED">N/A</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 9. Signal Monitor -->
+        <section class="section" id="signals-section" aria-labelledby="signals-heading">
+          <div class="section-head" id="signals-heading"><h2>Signal Monitor (Latest Signals)</h2></div>
+          <div class="table-wrap">
+            <table>
+              <caption>Latest model signals — read-only, no order routing.</caption>
+              <thead>
+                <tr>
+                  <th>Time (IST)</th>
+                  <th>Symbol</th>
+                  <th>Direction</th>
+                  <th>Signal Strength</th>
+                  <th>Confidence</th>
+                  <th>Rejection Reason</th>
+                  <th>Model</th>
+                  <th>AI Explanation</th>
+                </tr>
+              </thead>
+              <tbody id="signals-body">
+                <tr><td colspan="8" class="empty">No signals recorded.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- 10. Meta Muse panel -->
+        <section class="section" id="muse-section" aria-labelledby="muse-heading">
+          <div class="section-head" id="muse-heading"><h2>Meta Muse</h2></div>
+          <div class="grid grid-2">
+            <div class="card kv">
+              <dt>Provider</dt>
+              <dd id="meta-provider" data-value="">N/A</dd>
+              <dt>Model</dt>
+              <dd id="meta-model" data-value="">N/A</dd>
+              <dt>Status</dt>
+              <dd id="meta-status" data-status="NOT_VERIFIED">N/A</dd>
+              <dt>Generated</dt>
+              <dd id="meta-generated" data-value="">N/A</dd>
+            </div>
+            <div class="card">
+              <div class="metric-label">Latest Signal Explanation</div>
+              <div id="meta-latest-explanation" data-value="" class="wrap-anywhere">N/A</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 11. Risk &amp; Governance panel -->
+        <section class="section" id="governance-section" aria-labelledby="governance-heading">
+          <div class="section-head" id="governance-heading"><h2>Risk &amp; Governance</h2></div>
+          <div class="grid grid-3">
+            <div class="card metric">
+              <div class="metric-label">Strategy Evaluation</div>
+              <div class="metric-value" id="gov-strategy-evaluation" data-status="NOT_AUTHORIZED">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Paper Trading</div>
+              <div class="metric-value" id="gov-paper-trading" data-status="INERT">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Live Trading</div>
+              <div class="metric-value" id="gov-live-trading" data-status="DISABLED">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">AI Promotion</div>
+              <div class="metric-value" id="gov-ai-promotion" data-status="NOT_AUTHORIZED">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Production Ready</div>
+              <div class="metric-value" id="gov-production-ready" data-status="FALSE">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Q5.2 Validation</div>
+              <div class="metric-value" id="gov-q52-validation" data-status="NOT_VERIFIED">N/A</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 12. System Health panel -->
+        <section class="section" id="health-section" aria-labelledby="health-heading">
+          <div class="section-head" id="health-heading"><h2>System Health</h2></div>
+          <div class="grid grid-4">
+            <div class="card metric">
+              <div class="metric-label">API</div>
+              <div class="metric-value" id="health-api" data-status="NOT_VERIFIED">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Database / Storage</div>
+              <div class="metric-value" id="health-database" data-status="NOT_VERIFIED">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Scheduler</div>
+              <div class="metric-value" id="health-scheduler" data-status="NOT_VERIFIED">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Data Collector</div>
+              <div class="metric-value" id="health-collector" data-status="NOT_VERIFIED">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Signal Engine</div>
+              <div class="metric-value" id="health-signal-engine" data-status="NOT_VERIFIED">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Risk Engine</div>
+              <div class="metric-value" id="health-risk-engine" data-status="NOT_VERIFIED">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">AI Provider</div>
+              <div class="metric-value" id="health-ai-provider" data-status="NOT_VERIFIED">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Paper Trading</div>
+              <div class="metric-value" id="health-paper-trading" data-status="INERT">N/A</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label">Docker</div>
+              <div class="metric-value" id="health-docker" data-status="NOT_VERIFIED">N/A</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 13. Activity / Event Stream -->
+        <section class="section" id="events-section" aria-labelledby="events-heading">
+          <div class="section-head" id="events-heading"><h2>Activity Stream</h2></div>
+          <div class="filters">
+            <div class="field">
+              <label for="event-filter-severity">Severity</label>
+              <select id="event-filter-severity">
+                <option value="">All</option>
+                <option value="info">Info</option>
+                <option value="warn">Warning</option>
+                <option value="error">Error</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="event-filter-source">Source</label>
+              <input type="search" id="event-filter-source" placeholder="Filter by source…">
+            </div>
+          </div>
+          <ul id="event-stream" class="list-clean" role="log" aria-live="polite">
+            <li class="empty">No events recorded.</li>
+          </ul>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="/dashboard/monitor/monitor.js" defer></script>
+</body>
+</html>

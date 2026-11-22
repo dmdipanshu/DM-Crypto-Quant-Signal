@@ -101,7 +101,14 @@ def verify_api_token(authorization: str | None = None) -> None:
     """FastAPI dependency: enforce Bearer token auth when configured."""
     if get_api_token() is None:
         return None
-    if authorization is None or not authorization.startswith("Bearer "):
+    if authorization is None:
+        raise ApiError(401, "missing_token", "Authorization header with Bearer token is required.")
+    if not authorization.startswith("Bearer "):
+        # HTTP servers may trim trailing whitespace from header values, so
+        # "Bearer " (empty token) can arrive as "Bearer" (no trailing space).
+        # Accept this form only when the configured token is empty.
+        if authorization == "Bearer" and get_api_token() == "":
+            return None
         raise ApiError(401, "missing_token", "Authorization header with Bearer token is required.")
     token = authorization[len("Bearer "):]
     if token != get_api_token():

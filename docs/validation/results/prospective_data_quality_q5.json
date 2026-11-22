@@ -1,927 +1,1563 @@
 {
-  "assessed_at_utc": "2026-11-18T15:12:23.641771+00:00",
+  "assessed_at_utc": "2026-11-22T10:05:12.001358+00:00",
   "collection_id": "collect-52cefa0dda64",
   "collection_manifest_id": null,
   "collection_started_at_utc": "2026-11-13T06:15:46.915986+00:00",
   "conflict_count": 0,
   "conflicts": [],
-  "coverage_fraction": 0.0078,
+  "coverage_fraction": 0.0046,
   "duplicate_count": 0,
   "duplicates": [],
   "error_count": 0,
   "errors": [],
   "evaluation_block_reasons": [
+    "Collection window expired after 9.2 days (minimum 7 days) without meeting evaluation requirements.",
     "Observation count 1 is below minimum 168",
-    "Coverage fraction 0.78% is below minimum 95.00%",
-    "Elapsed collection duration 464197s is below minimum 7 days",
-    "Data is invalid; cannot evaluate prospective holdout."
+    "Coverage fraction 0.46% is below minimum 95.00%"
   ],
   "evaluation_blocked": true,
-  "expected_intervals": 128,
+  "expected_intervals": 219,
   "gap_count": 0,
   "gaps": [],
   "observation_count": 1,
   "reasons": [],
-  "rejection_count": 128,
+  "rejection_count": 219,
   "rejections": [
     {
-      "at_utc": "2026-11-18T15:12:23.635306+00:00",
+      "at_utc": "2026-11-22T10:05:11.951581+00:00",
       "open_time": "2026-11-13T07:00:00+00:00",
-      "reason": "ingestion latency 457934s exceeds max 900s",
+      "reason": "ingestion latency 785104s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635331+00:00",
+      "at_utc": "2026-11-22T10:05:11.951597+00:00",
       "open_time": "2026-11-13T08:00:00+00:00",
-      "reason": "ingestion latency 454334s exceeds max 900s",
+      "reason": "ingestion latency 781504s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635347+00:00",
+      "at_utc": "2026-11-22T10:05:11.951605+00:00",
       "open_time": "2026-11-13T09:00:00+00:00",
-      "reason": "ingestion latency 450734s exceeds max 900s",
+      "reason": "ingestion latency 777904s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635359+00:00",
+      "at_utc": "2026-11-22T10:05:11.951612+00:00",
       "open_time": "2026-11-13T10:00:00+00:00",
-      "reason": "ingestion latency 447134s exceeds max 900s",
+      "reason": "ingestion latency 774304s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635371+00:00",
+      "at_utc": "2026-11-22T10:05:11.951619+00:00",
       "open_time": "2026-11-13T11:00:00+00:00",
-      "reason": "ingestion latency 443534s exceeds max 900s",
+      "reason": "ingestion latency 770704s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635383+00:00",
+      "at_utc": "2026-11-22T10:05:11.951625+00:00",
       "open_time": "2026-11-13T12:00:00+00:00",
-      "reason": "ingestion latency 439934s exceeds max 900s",
+      "reason": "ingestion latency 767104s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635394+00:00",
+      "at_utc": "2026-11-22T10:05:11.951633+00:00",
       "open_time": "2026-11-13T13:00:00+00:00",
-      "reason": "ingestion latency 436334s exceeds max 900s",
+      "reason": "ingestion latency 763504s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635405+00:00",
+      "at_utc": "2026-11-22T10:05:11.951639+00:00",
       "open_time": "2026-11-13T14:00:00+00:00",
-      "reason": "ingestion latency 432734s exceeds max 900s",
+      "reason": "ingestion latency 759904s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635416+00:00",
+      "at_utc": "2026-11-22T10:05:11.951645+00:00",
       "open_time": "2026-11-13T15:00:00+00:00",
-      "reason": "ingestion latency 429134s exceeds max 900s",
+      "reason": "ingestion latency 756304s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635427+00:00",
+      "at_utc": "2026-11-22T10:05:11.951651+00:00",
       "open_time": "2026-11-13T16:00:00+00:00",
-      "reason": "ingestion latency 425534s exceeds max 900s",
+      "reason": "ingestion latency 752704s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635438+00:00",
+      "at_utc": "2026-11-22T10:05:11.951656+00:00",
       "open_time": "2026-11-13T17:00:00+00:00",
-      "reason": "ingestion latency 421934s exceeds max 900s",
+      "reason": "ingestion latency 749104s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635449+00:00",
+      "at_utc": "2026-11-22T10:05:11.951661+00:00",
       "open_time": "2026-11-13T18:00:00+00:00",
-      "reason": "ingestion latency 418334s exceeds max 900s",
+      "reason": "ingestion latency 745504s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635460+00:00",
+      "at_utc": "2026-11-22T10:05:11.951669+00:00",
       "open_time": "2026-11-13T19:00:00+00:00",
-      "reason": "ingestion latency 414734s exceeds max 900s",
+      "reason": "ingestion latency 741904s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635470+00:00",
+      "at_utc": "2026-11-22T10:05:11.951675+00:00",
       "open_time": "2026-11-13T20:00:00+00:00",
-      "reason": "ingestion latency 411134s exceeds max 900s",
+      "reason": "ingestion latency 738304s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635481+00:00",
+      "at_utc": "2026-11-22T10:05:11.951681+00:00",
       "open_time": "2026-11-13T21:00:00+00:00",
-      "reason": "ingestion latency 407534s exceeds max 900s",
+      "reason": "ingestion latency 734704s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635491+00:00",
+      "at_utc": "2026-11-22T10:05:11.951688+00:00",
       "open_time": "2026-11-13T22:00:00+00:00",
-      "reason": "ingestion latency 403934s exceeds max 900s",
+      "reason": "ingestion latency 731104s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635501+00:00",
+      "at_utc": "2026-11-22T10:05:11.951695+00:00",
       "open_time": "2026-11-13T23:00:00+00:00",
-      "reason": "ingestion latency 400334s exceeds max 900s",
+      "reason": "ingestion latency 727504s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635512+00:00",
+      "at_utc": "2026-11-22T10:05:11.951701+00:00",
       "open_time": "2026-11-14T00:00:00+00:00",
-      "reason": "ingestion latency 396734s exceeds max 900s",
+      "reason": "ingestion latency 723904s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635522+00:00",
+      "at_utc": "2026-11-22T10:05:11.951707+00:00",
       "open_time": "2026-11-14T01:00:00+00:00",
-      "reason": "ingestion latency 393134s exceeds max 900s",
+      "reason": "ingestion latency 720304s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635532+00:00",
+      "at_utc": "2026-11-22T10:05:11.951712+00:00",
       "open_time": "2026-11-14T02:00:00+00:00",
-      "reason": "ingestion latency 389534s exceeds max 900s",
+      "reason": "ingestion latency 716704s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635542+00:00",
+      "at_utc": "2026-11-22T10:05:11.951718+00:00",
       "open_time": "2026-11-14T03:00:00+00:00",
-      "reason": "ingestion latency 385934s exceeds max 900s",
+      "reason": "ingestion latency 713104s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635552+00:00",
+      "at_utc": "2026-11-22T10:05:11.951724+00:00",
       "open_time": "2026-11-14T04:00:00+00:00",
-      "reason": "ingestion latency 382334s exceeds max 900s",
+      "reason": "ingestion latency 709504s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635562+00:00",
+      "at_utc": "2026-11-22T10:05:11.951729+00:00",
       "open_time": "2026-11-14T05:00:00+00:00",
-      "reason": "ingestion latency 378734s exceeds max 900s",
+      "reason": "ingestion latency 705904s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635572+00:00",
+      "at_utc": "2026-11-22T10:05:11.951735+00:00",
       "open_time": "2026-11-14T06:00:00+00:00",
-      "reason": "ingestion latency 375134s exceeds max 900s",
+      "reason": "ingestion latency 702304s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635582+00:00",
+      "at_utc": "2026-11-22T10:05:11.951741+00:00",
       "open_time": "2026-11-14T07:00:00+00:00",
-      "reason": "ingestion latency 371534s exceeds max 900s",
+      "reason": "ingestion latency 698704s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635592+00:00",
+      "at_utc": "2026-11-22T10:05:11.951748+00:00",
       "open_time": "2026-11-14T08:00:00+00:00",
-      "reason": "ingestion latency 367934s exceeds max 900s",
+      "reason": "ingestion latency 695104s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635603+00:00",
+      "at_utc": "2026-11-22T10:05:11.951754+00:00",
       "open_time": "2026-11-14T09:00:00+00:00",
-      "reason": "ingestion latency 364334s exceeds max 900s",
+      "reason": "ingestion latency 691504s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635614+00:00",
+      "at_utc": "2026-11-22T10:05:11.951761+00:00",
       "open_time": "2026-11-14T10:00:00+00:00",
-      "reason": "ingestion latency 360734s exceeds max 900s",
+      "reason": "ingestion latency 687904s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635624+00:00",
+      "at_utc": "2026-11-22T10:05:11.951767+00:00",
       "open_time": "2026-11-14T11:00:00+00:00",
-      "reason": "ingestion latency 357134s exceeds max 900s",
+      "reason": "ingestion latency 684304s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635634+00:00",
+      "at_utc": "2026-11-22T10:05:11.951773+00:00",
       "open_time": "2026-11-14T12:00:00+00:00",
-      "reason": "ingestion latency 353534s exceeds max 900s",
+      "reason": "ingestion latency 680704s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635644+00:00",
+      "at_utc": "2026-11-22T10:05:11.951779+00:00",
       "open_time": "2026-11-14T13:00:00+00:00",
-      "reason": "ingestion latency 349934s exceeds max 900s",
+      "reason": "ingestion latency 677104s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635654+00:00",
+      "at_utc": "2026-11-22T10:05:11.951785+00:00",
       "open_time": "2026-11-14T14:00:00+00:00",
-      "reason": "ingestion latency 346334s exceeds max 900s",
+      "reason": "ingestion latency 673504s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635664+00:00",
+      "at_utc": "2026-11-22T10:05:11.951791+00:00",
       "open_time": "2026-11-14T15:00:00+00:00",
-      "reason": "ingestion latency 342734s exceeds max 900s",
+      "reason": "ingestion latency 669904s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635675+00:00",
+      "at_utc": "2026-11-22T10:05:11.951798+00:00",
       "open_time": "2026-11-14T16:00:00+00:00",
-      "reason": "ingestion latency 339134s exceeds max 900s",
+      "reason": "ingestion latency 666304s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635685+00:00",
+      "at_utc": "2026-11-22T10:05:11.951804+00:00",
       "open_time": "2026-11-14T17:00:00+00:00",
-      "reason": "ingestion latency 335534s exceeds max 900s",
+      "reason": "ingestion latency 662704s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635695+00:00",
+      "at_utc": "2026-11-22T10:05:11.951810+00:00",
       "open_time": "2026-11-14T18:00:00+00:00",
-      "reason": "ingestion latency 331934s exceeds max 900s",
+      "reason": "ingestion latency 659104s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635705+00:00",
+      "at_utc": "2026-11-22T10:05:11.951825+00:00",
       "open_time": "2026-11-14T19:00:00+00:00",
-      "reason": "ingestion latency 328334s exceeds max 900s",
+      "reason": "ingestion latency 655504s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635715+00:00",
+      "at_utc": "2026-11-22T10:05:11.951831+00:00",
       "open_time": "2026-11-14T20:00:00+00:00",
-      "reason": "ingestion latency 324734s exceeds max 900s",
+      "reason": "ingestion latency 651904s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635725+00:00",
+      "at_utc": "2026-11-22T10:05:11.951837+00:00",
       "open_time": "2026-11-14T21:00:00+00:00",
-      "reason": "ingestion latency 321134s exceeds max 900s",
+      "reason": "ingestion latency 648304s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635735+00:00",
+      "at_utc": "2026-11-22T10:05:11.951843+00:00",
       "open_time": "2026-11-14T22:00:00+00:00",
-      "reason": "ingestion latency 317534s exceeds max 900s",
+      "reason": "ingestion latency 644704s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635746+00:00",
+      "at_utc": "2026-11-22T10:05:11.951849+00:00",
       "open_time": "2026-11-14T23:00:00+00:00",
-      "reason": "ingestion latency 313934s exceeds max 900s",
+      "reason": "ingestion latency 641104s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635761+00:00",
+      "at_utc": "2026-11-22T10:05:11.951858+00:00",
       "open_time": "2026-11-15T00:00:00+00:00",
-      "reason": "ingestion latency 310334s exceeds max 900s",
+      "reason": "ingestion latency 637504s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635772+00:00",
+      "at_utc": "2026-11-22T10:05:11.951864+00:00",
       "open_time": "2026-11-15T01:00:00+00:00",
-      "reason": "ingestion latency 306734s exceeds max 900s",
+      "reason": "ingestion latency 633904s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635837+00:00",
+      "at_utc": "2026-11-22T10:05:11.951870+00:00",
       "open_time": "2026-11-15T02:00:00+00:00",
-      "reason": "ingestion latency 303134s exceeds max 900s",
+      "reason": "ingestion latency 630304s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635890+00:00",
+      "at_utc": "2026-11-22T10:05:11.951875+00:00",
       "open_time": "2026-11-15T03:00:00+00:00",
-      "reason": "ingestion latency 299534s exceeds max 900s",
+      "reason": "ingestion latency 626704s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635905+00:00",
+      "at_utc": "2026-11-22T10:05:11.951881+00:00",
       "open_time": "2026-11-15T04:00:00+00:00",
-      "reason": "ingestion latency 295934s exceeds max 900s",
+      "reason": "ingestion latency 623104s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635917+00:00",
+      "at_utc": "2026-11-22T10:05:11.951887+00:00",
       "open_time": "2026-11-15T05:00:00+00:00",
-      "reason": "ingestion latency 292334s exceeds max 900s",
+      "reason": "ingestion latency 619504s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635929+00:00",
+      "at_utc": "2026-11-22T10:05:11.951894+00:00",
       "open_time": "2026-11-15T06:00:00+00:00",
-      "reason": "ingestion latency 288734s exceeds max 900s",
+      "reason": "ingestion latency 615904s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635940+00:00",
+      "at_utc": "2026-11-22T10:05:11.951900+00:00",
       "open_time": "2026-11-15T07:00:00+00:00",
-      "reason": "ingestion latency 285134s exceeds max 900s",
+      "reason": "ingestion latency 612304s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.635951+00:00",
+      "at_utc": "2026-11-22T10:05:11.951905+00:00",
       "open_time": "2026-11-15T08:00:00+00:00",
-      "reason": "ingestion latency 281534s exceeds max 900s",
+      "reason": "ingestion latency 608704s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636178+00:00",
+      "at_utc": "2026-11-22T10:05:11.951911+00:00",
       "open_time": "2026-11-15T09:00:00+00:00",
-      "reason": "ingestion latency 277934s exceeds max 900s",
+      "reason": "ingestion latency 605104s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636196+00:00",
+      "at_utc": "2026-11-22T10:05:11.951918+00:00",
       "open_time": "2026-11-15T10:00:00+00:00",
-      "reason": "ingestion latency 274334s exceeds max 900s",
+      "reason": "ingestion latency 601504s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636208+00:00",
+      "at_utc": "2026-11-22T10:05:11.951924+00:00",
       "open_time": "2026-11-15T11:00:00+00:00",
-      "reason": "ingestion latency 270734s exceeds max 900s",
+      "reason": "ingestion latency 597904s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636224+00:00",
+      "at_utc": "2026-11-22T10:05:11.951931+00:00",
       "open_time": "2026-11-15T12:00:00+00:00",
-      "reason": "ingestion latency 267134s exceeds max 900s",
+      "reason": "ingestion latency 594304s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636231+00:00",
+      "at_utc": "2026-11-22T10:05:11.951937+00:00",
       "open_time": "2026-11-15T13:00:00+00:00",
-      "reason": "ingestion latency 263534s exceeds max 900s",
+      "reason": "ingestion latency 590704s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636238+00:00",
+      "at_utc": "2026-11-22T10:05:11.951942+00:00",
       "open_time": "2026-11-15T14:00:00+00:00",
-      "reason": "ingestion latency 259934s exceeds max 900s",
+      "reason": "ingestion latency 587104s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636245+00:00",
+      "at_utc": "2026-11-22T10:05:11.951948+00:00",
       "open_time": "2026-11-15T15:00:00+00:00",
-      "reason": "ingestion latency 256334s exceeds max 900s",
+      "reason": "ingestion latency 583504s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636254+00:00",
+      "at_utc": "2026-11-22T10:05:11.951955+00:00",
       "open_time": "2026-11-15T16:00:00+00:00",
-      "reason": "ingestion latency 252734s exceeds max 900s",
+      "reason": "ingestion latency 579904s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636261+00:00",
+      "at_utc": "2026-11-22T10:05:11.951961+00:00",
       "open_time": "2026-11-15T17:00:00+00:00",
-      "reason": "ingestion latency 249134s exceeds max 900s",
+      "reason": "ingestion latency 576304s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636269+00:00",
+      "at_utc": "2026-11-22T10:05:11.951967+00:00",
       "open_time": "2026-11-15T18:00:00+00:00",
-      "reason": "ingestion latency 245534s exceeds max 900s",
+      "reason": "ingestion latency 572704s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636277+00:00",
+      "at_utc": "2026-11-22T10:05:11.951973+00:00",
       "open_time": "2026-11-15T19:00:00+00:00",
-      "reason": "ingestion latency 241934s exceeds max 900s",
+      "reason": "ingestion latency 569104s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636284+00:00",
+      "at_utc": "2026-11-22T10:05:11.951978+00:00",
       "open_time": "2026-11-15T20:00:00+00:00",
-      "reason": "ingestion latency 238334s exceeds max 900s",
+      "reason": "ingestion latency 565504s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636291+00:00",
+      "at_utc": "2026-11-22T10:05:11.951985+00:00",
       "open_time": "2026-11-15T21:00:00+00:00",
-      "reason": "ingestion latency 234734s exceeds max 900s",
+      "reason": "ingestion latency 561904s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636298+00:00",
+      "at_utc": "2026-11-22T10:05:11.951991+00:00",
       "open_time": "2026-11-15T22:00:00+00:00",
-      "reason": "ingestion latency 231134s exceeds max 900s",
+      "reason": "ingestion latency 558304s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636305+00:00",
+      "at_utc": "2026-11-22T10:05:11.951997+00:00",
       "open_time": "2026-11-15T23:00:00+00:00",
-      "reason": "ingestion latency 227534s exceeds max 900s",
+      "reason": "ingestion latency 554704s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636313+00:00",
+      "at_utc": "2026-11-22T10:05:11.952004+00:00",
       "open_time": "2026-11-16T00:00:00+00:00",
-      "reason": "ingestion latency 223934s exceeds max 900s",
+      "reason": "ingestion latency 551104s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636323+00:00",
+      "at_utc": "2026-11-22T10:05:11.952012+00:00",
       "open_time": "2026-11-16T01:00:00+00:00",
-      "reason": "ingestion latency 220334s exceeds max 900s",
+      "reason": "ingestion latency 547504s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636330+00:00",
+      "at_utc": "2026-11-22T10:05:11.952018+00:00",
       "open_time": "2026-11-16T02:00:00+00:00",
-      "reason": "ingestion latency 216734s exceeds max 900s",
+      "reason": "ingestion latency 543904s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636338+00:00",
+      "at_utc": "2026-11-22T10:05:11.952024+00:00",
       "open_time": "2026-11-16T03:00:00+00:00",
-      "reason": "ingestion latency 213134s exceeds max 900s",
+      "reason": "ingestion latency 540304s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636345+00:00",
+      "at_utc": "2026-11-22T10:05:11.952030+00:00",
       "open_time": "2026-11-16T04:00:00+00:00",
-      "reason": "ingestion latency 209534s exceeds max 900s",
+      "reason": "ingestion latency 536704s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636352+00:00",
+      "at_utc": "2026-11-22T10:05:11.952037+00:00",
       "open_time": "2026-11-16T05:00:00+00:00",
-      "reason": "ingestion latency 205934s exceeds max 900s",
+      "reason": "ingestion latency 533104s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636359+00:00",
+      "at_utc": "2026-11-22T10:05:11.952042+00:00",
       "open_time": "2026-11-16T06:00:00+00:00",
-      "reason": "ingestion latency 202334s exceeds max 900s",
+      "reason": "ingestion latency 529504s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636366+00:00",
+      "at_utc": "2026-11-22T10:05:11.952048+00:00",
       "open_time": "2026-11-16T07:00:00+00:00",
-      "reason": "ingestion latency 198734s exceeds max 900s",
+      "reason": "ingestion latency 525904s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636374+00:00",
+      "at_utc": "2026-11-22T10:05:11.952055+00:00",
       "open_time": "2026-11-16T08:00:00+00:00",
-      "reason": "ingestion latency 195134s exceeds max 900s",
+      "reason": "ingestion latency 522304s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636382+00:00",
+      "at_utc": "2026-11-22T10:05:11.952060+00:00",
       "open_time": "2026-11-16T09:00:00+00:00",
-      "reason": "ingestion latency 191534s exceeds max 900s",
+      "reason": "ingestion latency 518704s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636389+00:00",
+      "at_utc": "2026-11-22T10:05:11.952067+00:00",
       "open_time": "2026-11-16T10:00:00+00:00",
-      "reason": "ingestion latency 187934s exceeds max 900s",
+      "reason": "ingestion latency 515104s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636397+00:00",
+      "at_utc": "2026-11-22T10:05:11.952073+00:00",
       "open_time": "2026-11-16T11:00:00+00:00",
-      "reason": "ingestion latency 184334s exceeds max 900s",
+      "reason": "ingestion latency 511504s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636406+00:00",
+      "at_utc": "2026-11-22T10:05:11.952080+00:00",
       "open_time": "2026-11-16T12:00:00+00:00",
-      "reason": "ingestion latency 180734s exceeds max 900s",
+      "reason": "ingestion latency 507904s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636414+00:00",
+      "at_utc": "2026-11-22T10:05:11.952086+00:00",
       "open_time": "2026-11-16T13:00:00+00:00",
-      "reason": "ingestion latency 177134s exceeds max 900s",
+      "reason": "ingestion latency 504304s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636421+00:00",
+      "at_utc": "2026-11-22T10:05:11.952092+00:00",
       "open_time": "2026-11-16T14:00:00+00:00",
-      "reason": "ingestion latency 173534s exceeds max 900s",
+      "reason": "ingestion latency 500704s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636428+00:00",
+      "at_utc": "2026-11-22T10:05:11.952098+00:00",
       "open_time": "2026-11-16T15:00:00+00:00",
-      "reason": "ingestion latency 169934s exceeds max 900s",
+      "reason": "ingestion latency 497104s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636436+00:00",
+      "at_utc": "2026-11-22T10:05:11.952104+00:00",
       "open_time": "2026-11-16T16:00:00+00:00",
-      "reason": "ingestion latency 166334s exceeds max 900s",
+      "reason": "ingestion latency 493504s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636443+00:00",
+      "at_utc": "2026-11-22T10:05:11.952110+00:00",
       "open_time": "2026-11-16T17:00:00+00:00",
-      "reason": "ingestion latency 162734s exceeds max 900s",
+      "reason": "ingestion latency 489904s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636450+00:00",
+      "at_utc": "2026-11-22T10:05:11.952116+00:00",
       "open_time": "2026-11-16T18:00:00+00:00",
-      "reason": "ingestion latency 159134s exceeds max 900s",
+      "reason": "ingestion latency 486304s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636457+00:00",
+      "at_utc": "2026-11-22T10:05:11.952122+00:00",
       "open_time": "2026-11-16T19:00:00+00:00",
-      "reason": "ingestion latency 155534s exceeds max 900s",
+      "reason": "ingestion latency 482704s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636465+00:00",
+      "at_utc": "2026-11-22T10:05:11.952128+00:00",
       "open_time": "2026-11-16T20:00:00+00:00",
-      "reason": "ingestion latency 151934s exceeds max 900s",
+      "reason": "ingestion latency 479104s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636472+00:00",
+      "at_utc": "2026-11-22T10:05:11.952134+00:00",
       "open_time": "2026-11-16T21:00:00+00:00",
-      "reason": "ingestion latency 148334s exceeds max 900s",
+      "reason": "ingestion latency 475504s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636479+00:00",
+      "at_utc": "2026-11-22T10:05:11.952141+00:00",
       "open_time": "2026-11-16T22:00:00+00:00",
-      "reason": "ingestion latency 144734s exceeds max 900s",
+      "reason": "ingestion latency 471904s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636487+00:00",
+      "at_utc": "2026-11-22T10:05:11.952147+00:00",
       "open_time": "2026-11-16T23:00:00+00:00",
-      "reason": "ingestion latency 141134s exceeds max 900s",
+      "reason": "ingestion latency 468304s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636494+00:00",
+      "at_utc": "2026-11-22T10:05:11.952153+00:00",
       "open_time": "2026-11-17T00:00:00+00:00",
-      "reason": "ingestion latency 137534s exceeds max 900s",
+      "reason": "ingestion latency 464704s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636501+00:00",
+      "at_utc": "2026-11-22T10:05:11.952159+00:00",
       "open_time": "2026-11-17T01:00:00+00:00",
-      "reason": "ingestion latency 133934s exceeds max 900s",
+      "reason": "ingestion latency 461104s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636508+00:00",
+      "at_utc": "2026-11-22T10:05:11.952166+00:00",
       "open_time": "2026-11-17T02:00:00+00:00",
-      "reason": "ingestion latency 130334s exceeds max 900s",
+      "reason": "ingestion latency 457504s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636518+00:00",
+      "at_utc": "2026-11-22T10:05:11.952174+00:00",
       "open_time": "2026-11-17T03:00:00+00:00",
-      "reason": "ingestion latency 126734s exceeds max 900s",
+      "reason": "ingestion latency 453904s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636527+00:00",
+      "at_utc": "2026-11-22T10:05:11.952182+00:00",
       "open_time": "2026-11-17T04:00:00+00:00",
-      "reason": "ingestion latency 123134s exceeds max 900s",
+      "reason": "ingestion latency 450304s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636535+00:00",
+      "at_utc": "2026-11-22T10:05:11.952188+00:00",
       "open_time": "2026-11-17T05:00:00+00:00",
-      "reason": "ingestion latency 119534s exceeds max 900s",
+      "reason": "ingestion latency 446704s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636543+00:00",
+      "at_utc": "2026-11-22T10:05:11.952194+00:00",
       "open_time": "2026-11-17T06:00:00+00:00",
-      "reason": "ingestion latency 115934s exceeds max 900s",
+      "reason": "ingestion latency 443104s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636550+00:00",
+      "at_utc": "2026-11-22T10:05:11.952200+00:00",
       "open_time": "2026-11-17T07:00:00+00:00",
-      "reason": "ingestion latency 112334s exceeds max 900s",
+      "reason": "ingestion latency 439504s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636557+00:00",
+      "at_utc": "2026-11-22T10:05:11.952206+00:00",
       "open_time": "2026-11-17T08:00:00+00:00",
-      "reason": "ingestion latency 108734s exceeds max 900s",
+      "reason": "ingestion latency 435904s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636564+00:00",
+      "at_utc": "2026-11-22T10:05:11.952211+00:00",
       "open_time": "2026-11-17T09:00:00+00:00",
-      "reason": "ingestion latency 105134s exceeds max 900s",
+      "reason": "ingestion latency 432304s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636571+00:00",
+      "at_utc": "2026-11-22T10:05:11.952217+00:00",
       "open_time": "2026-11-17T10:00:00+00:00",
-      "reason": "ingestion latency 101534s exceeds max 900s",
+      "reason": "ingestion latency 428704s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636578+00:00",
+      "at_utc": "2026-11-22T10:05:11.952223+00:00",
       "open_time": "2026-11-17T11:00:00+00:00",
-      "reason": "ingestion latency 97934s exceeds max 900s",
+      "reason": "ingestion latency 425104s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636585+00:00",
+      "at_utc": "2026-11-22T10:05:11.952229+00:00",
       "open_time": "2026-11-17T12:00:00+00:00",
-      "reason": "ingestion latency 94334s exceeds max 900s",
+      "reason": "ingestion latency 421504s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636592+00:00",
+      "at_utc": "2026-11-22T10:05:11.952236+00:00",
       "open_time": "2026-11-17T13:00:00+00:00",
-      "reason": "ingestion latency 90734s exceeds max 900s",
+      "reason": "ingestion latency 417904s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636599+00:00",
+      "at_utc": "2026-11-22T10:05:11.952242+00:00",
       "open_time": "2026-11-17T14:00:00+00:00",
-      "reason": "ingestion latency 87134s exceeds max 900s",
+      "reason": "ingestion latency 414304s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636607+00:00",
+      "at_utc": "2026-11-22T10:05:11.952248+00:00",
       "open_time": "2026-11-17T15:00:00+00:00",
-      "reason": "ingestion latency 83534s exceeds max 900s",
+      "reason": "ingestion latency 410704s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636614+00:00",
+      "at_utc": "2026-11-22T10:05:11.952254+00:00",
       "open_time": "2026-11-17T16:00:00+00:00",
-      "reason": "ingestion latency 79934s exceeds max 900s",
+      "reason": "ingestion latency 407104s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636622+00:00",
+      "at_utc": "2026-11-22T10:05:11.952260+00:00",
       "open_time": "2026-11-17T17:00:00+00:00",
-      "reason": "ingestion latency 76334s exceeds max 900s",
+      "reason": "ingestion latency 403504s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636629+00:00",
+      "at_utc": "2026-11-22T10:05:11.952265+00:00",
       "open_time": "2026-11-17T18:00:00+00:00",
-      "reason": "ingestion latency 72734s exceeds max 900s",
+      "reason": "ingestion latency 399904s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636636+00:00",
+      "at_utc": "2026-11-22T10:05:11.952271+00:00",
       "open_time": "2026-11-17T19:00:00+00:00",
-      "reason": "ingestion latency 69134s exceeds max 900s",
+      "reason": "ingestion latency 396304s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636644+00:00",
+      "at_utc": "2026-11-22T10:05:11.952278+00:00",
       "open_time": "2026-11-17T20:00:00+00:00",
-      "reason": "ingestion latency 65534s exceeds max 900s",
+      "reason": "ingestion latency 392704s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636651+00:00",
+      "at_utc": "2026-11-22T10:05:11.952284+00:00",
       "open_time": "2026-11-17T21:00:00+00:00",
-      "reason": "ingestion latency 61934s exceeds max 900s",
+      "reason": "ingestion latency 389104s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636659+00:00",
+      "at_utc": "2026-11-22T10:05:11.952289+00:00",
       "open_time": "2026-11-17T22:00:00+00:00",
-      "reason": "ingestion latency 58334s exceeds max 900s",
+      "reason": "ingestion latency 385504s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636665+00:00",
+      "at_utc": "2026-11-22T10:05:11.952296+00:00",
       "open_time": "2026-11-17T23:00:00+00:00",
-      "reason": "ingestion latency 54734s exceeds max 900s",
+      "reason": "ingestion latency 381904s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636672+00:00",
+      "at_utc": "2026-11-22T10:05:11.952303+00:00",
       "open_time": "2026-11-18T00:00:00+00:00",
-      "reason": "ingestion latency 51134s exceeds max 900s",
+      "reason": "ingestion latency 378304s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636679+00:00",
+      "at_utc": "2026-11-22T10:05:11.952309+00:00",
       "open_time": "2026-11-18T01:00:00+00:00",
-      "reason": "ingestion latency 47534s exceeds max 900s",
+      "reason": "ingestion latency 374704s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636686+00:00",
+      "at_utc": "2026-11-22T10:05:11.952315+00:00",
       "open_time": "2026-11-18T02:00:00+00:00",
-      "reason": "ingestion latency 43934s exceeds max 900s",
+      "reason": "ingestion latency 371104s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636693+00:00",
+      "at_utc": "2026-11-22T10:05:11.952321+00:00",
       "open_time": "2026-11-18T03:00:00+00:00",
-      "reason": "ingestion latency 40334s exceeds max 900s",
+      "reason": "ingestion latency 367504s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636702+00:00",
+      "at_utc": "2026-11-22T10:05:11.952329+00:00",
       "open_time": "2026-11-18T04:00:00+00:00",
-      "reason": "ingestion latency 36734s exceeds max 900s",
+      "reason": "ingestion latency 363904s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636710+00:00",
+      "at_utc": "2026-11-22T10:05:11.952335+00:00",
       "open_time": "2026-11-18T05:00:00+00:00",
-      "reason": "ingestion latency 33134s exceeds max 900s",
+      "reason": "ingestion latency 360304s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636718+00:00",
+      "at_utc": "2026-11-22T10:05:11.952341+00:00",
       "open_time": "2026-11-18T06:00:00+00:00",
-      "reason": "ingestion latency 29534s exceeds max 900s",
+      "reason": "ingestion latency 356704s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636726+00:00",
+      "at_utc": "2026-11-22T10:05:11.952347+00:00",
       "open_time": "2026-11-18T07:00:00+00:00",
-      "reason": "ingestion latency 25934s exceeds max 900s",
+      "reason": "ingestion latency 353104s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636733+00:00",
+      "at_utc": "2026-11-22T10:05:11.952353+00:00",
       "open_time": "2026-11-18T08:00:00+00:00",
-      "reason": "ingestion latency 22334s exceeds max 900s",
+      "reason": "ingestion latency 349504s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636740+00:00",
+      "at_utc": "2026-11-22T10:05:11.952359+00:00",
       "open_time": "2026-11-18T09:00:00+00:00",
-      "reason": "ingestion latency 18734s exceeds max 900s",
+      "reason": "ingestion latency 345904s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636747+00:00",
+      "at_utc": "2026-11-22T10:05:11.952365+00:00",
       "open_time": "2026-11-18T10:00:00+00:00",
-      "reason": "ingestion latency 15134s exceeds max 900s",
+      "reason": "ingestion latency 342304s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636754+00:00",
+      "at_utc": "2026-11-22T10:05:11.952372+00:00",
       "open_time": "2026-11-18T11:00:00+00:00",
-      "reason": "ingestion latency 11534s exceeds max 900s",
+      "reason": "ingestion latency 338704s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636762+00:00",
+      "at_utc": "2026-11-22T10:05:11.952378+00:00",
       "open_time": "2026-11-18T12:00:00+00:00",
-      "reason": "ingestion latency 7934s exceeds max 900s",
+      "reason": "ingestion latency 335104s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.636769+00:00",
+      "at_utc": "2026-11-22T10:05:11.952384+00:00",
       "open_time": "2026-11-18T13:00:00+00:00",
-      "reason": "ingestion latency 4334s exceeds max 900s",
+      "reason": "ingestion latency 331504s exceeds max 900s",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     },
     {
-      "at_utc": "2026-11-18T15:12:23.641553+00:00",
-      "close_time": "2026-11-18T16:00:00+00:00",
+      "at_utc": "2026-11-22T10:05:11.952390+00:00",
+      "open_time": "2026-11-18T14:00:00+00:00",
+      "reason": "ingestion latency 327904s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952396+00:00",
       "open_time": "2026-11-18T15:00:00+00:00",
-      "reason": "candle not yet finalized: close=2026-11-18T16:00:00+00:00, finalized_at=2026-11-18T16:05:00+00:00, now=2026-11-18T15:12:23.641000+00:00",
+      "reason": "ingestion latency 324304s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952402+00:00",
+      "open_time": "2026-11-18T16:00:00+00:00",
+      "reason": "ingestion latency 320704s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952408+00:00",
+      "open_time": "2026-11-18T17:00:00+00:00",
+      "reason": "ingestion latency 317104s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952414+00:00",
+      "open_time": "2026-11-18T18:00:00+00:00",
+      "reason": "ingestion latency 313504s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952420+00:00",
+      "open_time": "2026-11-18T19:00:00+00:00",
+      "reason": "ingestion latency 309904s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952426+00:00",
+      "open_time": "2026-11-18T20:00:00+00:00",
+      "reason": "ingestion latency 306304s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952432+00:00",
+      "open_time": "2026-11-18T21:00:00+00:00",
+      "reason": "ingestion latency 302704s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952438+00:00",
+      "open_time": "2026-11-18T22:00:00+00:00",
+      "reason": "ingestion latency 299104s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952444+00:00",
+      "open_time": "2026-11-18T23:00:00+00:00",
+      "reason": "ingestion latency 295504s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952450+00:00",
+      "open_time": "2026-11-19T00:00:00+00:00",
+      "reason": "ingestion latency 291904s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952456+00:00",
+      "open_time": "2026-11-19T01:00:00+00:00",
+      "reason": "ingestion latency 288304s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952462+00:00",
+      "open_time": "2026-11-19T02:00:00+00:00",
+      "reason": "ingestion latency 284704s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952468+00:00",
+      "open_time": "2026-11-19T03:00:00+00:00",
+      "reason": "ingestion latency 281104s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952474+00:00",
+      "open_time": "2026-11-19T04:00:00+00:00",
+      "reason": "ingestion latency 277504s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952481+00:00",
+      "open_time": "2026-11-19T05:00:00+00:00",
+      "reason": "ingestion latency 273904s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952488+00:00",
+      "open_time": "2026-11-19T06:00:00+00:00",
+      "reason": "ingestion latency 270304s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952495+00:00",
+      "open_time": "2026-11-19T07:00:00+00:00",
+      "reason": "ingestion latency 266704s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952501+00:00",
+      "open_time": "2026-11-19T08:00:00+00:00",
+      "reason": "ingestion latency 263104s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952507+00:00",
+      "open_time": "2026-11-19T09:00:00+00:00",
+      "reason": "ingestion latency 259504s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952513+00:00",
+      "open_time": "2026-11-19T10:00:00+00:00",
+      "reason": "ingestion latency 255904s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952519+00:00",
+      "open_time": "2026-11-19T11:00:00+00:00",
+      "reason": "ingestion latency 252304s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952525+00:00",
+      "open_time": "2026-11-19T12:00:00+00:00",
+      "reason": "ingestion latency 248704s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952532+00:00",
+      "open_time": "2026-11-19T13:00:00+00:00",
+      "reason": "ingestion latency 245104s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952538+00:00",
+      "open_time": "2026-11-19T14:00:00+00:00",
+      "reason": "ingestion latency 241504s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952544+00:00",
+      "open_time": "2026-11-19T15:00:00+00:00",
+      "reason": "ingestion latency 237904s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952550+00:00",
+      "open_time": "2026-11-19T16:00:00+00:00",
+      "reason": "ingestion latency 234304s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952556+00:00",
+      "open_time": "2026-11-19T17:00:00+00:00",
+      "reason": "ingestion latency 230704s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952562+00:00",
+      "open_time": "2026-11-19T18:00:00+00:00",
+      "reason": "ingestion latency 227104s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952568+00:00",
+      "open_time": "2026-11-19T19:00:00+00:00",
+      "reason": "ingestion latency 223504s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952575+00:00",
+      "open_time": "2026-11-19T20:00:00+00:00",
+      "reason": "ingestion latency 219904s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952582+00:00",
+      "open_time": "2026-11-19T21:00:00+00:00",
+      "reason": "ingestion latency 216304s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952588+00:00",
+      "open_time": "2026-11-19T22:00:00+00:00",
+      "reason": "ingestion latency 212704s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952594+00:00",
+      "open_time": "2026-11-19T23:00:00+00:00",
+      "reason": "ingestion latency 209104s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952599+00:00",
+      "open_time": "2026-11-20T00:00:00+00:00",
+      "reason": "ingestion latency 205504s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952605+00:00",
+      "open_time": "2026-11-20T01:00:00+00:00",
+      "reason": "ingestion latency 201904s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952611+00:00",
+      "open_time": "2026-11-20T02:00:00+00:00",
+      "reason": "ingestion latency 198304s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952618+00:00",
+      "open_time": "2026-11-20T03:00:00+00:00",
+      "reason": "ingestion latency 194704s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952624+00:00",
+      "open_time": "2026-11-20T04:00:00+00:00",
+      "reason": "ingestion latency 191104s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952633+00:00",
+      "open_time": "2026-11-20T05:00:00+00:00",
+      "reason": "ingestion latency 187504s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952640+00:00",
+      "open_time": "2026-11-20T06:00:00+00:00",
+      "reason": "ingestion latency 183904s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952646+00:00",
+      "open_time": "2026-11-20T07:00:00+00:00",
+      "reason": "ingestion latency 180304s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952653+00:00",
+      "open_time": "2026-11-20T08:00:00+00:00",
+      "reason": "ingestion latency 176704s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952659+00:00",
+      "open_time": "2026-11-20T09:00:00+00:00",
+      "reason": "ingestion latency 173104s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952666+00:00",
+      "open_time": "2026-11-20T10:00:00+00:00",
+      "reason": "ingestion latency 169504s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952672+00:00",
+      "open_time": "2026-11-20T11:00:00+00:00",
+      "reason": "ingestion latency 165904s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952680+00:00",
+      "open_time": "2026-11-20T12:00:00+00:00",
+      "reason": "ingestion latency 162304s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952685+00:00",
+      "open_time": "2026-11-20T13:00:00+00:00",
+      "reason": "ingestion latency 158704s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952692+00:00",
+      "open_time": "2026-11-20T14:00:00+00:00",
+      "reason": "ingestion latency 155104s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952698+00:00",
+      "open_time": "2026-11-20T15:00:00+00:00",
+      "reason": "ingestion latency 151504s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952704+00:00",
+      "open_time": "2026-11-20T16:00:00+00:00",
+      "reason": "ingestion latency 147904s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952710+00:00",
+      "open_time": "2026-11-20T17:00:00+00:00",
+      "reason": "ingestion latency 144304s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952716+00:00",
+      "open_time": "2026-11-20T18:00:00+00:00",
+      "reason": "ingestion latency 140704s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952722+00:00",
+      "open_time": "2026-11-20T19:00:00+00:00",
+      "reason": "ingestion latency 137104s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952728+00:00",
+      "open_time": "2026-11-20T20:00:00+00:00",
+      "reason": "ingestion latency 133504s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952734+00:00",
+      "open_time": "2026-11-20T21:00:00+00:00",
+      "reason": "ingestion latency 129904s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952740+00:00",
+      "open_time": "2026-11-20T22:00:00+00:00",
+      "reason": "ingestion latency 126304s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952746+00:00",
+      "open_time": "2026-11-20T23:00:00+00:00",
+      "reason": "ingestion latency 122704s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952752+00:00",
+      "open_time": "2026-11-21T00:00:00+00:00",
+      "reason": "ingestion latency 119104s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952758+00:00",
+      "open_time": "2026-11-21T01:00:00+00:00",
+      "reason": "ingestion latency 115504s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952764+00:00",
+      "open_time": "2026-11-21T02:00:00+00:00",
+      "reason": "ingestion latency 111904s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952770+00:00",
+      "open_time": "2026-11-21T03:00:00+00:00",
+      "reason": "ingestion latency 108304s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952776+00:00",
+      "open_time": "2026-11-21T04:00:00+00:00",
+      "reason": "ingestion latency 104704s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952782+00:00",
+      "open_time": "2026-11-21T05:00:00+00:00",
+      "reason": "ingestion latency 101104s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952789+00:00",
+      "open_time": "2026-11-21T06:00:00+00:00",
+      "reason": "ingestion latency 97504s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952795+00:00",
+      "open_time": "2026-11-21T07:00:00+00:00",
+      "reason": "ingestion latency 93904s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952801+00:00",
+      "open_time": "2026-11-21T08:00:00+00:00",
+      "reason": "ingestion latency 90304s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952807+00:00",
+      "open_time": "2026-11-21T09:00:00+00:00",
+      "reason": "ingestion latency 86704s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952822+00:00",
+      "open_time": "2026-11-21T10:00:00+00:00",
+      "reason": "ingestion latency 83104s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952829+00:00",
+      "open_time": "2026-11-21T11:00:00+00:00",
+      "reason": "ingestion latency 79504s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952835+00:00",
+      "open_time": "2026-11-21T12:00:00+00:00",
+      "reason": "ingestion latency 75904s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952841+00:00",
+      "open_time": "2026-11-21T13:00:00+00:00",
+      "reason": "ingestion latency 72304s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952847+00:00",
+      "open_time": "2026-11-21T14:00:00+00:00",
+      "reason": "ingestion latency 68704s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952853+00:00",
+      "open_time": "2026-11-21T15:00:00+00:00",
+      "reason": "ingestion latency 65104s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952859+00:00",
+      "open_time": "2026-11-21T16:00:00+00:00",
+      "reason": "ingestion latency 61504s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952865+00:00",
+      "open_time": "2026-11-21T17:00:00+00:00",
+      "reason": "ingestion latency 57904s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952872+00:00",
+      "open_time": "2026-11-21T18:00:00+00:00",
+      "reason": "ingestion latency 54304s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952878+00:00",
+      "open_time": "2026-11-21T19:00:00+00:00",
+      "reason": "ingestion latency 50704s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952884+00:00",
+      "open_time": "2026-11-21T20:00:00+00:00",
+      "reason": "ingestion latency 47104s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952890+00:00",
+      "open_time": "2026-11-21T21:00:00+00:00",
+      "reason": "ingestion latency 43504s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952896+00:00",
+      "open_time": "2026-11-21T22:00:00+00:00",
+      "reason": "ingestion latency 39904s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952903+00:00",
+      "open_time": "2026-11-21T23:00:00+00:00",
+      "reason": "ingestion latency 36304s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952910+00:00",
+      "open_time": "2026-11-22T00:00:00+00:00",
+      "reason": "ingestion latency 32704s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952916+00:00",
+      "open_time": "2026-11-22T01:00:00+00:00",
+      "reason": "ingestion latency 29104s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952922+00:00",
+      "open_time": "2026-11-22T02:00:00+00:00",
+      "reason": "ingestion latency 25504s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952928+00:00",
+      "open_time": "2026-11-22T03:00:00+00:00",
+      "reason": "ingestion latency 21904s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952934+00:00",
+      "open_time": "2026-11-22T04:00:00+00:00",
+      "reason": "ingestion latency 18304s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952940+00:00",
+      "open_time": "2026-11-22T05:00:00+00:00",
+      "reason": "ingestion latency 14704s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952946+00:00",
+      "open_time": "2026-11-22T06:00:00+00:00",
+      "reason": "ingestion latency 11104s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952952+00:00",
+      "open_time": "2026-11-22T07:00:00+00:00",
+      "reason": "ingestion latency 7504s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.952959+00:00",
+      "open_time": "2026-11-22T08:00:00+00:00",
+      "reason": "ingestion latency 3904s exceeds max 900s",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    {
+      "at_utc": "2026-11-22T10:05:11.956032+00:00",
+      "close_time": "2026-11-22T11:00:00+00:00",
+      "open_time": "2026-11-22T10:00:00+00:00",
+      "reason": "candle not yet finalized: close=2026-11-22T11:00:00+00:00, finalized_at=2026-11-22T11:05:00+00:00, now=2026-11-22T10:05:11.956000+00:00",
       "symbol": "BTC/USDT",
       "timeframe": "1h"
     }
   ],
   "schema": "prospective-data-quality.v1",
-  "state": "DATA_INVALID"
+  "state": "EXPIRED"
 }

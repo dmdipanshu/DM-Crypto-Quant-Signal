@@ -220,13 +220,13 @@ def register(router: Any, roots: Any, settings: Any) -> None:
             },
         )
 
-    def _asset(name: str, media_type: str) -> Any:
+    def _asset(name: str, media_type: str, base_dir: _Path = progress_assets) -> Any:
         from fastapi import HTTPException
         from fastapi.responses import Response
 
-        path = progress_assets / name
+        path = base_dir / name
         if not path.is_file():
-            raise HTTPException(status_code=404, detail="progress asset is missing")
+            raise HTTPException(status_code=404, detail="asset is missing")
         return Response(
             content=path.read_bytes(),
             media_type=media_type,
@@ -241,5 +241,49 @@ def register(router: Any, roots: Any, settings: Any) -> None:
     def progress_js() -> Any:
         return _asset("progress.js", "text/javascript; charset=utf-8")
 
+    @router.get("/dashboard/monitor/", response_class=HTMLResponse)
+    def dash_monitor() -> Any:
+        monitor_assets = _Path(__file__).resolve().parent / "monitor"
+        index = monitor_assets / "index.html"
+        if not index.is_file():
+            from fastapi import HTTPException
+            raise HTTPException(status_code=404, detail="monitor dashboard assets are missing")
+        return HTMLResponse(
+            index.read_text(encoding="utf-8"),
+            headers={
+                "Content-Security-Policy": csp,
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff",
+                "Referrer-Policy": "no-referrer",
+            },
+        )
+
+    @router.get("/dashboard/monitor/monitor.css", include_in_schema=False)
+    def monitor_css() -> Any:
+        from fastapi import HTTPException
+        from fastapi.responses import Response
+        path = _Path(__file__).resolve().parent / "monitor" / "monitor.css"
+        if not path.is_file():
+            raise HTTPException(status_code=404, detail="asset is missing")
+        return Response(
+            content=path.read_bytes(),
+            media_type="text/css; charset=utf-8",
+            headers={"Cache-Control": "no-cache", "X-Content-Type-Options": "nosniff"},
+        )
+
+    @router.get("/dashboard/monitor/monitor.js", include_in_schema=False)
+    def monitor_js() -> Any:
+        from fastapi import HTTPException
+        from fastapi.responses import Response
+        path = _Path(__file__).resolve().parent / "monitor" / "monitor.js"
+        if not path.is_file():
+            raise HTTPException(status_code=404, detail="asset is missing")
+        return Response(
+            content=path.read_bytes(),
+            media_type="text/javascript; charset=utf-8",
+            headers={"Cache-Control": "no-cache", "X-Content-Type-Options": "nosniff"},
+        )
+
 
 __all__ = ["register"]
+

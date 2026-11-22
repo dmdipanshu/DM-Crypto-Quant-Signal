@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Any
 
 from crypto_engine.config.settings import Settings, default_config_path, load_settings
+from crypto_engine.paper_trading.state import ACCOUNT_FILENAME
 
 try:
     import psutil  # type: ignore[import-not-found]
@@ -178,11 +179,30 @@ def check_signal_ledger(settings: Settings) -> tuple[HealthStatus, str, dict[str
         return HealthStatus.UNHEALTHY, f"signal ledger check failed: {exc}", details
 
 
+def _resolve_paper_account_path(settings: Settings) -> Path:
+    """Resolve the canonical paper account file path from settings.
+
+    ``settings.paper.account_path`` is the configured paper state root (directory).
+    CLI/API resolve to ``<root>/account.json``; health/readiness must use the same
+    canonical file path. Relative paths are anchored to the repo root for
+    consistency with CLI/API resolution.
+    """
+    base = Path(settings.paper.account_path)
+    path = base if base.name == ACCOUNT_FILENAME else base / ACCOUNT_FILENAME
+    if not path.is_absolute():
+        try:
+            root = default_config_path().parent.parent
+            path = root / path
+        except Exception:
+            pass
+    return path
+
+
 def check_paper_account(settings: Settings) -> tuple[HealthStatus, str, dict[str, Any]]:
-    """Paper account checksum verifies."""
+    """Paper account checksum verifies (canonical configured account file)."""
     from crypto_engine.paper_trading.state import load_account
 
-    path = Path(settings.paper.account_path)
+    path = _resolve_paper_account_path(settings)
     details: dict[str, Any] = {"path": str(path)}
     try:
         if not path.is_file():
@@ -195,10 +215,10 @@ def check_paper_account(settings: Settings) -> tuple[HealthStatus, str, dict[str
 
 
 def check_event_ledger(settings: Settings) -> tuple[HealthStatus, str, dict[str, Any]]:
-    """Event ledger chain verifies."""
+    """Event ledger chain verifies (sibling of canonical paper account file)."""
     from crypto_engine.paper_trading.resilience import EventLedger
 
-    path = Path(settings.paper.account_path).parent / "events.json"
+    path = _resolve_paper_account_path(settings).parent / "events.json"
     details: dict[str, Any] = {"path": str(path)}
     try:
         if not path.is_file():
@@ -293,7 +313,7 @@ def check_prospective_collection() -> tuple[HealthStatus, str, dict[str, Any]]:
     """
     from crypto_engine.research.prospective.storage import ProspectiveStorage
 
-    path = Path("data/prospective/binance/spot/BTC/USDT/1h")
+    path = Path("data/prospective/binance/spot/BTC-USDT/1h")
     details: dict[str, Any] = {"storage_path": str(path)}
     try:
         if not path.is_dir():
@@ -322,6 +342,120 @@ def check_prospective_collection() -> tuple[HealthStatus, str, dict[str, Any]]:
         return HealthStatus.UNHEALTHY, f"prospective collection check failed: {exc}", details
 
 
+def check_pipeline_freshness(settings: Settings) -> tuple[HealthStatus, str, dict[str, Any]]:
+    """Report pipeline freshness from last-successful-execution timestamps.
+
+    Reads signal history, Q5 collection dataset manifest, and paper account
+    updated_at to determine whether pipeline activity is current or stale.
+
+    Read-only: no writes, no network, no credential access.
+    """
+    from crypto_engine.signals.history import SignalHistory
+
+    details: dict[str, Any] = {}
+    now = datetime.now(UTC)
+    stale_reasons: list[str] = []
+    statuses: list[HealthStatus] = []
+
+    # --- Signal freshness ---
+    signal_path = Path(settings.signal.history_path)
+    if not signal_path.is_absolute():
+        try:
+            root = default_config_path().parent.parent
+            signal_path = root / signal_path
+        except Exception:
+            pass
+    details["signal_history_path"] = str(signal_path)
+    last_signal_ts: str | None = None
+    if signal_path.is_dir():
+        try:
+            history = SignalHistory(signal_path)
+            records = history.list()
+            if records:
+                latest = max(records, key=lambda r: r.generated_at)
+                last_signal_ts = latest.generated_at.isoformat()
+                details["last_signal_generated_at"] = last_signal_ts
+                try:
+                    sig_dt = latest.generated_at
+                    if sig_dt.tzinfo is None:
+                        sig_dt = sig_dt.replace(tzinfo=UTC)
+                    age_s = (now - sig_dt).total_seconds()
+                    details["signal_age_seconds"] = age_s
+                    if age_s > 86400:  # 24 hours
+                        stale_reasons.append(f"no new signals for {age_s / 3600:.1f} hours")
+                        statuses.append(HealthStatus.DEGRADED)
+                    else:
+                        statuses.append(HealthStatus.HEALTHY)
+                except Exception:
+                    statuses.append(HealthStatus.DEGRADED)
+                    stale_reasons.append("signal timestamp unparseable")
+            else:
+                details["last_signal_generated_at"] = None
+                stale_reasons.append("no signal records found")
+                statuses.append(HealthStatus.DEGRADED)
+        except Exception as exc:
+            details["signal_history_error"] = str(exc)
+            stale_reasons.append(f"signal history check failed: {exc}")
+            statuses.append(HealthStatus.UNHEALTHY)
+    else:
+        details["last_signal_generated_at"] = None
+        stale_reasons.append("signal history directory missing")
+        statuses.append(HealthStatus.UNHEALTHY)
+
+    # --- Collection freshness ---
+    coll_path = Path("data/prospective/binance/spot/BTC-USDT/1h/dataset_manifest.json")
+    details["collection_manifest_path"] = str(coll_path)
+    last_coll_ts: str | None = None
+    if coll_path.is_file():
+        try:
+            import json
+            manifest = json.loads(coll_path.read_text(encoding="utf-8"))
+            started = manifest.get("collection_started_at_utc")
+            details["collection_started_at_utc"] = started
+            if started:
+                try:
+                    coll_dt = datetime.fromisoformat(started.replace("Z", "+00:00"))
+                    if coll_dt.tzinfo is None:
+                        coll_dt = coll_dt.replace(tzinfo=UTC)
+                    age_s = (now - coll_dt).total_seconds()
+                    details["collection_age_seconds"] = age_s
+                    if age_s > 604800:  # 7 days
+                        stale_reasons.append(f"collection window expired {age_s / 86400:.1f} days ago")
+                        statuses.append(HealthStatus.DEGRADED)
+                    else:
+                        statuses.append(HealthStatus.HEALTHY)
+                    last_coll_ts = started
+                except (ValueError, TypeError):
+                    statuses.append(HealthStatus.DEGRADED)
+                    stale_reasons.append("collection timestamp unparseable")
+        except Exception as exc:
+            details["collection_manifest_error"] = str(exc)
+            stale_reasons.append(f"collection manifest check failed: {exc}")
+            statuses.append(HealthStatus.UNHEALTHY)
+    else:
+        stale_reasons.append("collection dataset manifest missing")
+        statuses.append(HealthStatus.DEGRADED)
+
+    # --- Aggregate ---
+    if HealthStatus.UNHEALTHY in statuses:
+        overall = HealthStatus.UNHEALTHY
+        message = "pipeline stale: " + "; ".join(stale_reasons)
+    elif HealthStatus.DEGRADED in statuses:
+        overall = HealthStatus.DEGRADED
+        message = "pipeline degraded: " + "; ".join(stale_reasons)
+    else:
+        overall = HealthStatus.HEALTHY
+        message = "pipeline activity current"
+
+    details["stale_reasons"] = stale_reasons
+    details["last_signal_ts"] = last_signal_ts
+    details["last_collection_ts"] = last_coll_ts
+    details["stale_after_signal_s"] = 86400
+    details["stale_after_collection_s"] = 604800
+
+    return overall, message, details
+
+
 health_checker = HealthChecker()
 
 health_checker.register_check("config", lambda: check_config(load_settings()))
@@ -343,6 +477,9 @@ health_checker.register_check("metrics_collector", check_metrics_collector)
 health_checker.register_check(
     "prospective_collection", lambda: check_prospective_collection()
 )
+health_checker.register_check(
+    "pipeline_freshness", lambda: check_pipeline_freshness(load_settings())
+)
 
 __all__ = [
     "ComponentHealth",
@@ -353,6 +490,7 @@ __all__ = [
     "check_metrics_collector",
     "check_model_registry",
     "check_paper_account",
+    "check_pipeline_freshness",
     "check_prospective_collection",
     "check_signal_ledger",
     "check_storage",

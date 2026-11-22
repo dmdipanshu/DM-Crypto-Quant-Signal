@@ -501,10 +501,11 @@ def signal_generate(
             if gen_dt.tzinfo is None:
                 gen_dt = gen_dt.replace(tzinfo=UTC)
         except ValueError:
-            gen_dt = datetime.now(UTC)
+            console.print(f"[red]error: cannot parse manifest.actual_end={manifest.actual_end!r} from snapshot {manifest.snapshot_id}; pass --at explicitly.[/red]")
+            raise typer.Exit(code=1) from None
     tf_min = TIMEFRAME_MINUTES.get(timeframe, 60)
     val_dt = gen_dt + timedelta(hours=0, minutes=tf_min * horizon_bars)
-    gate_now = _parse_cli_ts(now, "--now") or datetime.now(UTC)
+    gate_now = _parse_cli_ts(now, "--now") or gen_dt
 
     from crypto_engine.signals.costs import CostModel
     from crypto_engine.signals.policy import PolicyInputs, decide
@@ -758,7 +759,6 @@ def signals_for_backtest(
     if not feature_names:
         raise ValueError("signals_for_backtest: model record has empty feature_names.")
     max_rows = int(settings.signal.max_rows_signal)
-    starting = float(settings.backtest.starting_equity)
     tf_min = TIMEFRAME_MINUTES.get(str(settings.backtest.timeframe), 60)
     cost_est = cost if isinstance(cost, CostEstimate) else CostEstimate(source="configured")
     signals: list = []
@@ -820,11 +820,12 @@ def signals_for_backtest(
             levels=None,
         )
         record, _trace = decide(inputs)
+        # Backtesting starts from a flat account: zero exposure.
         portfolio = {
             "exposure_pct": 0.0,
             "symbol_exposure_pct": 0.0,
-            "day_start_equity": starting,
-            "current_equity": starting,
+            "day_start_equity": float(settings.backtest.starting_equity),
+            "current_equity": float(settings.backtest.starting_equity),
             "strategy_enabled": True,
             "circuit_open": False,
         }

@@ -22,6 +22,12 @@ from tests.fixtures.api_harness import api_get  # noqa: E402
 from tests.fixtures.api_stores import build_api_stores  # noqa: E402
 
 
+@pytest.fixture(autouse=True)
+def _clear_auth_env(monkeypatch):
+    monkeypatch.delenv("SIGNALFORGE_API_TOKEN", raising=False)
+    monkeypatch.delenv("SIGNALFORGE_AUTH_REQUIRED", raising=False)
+
+
 def _test_app(tmp_path: Path):
     stores = build_api_stores(tmp_path / "stores")
     settings = load_settings()
@@ -181,7 +187,7 @@ def test_paper_state_and_compare(tmp_path: Path) -> None:
     assert body["data"]["available"] is True
     assert body["data"]["initialized"] is True
     status, _, state = api_get(app, "/api/v1/paper/state")
-    assert status == 200 and state["data"]["account"]["symbol"] == "BTC/USDT"
+    assert status == 200 and state["data"]["symbol"] == "BTC/USDT"
     status, _, trades = api_get(app, "/api/v1/paper/trades")
     assert status == 200 and isinstance(trades["data"]["trades"], list)
     status, _, ledger = api_get(app, "/api/v1/paper/ledger")

@@ -45,7 +45,7 @@ from crypto_engine.research.prospective.manifest import (
     create_or_reuse_collection,
     verify_collection_integrity,
 )
-from crypto_engine.research.prospective.storage import ProspectiveStorage
+from crypto_engine.research.prospective.storage import ProspectiveStorage, _sha256_json
 
 logger = logging.getLogger(__name__)
 
@@ -84,6 +84,7 @@ class CollectionStatus:
     DATA_INVALID = "DATA_INVALID"
     EXCHANGE_UNAVAILABLE = "EXCHANGE_UNAVAILABLE"
     PROVENANCE_INVALID = "PROVENANCE_INVALID"
+    EXPIRED = "EXPIRED"
 
 
 class ProspectiveCollector:
@@ -418,6 +419,16 @@ class ProspectiveCollector:
         rejections: list[dict[str, Any]] = []
         errors: list[str] = []
 
+        # Initialize storage for manifest writing (always available after loop)
+        if storage_root is not None:
+            symbol_storage = ProspectiveStorage(
+                storage_root / self.exchange / self.market_type / symbol / timeframe
+            )
+        else:
+            symbol_storage = ProspectiveStorage(
+                Path("data/prospective") / self.exchange / self.market_type / symbol / timeframe
+            )
+
         seen_open_times: set[int] = set()
         last_close_ms: int | None = None
 
@@ -512,15 +523,6 @@ class ProspectiveCollector:
             ingested_at_utc = _utc_now_iso()
 
             # Store to prospective storage
-            if storage_root is not None:
-                symbol_storage = ProspectiveStorage(
-                    storage_root / self.exchange / self.market_type / symbol / timeframe
-                )
-            else:
-                symbol_storage = ProspectiveStorage(
-                    Path("data/prospective") / self.exchange / self.market_type / symbol / timeframe
-                )
-
             obs_record = symbol_storage.store_raw_observation(
                 exchange=self.exchange,
                 market_type=self.market_type,
@@ -589,6 +591,76 @@ class ProspectiveCollector:
                     "research_freeze_id": freeze_id,
                 }
             )
+
+        # --- Write dataset manifest for this symbol/timeframe ---
+        # Compute deterministic hashes over the COMPLETE stored dataset
+        # (all unique normalized candles, not just this cycle's observations).
+        # Use only canonical OHLCV fields to ensure determinism regardless of
+        # metadata like event_id, recorded_at_utc, observed_at_utc, etc.
+        # Sort by open_time so insertion order does not affect the hash.
+        unique_candles = symbol_storage.read_unique_normalized_candles()
+        unique_candles_sorted = sorted(unique_candles, key=lambda c: c["open_time"])
+        canonical_candles = [
+            {
+                "open_time": c["open_time"],
+                "close_time": c["close_time"],
+                "open": c["open"],
+                "high": c["high"],
+                "low": c["low"],
+                "close": c["close"],
+                "volume": c["volume"],
+            }
+            for c in unique_candles_sorted
+        ]
+        dataset_hash = _sha256_json(canonical_candles)
+
+        # Hash raw_payload_hash values (already deterministic exchange-response
+        # hashes) rather than full records with volatile metadata.
+        raw_observations = symbol_storage.read_raw_observations()
+        canonical_raw_hashes = sorted(o["raw_payload_hash"] for o in raw_observations)
+        raw_payload_hash = _sha256_json(canonical_raw_hashes)
+
+        # Canonical coverage calculation (same logic as _compute_quality_state).
+        now_ms = int(datetime.now(UTC).timestamp() * 1000)
+        interval_ms = timeframe_to_ms(timeframe)
+        first_open_ms = ((collection_start_ms // interval_ms) + 1) * interval_ms
+        expected_intervals = 0
+        t = first_open_ms
+        while t + interval_ms <= now_ms:
+            expected_intervals += 1
+            t += interval_ms
+
+        actual_count = len(unique_candles)
+        coverage = actual_count / expected_intervals if expected_intervals > 0 else 0.0
+        coverage = max(0.0, min(1.0, coverage))  # bound to [0.0, 1.0]
+
+        latest_open_time_utc = None
+        if unique_candles:
+            latest_open_time_utc = max(c.get("open_time", "") for c in unique_candles)
+
+        manifest_payload = {
+            "schema": "prospective-dataset.v1",
+            "collection_id": collection_id,
+            "exchange": self.exchange,
+            "market_type": self.market_type,
+            "symbol": symbol,
+            "timeframe": timeframe,
+            "collection_started_at_utc": _ms_to_iso(collection_start_ms),
+            "collection_updated_at_utc": _utc_now_iso(),
+            "observation_count": actual_count,
+            "coverage_fraction": round(coverage, 4),
+            "dataset_hash": dataset_hash,
+            "raw_payload_hash": raw_payload_hash,
+            "latest_open_time_utc": latest_open_time_utc,
+            "research_freeze_id": freeze_id,
+            "collector_version": "q5-v1",
+            "data_schema_version": "ohlcv-v1",
+        }
+
+        try:
+            symbol_storage.write_dataset_manifest(manifest_payload)
+        except Exception as exc:
+            errors.append(f"failed to write dataset manifest: {exc}")
 
         return {
             "observations": observations,
@@ -729,12 +801,9 @@ class ProspectiveCollector:
             )
 
         # Minimum elapsed duration (7 days)
-        min_elapsed_ms = 7 * 24 * 60 * 60 * 1000
+        min_elapsed_ms = self.policy.min_elapsed_observation_period_s * 1000
         elapsed_ms = now_ms - collection_start_ms
-        if elapsed_ms < min_elapsed_ms:
-            block_reasons.append(
-                f"Elapsed collection duration {elapsed_ms / 1000:.0f}s is below minimum 7 days"
-            )
+        window_expired = elapsed_ms >= min_elapsed_ms
 
         # Data quality
         if dataset_quality_status != CollectionStatus.HEALTHY:
@@ -749,6 +818,18 @@ class ProspectiveCollector:
             block_reasons.extend(collector_reasons)
 
         evaluation_blocked = len(block_reasons) > 0
+
+        # EXPIRED: collection window has elapsed but requirements not met.
+        # Takes precedence over ACCUMULATING when the 7-day window is closed
+        # and the holdout can no longer accumulate.
+        if window_expired and evaluation_blocked:
+            state = CollectionStatus.EXPIRED
+            block_reasons.insert(
+                0,
+                f"Collection window expired after {elapsed_ms / 86400000:.1f} days "
+                f"(minimum {self.policy.min_elapsed_observation_period_s / 86400:.0f} days) "
+                f"without meeting evaluation requirements.",
+            )
 
         return {
             "state": state,

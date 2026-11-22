@@ -75,7 +75,7 @@ def register(router: Any, roots: Any, settings: Any) -> None:
             uptime_seconds = checker.uptime_seconds
         return ok(
             {
-                "status": "ok",
+                "status": overall_value,
                 "package_version": __version__,
                 "read_only": True,
                 "trading_enabled": False,
@@ -139,8 +139,6 @@ def register(router: Any, roots: Any, settings: Any) -> None:
                 for name, ch in results.items()
             }
         return ok(checks)
-
-    # -- metrics ------------------------------------------------------------
     @router.get(f"{V1}/metrics")
     @router.get("/metrics")
     def metrics() -> Any:
@@ -385,7 +383,7 @@ def register(router: Any, roots: Any, settings: Any) -> None:
         payload = _paper_or_unavailable()
         if not payload.get("available"):
             return ok(payload)
-        account = payload["account"]
+        account = payload
         return ok(
             {
                 "available": True,
@@ -411,7 +409,7 @@ def register(router: Any, roots: Any, settings: Any) -> None:
         payload = _paper_or_unavailable()
         if not payload.get("available"):
             return ok(payload)
-        trades = payload["account"].get("trades_closed", [])
+        trades = payload.get("trades_closed", [])
         page = trades[offset : offset + _limit(limit)]
         return ok(
             {"available": True, "trades": page},
@@ -425,11 +423,10 @@ def register(router: Any, roots: Any, settings: Any) -> None:
         payload = _paper_or_unavailable()
         if not payload.get("available"):
             return ok(payload)
-        account = payload["account"]
-        curve = account.get("equity_curve", [])
+        curve = payload.get("equity_curve", [])
         page = curve[offset : offset + _limit(limit)]
         return ok(
-            {"available": True, "equity_curve": page, "equity_mark": account.get("equity_mark")},
+            {"available": True, "equity_curve": page, "equity_mark": payload.get("equity_mark")},
             pagination=Pagination(
                 total=len(curve), limit=_limit(limit), offset=max(0, offset)
             ).model_dump(),

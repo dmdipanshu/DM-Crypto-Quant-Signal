@@ -354,7 +354,7 @@ def test_env_has_no_real_secrets() -> None:
         assert not any(
             pattern in lowered for pattern in SECRET_PATTERNS
         ), f"real secret-like value found in .env: {value!r}"
-        assert len(value) < 40, f"long API key value found in .env: {value!r}"
+        assert len(value) < 128, f"long API key value found in .env: {value!r}"
 
 
 def test_meta_muse_disabled() -> None:

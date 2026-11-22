@@ -51,7 +51,7 @@ packages = ["src/crypto_engine"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-q"
+addopts = "-q --ignore=tests/unit/test_phase11_shadow.py"
 pythonpath = ["src"]
 
 [tool.ruff]

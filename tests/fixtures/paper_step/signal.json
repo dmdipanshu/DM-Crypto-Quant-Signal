@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0",
+  "signal_id": "a1b2c3d4e5f60718",
+  "symbol": "BTC/USDT",
+  "exchange": "binance",
+  "timeframe": "1h",
+  "generated_at": "2024-01-10T00:00:00+00:00",
+  "valid_until": "2024-01-10T01:00:00+00:00",
+  "direction": "LONG",
+  "prediction_horizon_bars": 24,
+  "model_id": "fixture-model",
+  "model_version": "1.0",
+  "model_artifact_hash": "abc123def456",
+  "dataset_snapshot_id": "",
+  "feature_snapshot_hash": "",
+  "prediction": {
+    "raw_score": 0.8,
+    "calibrated_probability": 0.75,
+    "calibration_status": "calibrated",
+    "positive_class": 1,
+    "model_family": "logistic",
+    "threshold_version": "v1"
+  },
+  "market_regime": "trend",
+  "expected_edge_bp": 25.0,
+  "cost_estimate": {
+    "fee_bp": 10.0,
+    "spread_bp": 0.0,
+    "slippage_bp": 5.0,
+    "funding_bp": 0.0,
+    "cost_bp_total": 15.0,
+    "source": "configured",
+    "expected_edge_bp": 25.0,
+    "edge_margin_bp": 0.0
+  },
+  "entry_ref": 40000.0,
+  "stop_loss": 39500.0,
+  "take_profit": 41000.0,
+  "risk_reward": 2.0,
+  "data_quality": "validated",
+  "ai_context": {
+    "status": "disabled"
+  },
+  "decision": {
+    "status": "approved",
+    "reason_codes": ["OK"],
+    "gate": "policy"
+  },
+  "software_version": "0.1.0"
+}

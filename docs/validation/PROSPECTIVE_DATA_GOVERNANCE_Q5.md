@@ -1,6 +1,6 @@
 # Prospective Data Governance — Q5
 
-Generated: 2026-11-18T15:12:23.649530+00:00
+Generated: 2026-11-22T10:05:12.007671+00:00
 
 ## Holdout States
 
@@ -22,7 +22,7 @@ Generated: 2026-11-18T15:12:23.649530+00:00
 - Data is genuinely post-collection-start: YES
 - All first-seen provenance is valid: YES
 - Data-quality requirements pass: False
-- Collection coverage meets policy: 0.78% >= 0.95
+- Collection coverage meets policy: 0.46% >= 0.95
 - Minimum observation count met: 1 >= 168
 - No development or tuning process has inspected prospective outcomes: YES
 - No historical backfill has contaminated the collection: YES

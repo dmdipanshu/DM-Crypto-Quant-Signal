@@ -38,7 +38,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
 from crypto_engine.backtesting.costs import ExecutionCostModel
 
@@ -108,11 +108,99 @@ class PaperAccount(BaseModel):
     updated_at: str = ""
     checksum: str = ""
 
+    # --- computed (serialized-only) fields, derived from stored state ---
+    # These are NOT part of the checksum payload; they are recomputed on
+    # every model_dump from the verified stored fields, so they cannot
+    # desynchronize integrity.
+    total_equity: float = Field(default=0.0, ge=0)
+    realized_pnl: float = Field(default=0.0)
+    unrealized_pnl: float = Field(default=0.0)
+    total_pnl: float = Field(default=0.0)
+    max_drawdown_pct: float = Field(default=0.0, ge=0)
+    win_rate: float = Field(default=0.0, ge=0, le=1)
+
     def to_checksum_payload(self) -> dict[str, Any]:
-        """Payload covered by the checksum (everything except ``checksum``)."""
+        """Payload covered by the checksum (everything except ``checksum``
+        AND the computed derived fields)."""
         payload = self.model_dump(mode="json")
         payload.pop("checksum", None)
+        # Exclude computed derived fields from the integrity payload — they
+        # are recomputed on every dump from the verified stored fields.
+        for key in (
+            "total_equity",
+            "realized_pnl",
+            "unrealized_pnl",
+            "total_pnl",
+            "max_drawdown_pct",
+            "win_rate",
+        ):
+            payload.pop(key, None)
         return payload
+
+    # ------------------------------------------------------------------
+    # Computed field serializers (run during model_dump(mode="json"))
+    # ------------------------------------------------------------------
+
+    @field_serializer("total_equity")
+    def _serialize_total_equity(self, v: float) -> float:
+        """Total account equity at last mark = cash + position value at mark price.
+        
+        ``equity_mark`` already stores total equity (cash + position value),
+        so we return it directly rather than recomputing from price.
+        """
+        mark = self.equity_mark if self.equity_mark is not None else self.starting_equity
+        return float(mark)
+
+    @field_serializer("realized_pnl")
+    def _serialize_realized_pnl(self, v: float) -> float:
+        """Sum of net_pnl from all closed trades."""
+        return sum(float(t.get("net_pnl", 0.0)) for t in self.trades_closed)
+
+    @field_serializer("unrealized_pnl")
+    def _serialize_unrealized_pnl(self, v: float) -> float:
+        """Unrealized PnL = total_equity - starting_equity - realized_pnl."""
+        pos = self.position
+        if pos is None:
+            return 0.0
+        total_eq = self.equity_mark if self.equity_mark is not None else self.starting_equity
+        realized = sum(float(t.get("net_pnl", 0.0)) for t in self.trades_closed)
+        return float(total_eq) - float(self.starting_equity) - realized
+
+    @field_serializer("total_pnl")
+    def _serialize_total_pnl(self, v: float) -> float:
+        """Realized + unrealized PnL = total_equity - starting_equity."""
+        total_eq = self.equity_mark if self.equity_mark is not None else self.starting_equity
+        return float(total_eq) - float(self.starting_equity)
+
+    @field_serializer("max_drawdown_pct")
+    def _serialize_max_drawdown_pct(self, v: float) -> float:
+        """Max drawdown percentage from the equity curve high-water mark."""
+        curve = self.equity_curve
+        if not curve:
+            return 0.0
+        peak = float(self.starting_equity)
+        max_dd = 0.0
+        for _ts, eq in curve:
+            try:
+                val = float(eq)
+            except (TypeError, ValueError):
+                continue
+            if val > peak:
+                peak = val
+            if peak > 0:
+                dd = (peak - val) / peak * 100.0
+                if dd > max_dd:
+                    max_dd = dd
+        return max_dd
+
+    @field_serializer("win_rate")
+    def _serialize_win_rate(self, v: float) -> float:
+        """Win rate = winning trades / total closed trades."""
+        nets = [float(t.get("net_pnl", 0.0)) for t in self.trades_closed]
+        if not nets:
+            return 0.0
+        wins = sum(1 for n in nets if n > 0)
+        return wins / len(nets)
 
 
 def _cost_legs(cost: Any) -> dict[str, float]:

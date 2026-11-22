@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Literal
 
@@ -493,7 +493,9 @@ def read_paper(roots: RepoRoots) -> dict[str, Any]:
         return unavailable("corrupt", "Paper state failed checksum; not displaying values.")
     except (OSError, ValueError):
         return unavailable("corrupt", "Paper state unreadable.")
-    return {"available": True, "account": account.model_dump(mode="json")}
+    account_data = account.model_dump(mode="json")
+    account_data["available"] = True
+    return account_data
 
 
 # -- data ------------------------------------------------------------------
@@ -642,6 +644,47 @@ def read_q5_collection_status(roots: RepoRoots) -> dict[str, Any]:
     dataset_manifest = storage.read_dataset_manifest() or {}
     ledger = storage.verify_ledger_chain()
 
+    observation_count = dataset_manifest.get("observation_count", 0)
+    coverage = dataset_manifest.get("coverage_fraction", 0.0)
+    data_quality_passed = ledger.get("valid", False) and observation_count > 0
+
+    # Determine if collection window has expired (7-day minimum elapsed
+    # without meeting evaluation requirements).
+    collection_started_at = integrity.get("collection_started_at_utc")
+    now_ms = int(datetime.now(UTC).timestamp() * 1000)
+    window_expired = False
+    if collection_started_at:
+        try:
+            start_ms = int(
+                datetime.fromisoformat(collection_started_at.replace("Z", "+00:00"))
+                .timestamp()
+                * 1000
+            )
+            elapsed_ms = now_ms - start_ms
+            min_elapsed_ms = collector.policy.min_elapsed_observation_period_s * 1000
+            window_expired = elapsed_ms >= min_elapsed_ms
+        except (ValueError, TypeError):
+            window_expired = False
+
+    # Compute whether requirements are met
+    obs_below_min = observation_count < collector.policy.min_observation_count
+    cov_below_min = coverage < collector.policy.min_coverage_fraction
+    requirements_met = (
+        not obs_below_min
+        and not cov_below_min
+        and data_quality_passed
+    )
+
+    # Derive lifecycle state
+    if not window_expired and not requirements_met:
+        lifecycle_state = "ACCUMULATING"
+    elif window_expired and not requirements_met:
+        lifecycle_state = "EXPIRED"
+    elif requirements_met:
+        lifecycle_state = "ELIGIBLE_FOR_EVALUATION"
+    else:
+        lifecycle_state = "ACCUMULATING"
+
     return {
         "available": True,
         "collection_id": integrity.get("collection_id"),
@@ -656,11 +699,18 @@ def read_q5_collection_status(roots: RepoRoots) -> dict[str, Any]:
         "manifest_reason": integrity.get("reason"),
         "dataset_hash": dataset_manifest.get("dataset_hash"),
         "raw_payload_hash": dataset_manifest.get("raw_payload_hash"),
-        "observation_count": dataset_manifest.get("observation_count", 0),
-        "coverage_fraction": dataset_manifest.get("coverage_fraction", 0.0),
+        "observation_count": observation_count,
+        "coverage_fraction": coverage,
         "ledger_events": ledger.get("event_count", 0),
         "ledger_valid": ledger.get("valid", False),
         "read_only": True,
+        "lifecycle_state": lifecycle_state,
+        "window_expired": window_expired,
+        "observation_count_min": collector.policy.min_observation_count,
+        "coverage_fraction_min": collector.policy.min_coverage_fraction,
+        "min_elapsed_period_s": collector.policy.min_elapsed_observation_period_s,
+        "elapsed_seconds": (now_ms - int(datetime.fromisoformat(collection_started_at.replace("Z", "+00:00")).timestamp() * 1000)) / 1000.0 if collection_started_at else None,
+        "requirements_met": requirements_met,
     }
 
 
@@ -680,7 +730,25 @@ def read_q5_prospective_governance(roots: RepoRoots) -> dict[str, Any]:
         timeframes=["1h"],
     )
 
-    freeze_info = collector.validate_freeze()
+    freeze_check = collector.validate_freeze()
+    if freeze_check.get("status") != "VALID":
+        status = str(freeze_check.get("status") or "MISSING")
+        reason = str(freeze_check.get("reason") or "freeze_not_valid")
+        return {
+            "available": False,
+            "blocked": True,
+            "reason": f"freeze_{status.lower()}:{reason}",
+            "freeze_status": status,
+            "freeze_reason": reason,
+            "research_freeze_id": freeze_check.get("freeze_id"),
+            "research_freeze_timestamp": freeze_check.get("created_at_utc"),
+            "prospective_state": "UNAVAILABLE",
+            "eligible_for_evaluation": False,
+            "evaluated": False,
+            "read_only": True,
+        }
+
+    freeze_info = freeze_check
     manifest = collector.validate_or_create_collection_manifest()
 
     storage = ProspectiveStorage(Path("data/prospective/binance/spot/BTC-USDT/1h"))
@@ -691,6 +759,32 @@ def read_q5_prospective_governance(roots: RepoRoots) -> dict[str, Any]:
     coverage = dataset_manifest.get("coverage_fraction", 0.0)
     data_quality_passed = ledger.get("valid", False) and observation_count > 0
 
+    # Determine if collection window has expired (7-day minimum elapsed
+    # without meeting evaluation requirements).
+    collection_started_at = manifest["collection_started_at_utc"]
+    now_ms = int(datetime.now(UTC).timestamp() * 1000)
+    try:
+        start_ms = int(
+            datetime.fromisoformat(collection_started_at.replace("Z", "+00:00"))
+            .timestamp()
+            * 1000
+        )
+        elapsed_ms = now_ms - start_ms
+        min_elapsed_ms = collector.policy.min_elapsed_observation_period_s * 1000
+        window_expired = elapsed_ms >= min_elapsed_ms
+    except (ValueError, TypeError):
+        window_expired = False
+
+    obs_below_min = observation_count < collector.policy.min_observation_count
+    cov_below_min = coverage < collector.policy.min_coverage_fraction
+    requirements_met = (
+        not obs_below_min
+        and not cov_below_min
+        and data_quality_passed
+    )
+
+    # If the collection window has expired and requirements are not met,
+    # the holdout is EXPIRED/INCOMPLETE, not ACCUMULATING.
     readiness = assess_prospective_holdout_readiness(
         freeze_timestamp=freeze_info["created_at_utc"],
         collection_started_at=manifest["collection_started_at_utc"],
@@ -705,6 +799,19 @@ def read_q5_prospective_governance(roots: RepoRoots) -> dict[str, Any]:
         no_development_inspection=True,
         evaluation_requested=False,
     )
+
+    # Override to EXPIRED when window elapsed but requirements unmet.
+    if window_expired and not requirements_met:
+        readiness["state"] = "EXPIRED"
+        readiness["prospective_status"] = "EXPIRED"
+        readiness["eligible_for_evaluation"] = False
+        readiness["reasons"] = [
+            f"Collection window expired after {elapsed_ms / 86400000:.1f} days "
+            f"(minimum {collector.policy.min_elapsed_observation_period_s / 86400:.0f} days) "
+            f"without meeting evaluation requirements "
+            f"(observations={observation_count}/{collector.policy.min_observation_count}, "
+            f"coverage={coverage:.2%}/{collector.policy.min_coverage_fraction:.2%})."
+        ]
 
     historical = historical_holdout_is_contaminated()
 
@@ -731,6 +838,10 @@ def read_q5_prospective_governance(roots: RepoRoots) -> dict[str, Any]:
         "research_freeze_timestamp": freeze_info["created_at_utc"],
         "collection_started_at_utc": manifest["collection_started_at_utc"],
         "read_only": True,
+        "lifecycle_state": "EXPIRED" if (window_expired and not requirements_met) else readiness["state"],
+        "window_expired": window_expired,
+        "requirements_met": requirements_met,
+        "elapsed_seconds": (now_ms - start_ms) / 1000.0,
     }
 
 

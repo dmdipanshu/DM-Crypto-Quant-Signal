@@ -87,6 +87,7 @@ def _setup_manifests(tmp_path, collection_start_ms: int):
             {
                 "schema_version": "research-freeze-manifest.v1",
                 "freeze_id": "freeze-test",
+                "status": "VALID",
                 "created_at_utc": "2026-11-12T19:11:47.293700+00:00",
                 "repository_commit_sha": "abc123",
             }
@@ -106,7 +107,6 @@ def _setup_manifests(tmp_path, collection_start_ms: int):
                 "market_type": "spot",
                 "symbols": ["BTC/USDT"],
                 "timeframes": ["1h"],
-                "collection_config_hash": "abc",
                 "collector_version": "q5-v1",
                 "data_schema_version": "ohlcv-v1",
                 "repository_commit_sha": "abc123",
@@ -1420,3 +1420,622 @@ class TestNoAutomaticNewEpoch:
 
         assert m2["collection_id"] == "collect-original"
         assert m2["collection_started_at_utc"] == m1["collection_started_at_utc"]
+
+
+# ---------------------------------------------------------------------------
+# G. Dataset manifest generation tests
+# ---------------------------------------------------------------------------
+
+
+class TestDatasetManifestGeneration:
+    """Tests for dataset_manifest.json generation in collect_once()."""
+
+    def test_manifest_created_after_collection(self, tmp_path):
+        """collect_once() writes dataset_manifest.json after collection cycle."""
+        now = datetime.now(UTC)
+        collection_start = now - timedelta(hours=5)
+        collection_start_ms = int(collection_start.timestamp() * 1000)
+
+        _setup_manifests(tmp_path, collection_start_ms)
+
+        rows = _make_ohlcv_series(collection_start_ms + 3_600_000, 2, interval_ms=3_600_000)
+        client = _make_mock_client(rows)
+
+        collector = ProspectiveCollector(
+            exchange="binance",
+            market_type="spot",
+            symbols=["BTC/USDT"],
+            timeframes=["1h"],
+            policy=ProspectiveCollectionPolicy(
+                exchange="binance",
+                market_type="spot",
+                symbols=("BTC/USDT",),
+                timeframes=("1h",),
+                candle_finalization_margin_s=1,
+                max_ingestion_latency_s=86400,
+            ),
+            client=client,
+            storage_root=tmp_path / "storage",
+            freeze_manifest_path=str(tmp_path / "freeze.json"),
+            collection_manifest_path=str(tmp_path / "collection.json"),
+        )
+
+        collector.collect_once()
+
+        # Manifest file must exist
+        manifest_path = (
+            tmp_path / "storage" / "binance" / "spot" / "BTC/USDT" / "1h" / "dataset_manifest.json"
+        )
+        assert manifest_path.is_file(), "dataset_manifest.json must be written"
+
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        assert manifest["collection_id"] is not None
+        assert manifest["exchange"] == "binance"
+        assert manifest["market_type"] == "spot"
+        assert manifest["symbol"] == "BTC/USDT"
+        assert manifest["timeframe"] == "1h"
+        assert manifest["research_freeze_id"] == "freeze-test"
+        assert manifest["observation_count"] == 2
+        assert manifest["dataset_hash"] is not None
+        assert manifest["raw_payload_hash"] is not None
+        assert manifest["latest_open_time_utc"] is not None
+
+    def test_dataset_hash_represents_all_observations(self, tmp_path):
+        """dataset_hash changes when observations change (deterministic over complete dataset)."""
+        now = datetime.now(UTC)
+        collection_start = now - timedelta(hours=5)
+        collection_start_ms = int(collection_start.timestamp() * 1000)
+
+        def _collect(rows: list[list]) -> str:
+            _setup_manifests(tmp_path, collection_start_ms)
+            client = _make_mock_client(rows)
+            collector = ProspectiveCollector(
+                exchange="binance",
+                market_type="spot",
+                symbols=["BTC/USDT"],
+                timeframes=["1h"],
+                policy=ProspectiveCollectionPolicy(
+                    exchange="binance",
+                    market_type="spot",
+                    symbols=("BTC/USDT",),
+                    timeframes=("1h",),
+                    candle_finalization_margin_s=1,
+                    max_ingestion_latency_s=86400,
+                ),
+                client=client,
+                storage_root=tmp_path / "storage",
+                freeze_manifest_path=str(tmp_path / "freeze.json"),
+                collection_manifest_path=str(tmp_path / "collection.json"),
+            )
+            collector.collect_once()
+            manifest_path = (
+                tmp_path
+                / "storage"
+                / "binance"
+                / "spot"
+                / "BTC/USDT"
+                / "1h"
+                / "dataset_manifest.json"
+            )
+            return json.loads(manifest_path.read_text(encoding="utf-8"))["dataset_hash"]
+
+        hash_one = _collect(_make_ohlcv_series(collection_start_ms + 3_600_000, 1))
+        hash_two = _collect(_make_ohlcv_series(collection_start_ms + 3_600_000, 2))
+
+        assert hash_one != hash_two, "dataset_hash must differ when observation count differs"
+
+    def test_dataset_hash_deterministic_on_reorder(self, tmp_path):
+        """Reordering stored candles does not change dataset_hash (deterministic)."""
+        storage_root = tmp_path / "storage" / "binance" / "spot" / "BTC/USDT" / "1h"
+        storage_root.mkdir(parents=True, exist_ok=True)
+        storage = ProspectiveStorage(storage_root)
+        now_iso = datetime.now(UTC).isoformat()
+
+        # Store 3 candles in order A
+        candle_data_a = [
+            ("2026-01-01T00:00:00+00:00", 100.0, 101.0, 99.0, 100.5),
+            ("2026-01-01T01:00:00+00:00", 101.0, 102.0, 100.0, 101.5),
+            ("2026-01-01T02:00:00+00:00", 102.0, 103.0, 101.0, 102.5),
+        ]
+        for i, (t, op, hi, lo, cl) in enumerate(candle_data_a):
+            storage.store_normalized_candle(
+                collection_id="collect-1",
+                exchange="binance",
+                market_type="spot",
+                symbol="BTC/USDT",
+                interval="1h",
+                open_time=t,
+                close_time="2026-01-01T03:00:00+00:00",
+                open_price=op,
+                high=hi,
+                low=lo,
+                close=cl,
+                volume=10.0,
+                source_observation_id=f"obs-{i}",
+                first_seen_at_utc=now_iso,
+                observed_at_utc=now_iso,
+                ingested_at_utc=now_iso,
+                research_freeze_id="freeze-test",
+            )
+
+        hash_a = storage.compute_dataset_hash()
+
+        # Clear and re-store in different order B
+        storage.normalized_path.unlink(missing_ok=True)
+        storage.ledger_path.unlink(missing_ok=True)
+
+        # Same candles, different insertion order
+        candle_data_b = [
+            ("2026-01-01T02:00:00+00:00", 102.0, 103.0, 101.0, 102.5),
+            ("2026-01-01T00:00:00+00:00", 100.0, 101.0, 99.0, 100.5),
+            ("2026-01-01T01:00:00+00:00", 101.0, 102.0, 100.0, 101.5),
+        ]
+        for i, (t, op, hi, lo, cl) in enumerate(candle_data_b):
+            storage.store_normalized_candle(
+                collection_id="collect-1",
+                exchange="binance",
+                market_type="spot",
+                symbol="BTC/USDT",
+                interval="1h",
+                open_time=t,
+                close_time="2026-01-01T03:00:00+00:00",
+                open_price=op,
+                high=hi,
+                low=lo,
+                close=cl,
+                volume=10.0,
+                source_observation_id=f"obs-{i}",
+                first_seen_at_utc=now_iso,
+                observed_at_utc=now_iso,
+                ingested_at_utc=now_iso,
+                research_freeze_id="freeze-test",
+            )
+
+        hash_b = storage.compute_dataset_hash()
+
+        assert hash_a == hash_b, "dataset_hash must be deterministic regardless of insertion order"
+
+    def test_raw_payload_hash_includes_all_observations(self, tmp_path):
+        """raw_payload_hash changes when any observation's raw payload changes."""
+        storage_root = tmp_path / "storage" / "binance" / "spot" / "BTC/USDT" / "1h"
+        storage_root.mkdir(parents=True, exist_ok=True)
+        storage = ProspectiveStorage(storage_root)
+        now_iso = datetime.now(UTC).isoformat()
+
+        storage.store_raw_observation(
+            exchange="binance",
+            market_type="spot",
+            symbol="BTC/USDT",
+            interval="1h",
+            open_time="2026-01-01T00:00:00+00:00",
+            close_time="2026-01-01T01:00:00+00:00",
+            observed_at_utc=now_iso,
+            ingested_at_utc=now_iso,
+            source_endpoint="binance/fetchOHLCV",
+            request_id=None,
+            response_hash="resp-hash-1",
+            raw_payload_hash="payload-hash-1",
+            collector_version="q5-v1",
+            collection_id="collect-1",
+            research_freeze_id="freeze-1",
+        )
+        hash_a = storage.compute_raw_payload_hash()
+
+        storage.store_raw_observation(
+            exchange="binance",
+            market_type="spot",
+            symbol="BTC/USDT",
+            interval="1h",
+            open_time="2026-01-01T01:00:00+00:00",
+            close_time="2026-01-01T02:00:00+00:00",
+            observed_at_utc=now_iso,
+            ingested_at_utc=now_iso,
+            source_endpoint="binance/fetchOHLCV",
+            request_id=None,
+            response_hash="resp-hash-2",
+            raw_payload_hash="payload-hash-2",
+            collector_version="q5-v1",
+            collection_id="collect-1",
+            research_freeze_id="freeze-1",
+        )
+        hash_b = storage.compute_raw_payload_hash()
+
+        assert hash_a != hash_b, "raw_payload_hash must differ when new observation added"
+        assert len(hash_b) == 64  # SHA-256 hex
+
+    def test_observation_count_correct(self, tmp_path):
+        """observation_count matches unique accepted observations."""
+        now = datetime.now(UTC)
+        collection_start = now - timedelta(hours=5)
+        collection_start_ms = int(collection_start.timestamp() * 1000)
+
+        _setup_manifests(tmp_path, collection_start_ms)
+
+        rows = _make_ohlcv_series(collection_start_ms + 3_600_000, 3, interval_ms=3_600_000)
+        client = _make_mock_client(rows)
+
+        collector = ProspectiveCollector(
+            exchange="binance",
+            market_type="spot",
+            symbols=["BTC/USDT"],
+            timeframes=["1h"],
+            policy=ProspectiveCollectionPolicy(
+                exchange="binance",
+                market_type="spot",
+                symbols=("BTC/USDT",),
+                timeframes=("1h",),
+                candle_finalization_margin_s=1,
+                max_ingestion_latency_s=86400,
+            ),
+            client=client,
+            storage_root=tmp_path / "storage",
+            freeze_manifest_path=str(tmp_path / "freeze.json"),
+            collection_manifest_path=str(tmp_path / "collection.json"),
+        )
+
+        collector.collect_once()
+
+        manifest_path = (
+            tmp_path / "storage" / "binance" / "spot" / "BTC/USDT" / "1h" / "dataset_manifest.json"
+        )
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        assert manifest["observation_count"] == 3
+
+    def test_coverage_fraction_bounded_and_canonical(self, tmp_path):
+        """coverage_fraction is bounded [0.0, 1.0] and uses canonical calculation."""
+        storage_root = tmp_path / "storage" / "binance" / "spot" / "BTC/USDT" / "1h"
+        storage_root.mkdir(parents=True, exist_ok=True)
+        storage = ProspectiveStorage(storage_root)
+        now_iso = datetime.now(UTC).isoformat()
+
+        # Store 5 candles spanning 5 hours
+        for i in range(5):
+            t = f"2026-01-01T{i:02d}:00:00+00:00"
+            storage.store_normalized_candle(
+                collection_id="collect-1",
+                exchange="binance",
+                market_type="spot",
+                symbol="BTC/USDT",
+                interval="1h",
+                open_time=t,
+                close_time=f"2026-01-01T{i + 1:02d}:00:00+00:00",
+                open_price=100.0 + i,
+                high=101.0 + i,
+                low=99.0 + i,
+                close=100.5 + i,
+                volume=10.0,
+                source_observation_id=f"obs-{i}",
+                first_seen_at_utc=now_iso,
+                observed_at_utc=now_iso,
+                ingested_at_utc=now_iso,
+                research_freeze_id="freeze-test",
+            )
+
+        # Expected intervals from first candle open (2026-01-01T00:00) to now
+        now_ms = int(datetime.now(UTC).timestamp() * 1000)
+        collection_start_ms = int(
+            datetime.fromisoformat("2026-01-01T00:00:00+00:00").timestamp() * 1000
+        )
+        interval_ms = 3_600_000  # 1h
+        first_open_ms = ((collection_start_ms // interval_ms) + 1) * interval_ms
+        expected = 0
+        t = first_open_ms
+        while t + interval_ms <= now_ms:
+            expected += 1
+            t += interval_ms
+
+        manifest_payload = {
+            "schema": "prospective-dataset.v1",
+            "collection_id": "collect-1",
+            "exchange": "binance",
+            "market_type": "spot",
+            "symbol": "BTC/USDT",
+            "timeframe": "1h",
+            "collection_started_at_utc": "2026-01-01T00:00:00+00:00",
+            "collection_updated_at_utc": now_iso,
+            "observation_count": 5,
+            "coverage_fraction": round(5 / expected if expected > 0 else 0.0, 4),
+            "dataset_hash": storage.compute_dataset_hash(),
+            "raw_payload_hash": storage.compute_raw_payload_hash(),
+            "latest_open_time_utc": "2026-01-01T04:00:00+00:00",
+            "research_freeze_id": "freeze-test",
+            "collector_version": "q5-v1",
+            "data_schema_version": "ohlcv-v1",
+        }
+        storage.write_dataset_manifest(manifest_payload)
+
+        written = json.loads((storage_root / "dataset_manifest.json").read_text(encoding="utf-8"))
+        assert 0.0 <= written["coverage_fraction"] <= 1.0
+        assert written["observation_count"] == 5
+
+    def test_zero_observations_manifest(self, tmp_path):
+        """Zero observations: manifest exists but count is 0, coverage is 0.0."""
+        now = datetime.now(UTC)
+        collection_start = now - timedelta(hours=5)
+        collection_start_ms = int(collection_start.timestamp() * 1000)
+
+        _setup_manifests(tmp_path, collection_start_ms)
+
+        client = _make_mock_client([])  # No data returned
+
+        collector = ProspectiveCollector(
+            exchange="binance",
+            market_type="spot",
+            symbols=["BTC/USDT"],
+            timeframes=["1h"],
+            policy=ProspectiveCollectionPolicy(
+                exchange="binance",
+                market_type="spot",
+                symbols=("BTC/USDT",),
+                timeframes=("1h",),
+                candle_finalization_margin_s=1,
+                max_ingestion_latency_s=86400,
+            ),
+            client=client,
+            storage_root=tmp_path / "storage",
+            freeze_manifest_path=str(tmp_path / "freeze.json"),
+            collection_manifest_path=str(tmp_path / "collection.json"),
+        )
+
+        collector.collect_once()
+
+        manifest_path = (
+            tmp_path / "storage" / "binance" / "spot" / "BTC/USDT" / "1h" / "dataset_manifest.json"
+        )
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        assert manifest["observation_count"] == 0
+        assert manifest["coverage_fraction"] == 0.0
+        assert manifest["latest_open_time_utc"] is None
+        assert manifest["dataset_hash"] is not None
+        assert manifest["raw_payload_hash"] is not None
+
+    def test_duplicate_candles_do_not_increase_count(self, tmp_path):
+        """Storing same candle twice does not increase observation_count."""
+        storage_root = tmp_path / "storage" / "binance" / "spot" / "BTC/USDT" / "1h"
+        storage_root.mkdir(parents=True, exist_ok=True)
+        storage = ProspectiveStorage(storage_root)
+        now_iso = datetime.now(UTC).isoformat()
+
+        # Store same candle twice
+        storage.store_normalized_candle(
+            collection_id="collect-1",
+            exchange="binance",
+            market_type="spot",
+            symbol="BTC/USDT",
+            interval="1h",
+            open_time="2026-01-01T00:00:00+00:00",
+            close_time="2026-01-01T01:00:00+00:00",
+            open_price=100.0,
+            high=101.0,
+            low=99.0,
+            close=100.5,
+            volume=10.0,
+            source_observation_id="obs-1",
+            first_seen_at_utc=now_iso,
+            observed_at_utc=now_iso,
+            ingested_at_utc=now_iso,
+            research_freeze_id="freeze-test",
+        )
+        storage.store_normalized_candle(
+            collection_id="collect-1",
+            exchange="binance",
+            market_type="spot",
+            symbol="BTC/USDT",
+            interval="1h",
+            open_time="2026-01-01T00:00:00+00:00",
+            close_time="2026-01-01T01:00:00+00:00",
+            open_price=100.0,
+            high=101.0,
+            low=99.0,
+            close=100.6,
+            volume=10.0,
+            source_observation_id="obs-2",
+            first_seen_at_utc=now_iso,
+            observed_at_utc=now_iso,
+            ingested_at_utc=now_iso,
+            research_freeze_id="freeze-test",
+        )
+
+        unique_candles = storage.read_unique_normalized_candles()
+        assert len(unique_candles) == 1  # deduplicated by open_time
+
+    def test_manifest_compatible_with_validator(self, tmp_path):
+        """Written manifest fields are compatible with governance reading."""
+        storage_root = tmp_path / "storage" / "binance" / "spot" / "BTC/USDT" / "1h"
+        storage_root.mkdir(parents=True, exist_ok=True)
+        storage = ProspectiveStorage(storage_root)
+        now_iso = datetime.now(UTC).isoformat()
+
+        storage.store_normalized_candle(
+            collection_id="collect-1",
+            exchange="binance",
+            market_type="spot",
+            symbol="BTC/USDT",
+            interval="1h",
+            open_time="2026-01-01T00:00:00+00:00",
+            close_time="2026-01-01T01:00:00+00:00",
+            open_price=100.0,
+            high=101.0,
+            low=99.0,
+            close=100.5,
+            volume=10.0,
+            source_observation_id="obs-1",
+            first_seen_at_utc=now_iso,
+            observed_at_utc=now_iso,
+            ingested_at_utc=now_iso,
+            research_freeze_id="freeze-test",
+        )
+
+        manifest_payload = {
+            "schema": "prospective-dataset.v1",
+            "collection_id": "collect-1",
+            "exchange": "binance",
+            "market_type": "spot",
+            "symbol": "BTC/USDT",
+            "timeframe": "1h",
+            "collection_started_at_utc": "2026-01-01T00:00:00+00:00",
+            "collection_updated_at_utc": now_iso,
+            "observation_count": 1,
+            "coverage_fraction": 0.5,
+            "dataset_hash": storage.compute_dataset_hash(),
+            "raw_payload_hash": storage.compute_raw_payload_hash(),
+            "latest_open_time_utc": "2026-01-01T00:00:00+00:00",
+            "research_freeze_id": "freeze-test",
+            "collector_version": "q5-v1",
+            "data_schema_version": "ohlcv-v1",
+        }
+        storage.write_dataset_manifest(manifest_payload)
+
+        # The manifest fields should be compatible with governance reading
+        written = json.loads((storage_root / "dataset_manifest.json").read_text(encoding="utf-8"))
+        assert written["exchange"] == "binance"
+        assert written["market_type"] == "spot"
+        assert written["symbol"] == "BTC/USDT"
+        assert written["timeframe"] == "1h"
+        assert isinstance(written["observation_count"], int)
+        assert isinstance(written["coverage_fraction"], (int, float))
+        assert written["research_freeze_id"] == "freeze-test"
+
+    def test_manifest_write_failure_handled_gracefully(self, tmp_path, monkeypatch):
+        """Manifest write failure is recorded as error, does not crash collection."""
+        now = datetime.now(UTC)
+        collection_start = now - timedelta(hours=5)
+        collection_start_ms = int(collection_start.timestamp() * 1000)
+
+        _setup_manifests(tmp_path, collection_start_ms)
+
+        rows = _make_ohlcv_series(collection_start_ms + 3_600_000, 1)
+        client = _make_mock_client(rows)
+
+        collector = ProspectiveCollector(
+            exchange="binance",
+            market_type="spot",
+            symbols=["BTC/USDT"],
+            timeframes=["1h"],
+            policy=ProspectiveCollectionPolicy(
+                exchange="binance",
+                market_type="spot",
+                symbols=("BTC/USDT",),
+                timeframes=("1h",),
+                candle_finalization_margin_s=1,
+                max_ingestion_latency_s=86400,
+            ),
+            client=client,
+            storage_root=tmp_path / "storage",
+            freeze_manifest_path=str(tmp_path / "freeze.json"),
+            collection_manifest_path=str(tmp_path / "collection.json"),
+        )
+
+        # Make storage write fail to force error handling
+        monkeypatch.setattr(
+            "crypto_engine.research.prospective.storage.ProspectiveStorage.write_dataset_manifest",
+            lambda self, payload: (_ for _ in ()).throw(RuntimeError("disk full")),
+        )
+
+        result = collector.collect_once()
+
+        # Collection should still succeed (observations stored), error recorded
+        assert len(result["errors"]) >= 1
+        assert any("manifest" in e.lower() for e in result["errors"])
+
+    def test_windows_filesystem_manifest_write_read(self, tmp_path):
+        """Windows-specific regression test: manifest write/read on real temp directory.
+
+        Verifies that storage writes actually persist to disk and that the
+        manifest reader resolves to exactly the same directory as the writer.
+        This test uses real filesystem operations (not mocks) to catch
+        path-resolution issues on Windows.
+        """
+        from crypto_engine.research.prospective.storage import ProspectiveStorage
+
+        storage_root = tmp_path / "storage" / "binance" / "spot" / "BTC/USDT" / "1h"
+        storage_root.mkdir(parents=True, exist_ok=True)
+        storage = ProspectiveStorage(storage_root)
+        now_iso = datetime.now(UTC).isoformat()
+
+        # Write a raw observation (real disk write)
+        storage.store_raw_observation(
+            exchange="binance",
+            market_type="spot",
+            symbol="BTC/USDT",
+            interval="1h",
+            open_time="2026-01-01T00:00:00+00:00",
+            close_time="2026-01-01T01:00:00+00:00",
+            observed_at_utc=now_iso,
+            ingested_at_utc=now_iso,
+            source_endpoint="binance/fetchOHLCV",
+            request_id=None,
+            response_hash="resp-hash-1",
+            raw_payload_hash="payload-hash-1",
+            collector_version="q5-v1",
+            collection_id="collect-1",
+            research_freeze_id="freeze-test",
+        )
+
+        # Verify raw observation file exists on disk
+        raw_path = storage_root / "raw_observations.jsonl"
+        assert raw_path.is_file(), "raw_observations.jsonl must be written to disk"
+
+        # Write normalized candle (real disk write)
+        storage.store_normalized_candle(
+            collection_id="collect-1",
+            exchange="binance",
+            market_type="spot",
+            symbol="BTC/USDT",
+            interval="1h",
+            open_time="2026-01-01T00:00:00+00:00",
+            close_time="2026-01-01T01:00:00+00:00",
+            open_price=100.0,
+            high=101.0,
+            low=99.0,
+            close=100.5,
+            volume=10.0,
+            source_observation_id="obs-1",
+            first_seen_at_utc=now_iso,
+            observed_at_utc=now_iso,
+            ingested_at_utc=now_iso,
+            research_freeze_id="freeze-test",
+        )
+
+        # Verify normalized candle file exists on disk
+        normalized_path = storage_root / "normalized_candles.jsonl"
+        assert normalized_path.is_file(), "normalized_candles.jsonl must be written to disk"
+
+        # Write dataset manifest (real disk write)
+        manifest_payload = {
+            "schema": "prospective-dataset.v1",
+            "collection_id": "collect-1",
+            "exchange": "binance",
+            "market_type": "spot",
+            "symbol": "BTC/USDT",
+            "timeframe": "1h",
+            "collection_started_at_utc": "2026-01-01T00:00:00+00:00",
+            "collection_updated_at_utc": now_iso,
+            "observation_count": 1,
+            "coverage_fraction": 0.0,
+            "dataset_hash": storage.compute_dataset_hash(),
+            "raw_payload_hash": storage.compute_raw_payload_hash(),
+            "latest_open_time_utc": "2026-01-01T00:00:00+00:00",
+            "research_freeze_id": "freeze-test",
+            "collector_version": "q5-v1",
+            "data_schema_version": "ohlcv-v1",
+        }
+        storage.write_dataset_manifest(manifest_payload)
+
+        # Verify manifest file exists on disk
+        manifest_path = storage_root / "dataset_manifest.json"
+        assert manifest_path.is_file(), "dataset_manifest.json must be written to disk"
+
+        # Read manifest back - must resolve to same directory as writer
+        written = json.loads(manifest_path.read_text(encoding="utf-8"))
+        assert written["collection_id"] == "collect-1"
+        assert written["exchange"] == "binance"
+        assert written["symbol"] == "BTC/USDT"
+        assert written["observation_count"] == 1
+
+        # Verify the manifest reader and writer use the same path
+        reader = ProspectiveStorage(storage_root)
+        read_manifest = reader.read_dataset_manifest()
+        assert read_manifest is not None
+        assert read_manifest["collection_id"] == "collect-1"
+        assert read_manifest["observation_count"] == 1

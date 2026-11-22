@@ -1,6 +1,6 @@
 # Prospective Data Collection — Q5
 
-Generated: 2026-11-18T15:12:23.648985+00:00
+Generated: 2026-11-22T10:05:12.007411+00:00
 
 ## Collection Architecture
 
@@ -48,16 +48,16 @@ Generated: 2026-11-18T15:12:23.648985+00:00
 
 ## Collection Results
 
-- Status: DATA_INVALID
+- Status: EXPIRED
 - Collector Status: unknown
 - Dataset Quality: unknown
 - Observations Collected: 1 unique
-- Expected Intervals: 128
-- Coverage Fraction: 0.78%
+- Expected Intervals: 219
+- Coverage Fraction: 0.46%
 - Gaps: 0
 - Duplicates: 0
 - Conflicts: 0
-- Rejections: 128
+- Rejections: 219
 - Errors: 0
 - Evaluation Blocked: True
 

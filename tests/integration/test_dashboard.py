@@ -21,6 +21,12 @@ from tests.fixtures.api_harness import api_get  # noqa: E402
 from tests.fixtures.api_stores import build_api_stores  # noqa: E402
 
 
+@pytest.fixture(autouse=True)
+def _clear_auth_env(monkeypatch):
+    monkeypatch.delenv("SIGNALFORGE_API_TOKEN", raising=False)
+    monkeypatch.delenv("SIGNALFORGE_AUTH_REQUIRED", raising=False)
+
+
 def _test_app(tmp_path: Path):
     stores = build_api_stores(tmp_path / "stores")
     settings = load_settings()

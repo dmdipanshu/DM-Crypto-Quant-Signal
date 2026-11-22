@@ -38,7 +38,14 @@ from crypto_engine.api.security import ApiError, get_api_token, verify_api_token
 load_env()
 
 DOCS_PATHS = {"/openapi.json", "/docs", "/docs/oauth2-redirect", "/redoc"}
-AUTH_SKIP_PATHS = DOCS_PATHS | {"/favicon.ico"}
+AUTH_SKIP_PATHS = DOCS_PATHS | {
+    "/favicon.ico",
+    "/health",
+    "/api/v1/health",
+    "/dashboard/monitor/",
+    "/dashboard/monitor/monitor.css",
+    "/dashboard/monitor/monitor.js",
+}
 
 # Production authentication policy. When SIGNALFORGE_AUTH_REQUIRED=1, the
 # application refuses to serve unless SIGNALFORGE_API_TOKEN is configured.
@@ -111,6 +118,7 @@ def create_app(roots: Any, settings: Any) -> Any:
     require_fastapi()
 
     from crypto_engine.config.settings import validate_deployment_safety
+
     _create_app_violations = validate_deployment_safety(settings)
     if _create_app_violations:
         raise RuntimeError("; ".join(_create_app_violations))
@@ -177,7 +185,10 @@ def create_app(roots: Any, settings: Any) -> Any:
                 if AUTH_REQUIRED and token is None:
                     return JSONResponse(
                         status_code=401,
-                        content={"error": "unauthorized", "message": "API authentication required but no token configured."},
+                        content={
+                            "error": "unauthorized",
+                            "message": "API authentication required but no token configured.",
+                        },
                     )
                 if token is not None:
                     try:
@@ -185,7 +196,10 @@ def create_app(roots: Any, settings: Any) -> Any:
                     except ApiError:
                         return JSONResponse(
                             status_code=401,
-                            content={"error": "unauthorized", "message": "Missing or invalid API token."},
+                            content={
+                                "error": "unauthorized",
+                                "message": "Missing or invalid API token.",
+                            },
                         )
             return await call_next(request)
 

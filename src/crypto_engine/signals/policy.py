@@ -647,7 +647,14 @@ def apply_gate_veto(record: SignalRecord, gate: str, reason: str) -> SignalRecor
     codes = list(data.get("decision", {}).get("reason_codes", []))
     if reason not in codes:
         codes.append(reason)
-    data["decision"] = {"status": "rejected", "reason_codes": codes, "gate": gate}
+    # Preserve the original veto gate (first rejection) rather than
+    # overwriting with the most recent gate, so the decision trace
+    # accurately represents execution order. A record that is already
+    # vetoed (abstained or rejected) keeps its first gate.
+    existing_gate = data.get("decision", {}).get("gate", "policy")
+    existing_status = data.get("decision", {}).get("status", "abstained")
+    final_gate = existing_gate if existing_status != "approved" else gate
+    data["decision"] = {"status": "rejected", "reason_codes": codes, "gate": final_gate}
     return SignalRecord.model_validate(data)
 
 
