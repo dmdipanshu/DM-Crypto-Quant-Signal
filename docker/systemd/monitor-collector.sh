@@ -17,7 +17,7 @@ systemctl status signalforge-collector@12.timer --no-pager 2>/dev/null || true
 echo ""
 
 echo "--- Recent Collector Logs ---"
-journalctl -u signalforge-collector.service -n 50 --no-pager 2>/dev/null || echo "(no journal entries)"
+journalctl -u 'signalforge-collector@*.service' -n 50 --no-pager 2>/dev/null || echo "(no journal entries)"
 echo ""
 
 echo "--- Docker Compose Collector Status ---"

@@ -3288,14 +3288,20 @@ class TestSystemdTimerAndRetry:
 
     def test_timer_template_has_required_calendar_and_settings(self):
         timer = Path("docker/systemd/signalforge-collector@.timer").read_text(encoding="utf-8")
-        service = Path("docker/systemd/signalforge-collector.service").read_text(encoding="utf-8")
+        service = Path("docker/systemd/signalforge-collector@.service").read_text(encoding="utf-8")
         assert "OnCalendar=*-*-* *:%i:00 UTC" in timer
         assert "*-%m-%d %H:%i:00 UTC" not in timer
         assert "Persistent=false" in timer
         assert "AccuracySec=1s" in timer
-        assert "Unit=signalforge-collector.service" in timer
+        assert "Unit=signalforge-collector@%i.service" in timer
+        assert "--require-scheduler-authorization" in service
         assert "--scheduled-minute %i" in service
         assert "TimeoutStartSec=900" in service
+        assert "User=ubuntu" in service
+        assert "Group=docker" in service
+        assert "WorkingDirectory=/home/ubuntu/DM-Crypto-Quant-Signal" in service
+        assert "Type=oneshot" in service
+        assert "[Install]" not in service
 
     def test_timer_instances_resolve_08_and_12(self):
         import re

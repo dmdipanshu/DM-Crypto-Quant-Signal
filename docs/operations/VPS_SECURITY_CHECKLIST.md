@@ -55,14 +55,14 @@ This checklist verifies Ubuntu 26.04 VPS deployment security before API is consi
 
 | # | Check | Command | Expected | Initials |
 |---|-------|---------|----------|----------|
-| E1 | Service verify | `systemd-analyze verify /etc/systemd/system/signalforge-collector.service` | pass | |
+| E1 | Service verify | `systemd-analyze verify /etc/systemd/system/signalforge-collector@.service` | pass | |
 | E2 | Timer verify | `systemd-analyze verify /etc/systemd/system/signalforge-collector@.timer` | pass | |
 | E3 | Primary schedule | `systemd-analyze calendar --iterations=3 '*-*-* *:08:00 UTC'` | next runs at :08 UTC | |
 | E4 | Retry schedule | `systemd-analyze calendar --iterations=3 '*-*-* *:12:00 UTC'` | next runs at :12 UTC | |
-| E5 | No catch-up | `systemctl cat signalforge-collector@08.timer` | `Persistent=false`, `AccuracySec=1s` | |
-| E6 | No overlap/repeated retry | service+status logic | oneshot; :12 skips if `latest_status.json` shows slot accepted by :08 | |
+| E5 | No catch-up | `systemctl cat signalforge-collector@08.timer` | `Persistent=false`, `AccuracySec=1s`, `Unit=signalforge-collector@%i.service` | |
+| E6 | No overlap/repeated retry | service+status logic | oneshot; :12 skips if `latest_status.json` shows slot accepted by :08; `--require-scheduler-authorization` required | |
 | E7 | Timers not enabled by default | `systemctl list-timers --all \| grep signalforge-collector \|\| true` | empty unless explicitly authorized | |
-| E8 | Correct path/user | `systemctl cat signalforge-collector.service` | `/home/ubuntu/DM-Crypto-Quant-Signal`, `User=ubuntu`, `Group=docker` | |
+| E8 | Correct path/user | `systemctl cat signalforge-collector@08.service` | `/home/ubuntu/DM-Crypto-Quant-Signal`, `User=ubuntu`, `Group=docker`, `--scheduled-minute %i` | |
 
 ## F. Trading/safety disabled
 

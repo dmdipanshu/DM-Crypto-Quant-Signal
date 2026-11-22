@@ -9,13 +9,14 @@
 #   SERVICE_USER=ubuntu
 #
 # Installs:
-#   /etc/systemd/system/signalforge-collector.service
+#   /etc/systemd/system/signalforge-collector@.service
 #   /etc/systemd/system/signalforge-collector@08.timer  (primary, :08 UTC)
 #   /etc/systemd/system/signalforge-collector@12.timer  (retry, :12 UTC)
 #
 # Safety:
 #   - Does NOT start or enable timers unless ENABLE_TIMERS=1 is explicitly set.
 #   - Persistent=false in timer units (no catch-up/backfill).
+#   - Removes obsolete generic signalforge-collector.service after stopping it.
 #   - Verifies compose config and required files before install.
 #
 set -euo pipefail
@@ -53,7 +54,7 @@ fi
 COMPOSE_FILE="${PROJECT_DIR}/compose.yaml"
 for required in \
   "${COMPOSE_FILE}" \
-  "${PROJECT_DIR}/docker/systemd/signalforge-collector.service" \
+  "${PROJECT_DIR}/docker/systemd/signalforge-collector@.service" \
   "${PROJECT_DIR}/docker/systemd/signalforge-collector@.timer" \
   "${PROJECT_DIR}/docs/validation/RESEARCH_FREEZE_MANIFEST_EPOCH3.json" \
   "${PROJECT_DIR}/docs/validation/PROSPECTIVE_COLLECTION_MANIFEST_EPOCH3.json" \
@@ -94,13 +95,17 @@ TIMER_TMP="$(mktemp)"
 sed \
   -e "s|/home/ubuntu/DM-Crypto-Quant-Signal|${PROJECT_DIR}|g" \
   -e "s|^User=ubuntu$|User=${SERVICE_USER}|g" \
-  "${PROJECT_DIR}/docker/systemd/signalforge-collector.service" > "${SERVICE_TMP}"
+  "${PROJECT_DIR}/docker/systemd/signalforge-collector@.service" > "${SERVICE_TMP}"
 
 sed \
   -e "s|/home/ubuntu/DM-Crypto-Quant-Signal|${PROJECT_DIR}|g" \
   "${PROJECT_DIR}/docker/systemd/signalforge-collector@.timer" > "${TIMER_TMP}"
 
-install -m 0644 "${SERVICE_TMP}" "${SYSTEMD_DIR}/signalforge-collector.service"
+install -m 0644 "${SERVICE_TMP}" "${SYSTEMD_DIR}/signalforge-collector@.service"
+# Remove obsolete generic service (timer instances now target signalforge-collector@%i.service).
+systemctl stop signalforge-collector.service 2>/dev/null || true
+systemctl disable signalforge-collector.service 2>/dev/null || true
+rm -f "${SYSTEMD_DIR}/signalforge-collector.service"
 install -m 0644 "${TIMER_TMP}" "${SYSTEMD_DIR}/signalforge-collector@.timer"
 ln -sf "${SYSTEMD_DIR}/signalforge-collector@.timer" "${SYSTEMD_DIR}/signalforge-collector@08.timer"
 ln -sf "${SYSTEMD_DIR}/signalforge-collector@.timer" "${SYSTEMD_DIR}/signalforge-collector@12.timer"
@@ -110,14 +115,14 @@ rm -f "${SERVICE_TMP}" "${TIMER_TMP}"
 systemctl daemon-reload
 
 echo "Installed systemd units:"
-echo "  ${SYSTEMD_DIR}/signalforge-collector.service"
+echo "  ${SYSTEMD_DIR}/signalforge-collector@.service"
 echo "  ${SYSTEMD_DIR}/signalforge-collector@08.timer (primary, :08 UTC)"
 echo "  ${SYSTEMD_DIR}/signalforge-collector@12.timer (retry, :12 UTC)"
 echo ""
 echo "Verification commands:"
-echo "  systemctl cat signalforge-collector.service"
-echo "  systemd-analyze verify ${SYSTEMD_DIR}/signalforge-collector.service"
-echo "  systemd-analyze verify ${SYSTEMD_DIR}/signalforge-collector@.timer"
+echo "  systemctl cat signalforge-collector@08.service"
+echo "  systemd-analyze verify signalforge-collector@08.service signalforge-collector@12.service ${SYSTEMD_DIR}/signalforge-collector@08.timer ${SYSTEMD_DIR}/signalforge-collector@12.timer"
+
 echo "  systemd-analyze calendar --iterations=5 '*-*-* *:08:00 UTC'"
 echo "  systemd-analyze calendar --iterations=5 '*-*-* *:12:00 UTC'"
 echo "  systemctl list-timers --all | grep signalforge-collector"

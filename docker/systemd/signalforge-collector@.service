@@ -8,7 +8,7 @@ Requires=docker.service
 [Service]
 Type=oneshot
 WorkingDirectory=/home/ubuntu/DM-Crypto-Quant-Signal
-ExecStart=/usr/bin/docker compose -f /home/ubuntu/DM-Crypto-Quant-Signal/compose.yaml --profile q5-collector run --rm collector python scripts/run_q5_prospective_collection.py --once --freeze-manifest docs/validation/RESEARCH_FREEZE_MANIFEST_EPOCH3.json --collection-manifest docs/validation/PROSPECTIVE_COLLECTION_MANIFEST_EPOCH3.json --storage-root data/prospective --approvals-dir docs/validation/approvals --output-dir reports/q5-epoch3 --epoch epoch3 --scheduled-minute %i
+ExecStart=/usr/bin/docker compose -f /home/ubuntu/DM-Crypto-Quant-Signal/compose.yaml --profile q5-collector run --rm collector python scripts/run_q5_prospective_collection.py --once --freeze-manifest docs/validation/RESEARCH_FREEZE_MANIFEST_EPOCH3.json --collection-manifest docs/validation/PROSPECTIVE_COLLECTION_MANIFEST_EPOCH3.json --storage-root data/prospective --approvals-dir docs/validation/approvals --output-dir reports/q5-epoch3 --epoch epoch3 --require-scheduler-authorization --scheduled-minute %i
 User=ubuntu
 Group=docker
 TimeoutStartSec=900
@@ -23,6 +23,3 @@ RestrictNamespaces=true
 LockPersonality=true
 # Do not use ProtectHome=true: project lives under /home/ubuntu.
 # Do not use ProtectSystem=strict: Docker socket and compose paths need access.
-
-[Install]
-WantedBy=multi-user.target

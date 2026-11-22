@@ -155,7 +155,7 @@ Do not backdate/fabricate/reset anchor. If anchor is corrupted/mismatched, stop 
 
 ## 7. systemd installation and validation (do not enable timers during dev)
 
-Files: `docker/systemd/signalforge-collector.service`, `docker/systemd/signalforge-collector@.timer`, `docker/systemd/install-systemd.sh`, `docker/systemd/monitor-collector.sh`, `docker/systemd/uninstall-systemd.sh`.
+Files: `docker/systemd/signalforge-collector@.service`, `docker/systemd/signalforge-collector@.timer`, `docker/systemd/install-systemd.sh`, `docker/systemd/monitor-collector.sh`, `docker/systemd/uninstall-systemd.sh`.
 
 Install without enabling timers:
 
@@ -167,17 +167,17 @@ sudo bash docker/systemd/install-systemd.sh /home/ubuntu/DM-Crypto-Quant-Signal 
 Validate (required on Ubuntu 26.04):
 
 ```bash
-systemd-analyze verify /etc/systemd/system/signalforge-collector.service
+systemd-analyze verify /etc/systemd/system/signalforge-collector@.service
 systemd-analyze verify /etc/systemd/system/signalforge-collector@.timer
 systemd-analyze calendar --iterations=5 '*-*-* *:08:00 UTC'
 systemd-analyze calendar --iterations=5 '*-*-* *:12:00 UTC'
-systemctl cat signalforge-collector.service
+systemctl cat signalforge-collector@08.service
 systemctl cat signalforge-collector@08.timer
 systemctl cat signalforge-collector@12.timer
 systemctl list-timers --all | grep signalforge-collector || true
 ```
 
-Expected: primary `:08` UTC, retry `:12` UTC, `OnCalendar=*-*-* *:%i:00 UTC`, `Persistent=false`, `AccuracySec=1s`, no catch-up, `TimeoutStartSec=900`, `User=ubuntu`, `Group=docker`, `WorkingDirectory=/home/ubuntu/DM-Crypto-Quant-Signal`, `ExecStart` uses `docker compose --profile q5-collector run --rm collector ... --scheduled-minute %i`; retry at :12 runs only when the :08 attempt for the same hourly slot did not accept the scheduled candle. Timers must **not** be enabled/started unless explicitly authorized with `ENABLE_TIMERS=1` during install or explicit `systemctl enable --now ...`.
+Expected: timer `@08` triggers service `@08`, timer `@12` triggers service `@12`; `OnCalendar=*-*-* *:%i:00 UTC`, `Persistent=false`, `AccuracySec=1s`, `Unit=signalforge-collector@%i.service`, no catch-up, `TimeoutStartSec=900`, `User=ubuntu`, `Group=docker`, `WorkingDirectory=/home/ubuntu/DM-Crypto-Quant-Signal`, `ExecStart` uses `docker compose --profile q5-collector run --rm collector ... --require-scheduler-authorization --scheduled-minute %i`; retry at :12 runs only when the :08 attempt for the same hourly slot did not accept the scheduled candle. Timers must **not** be enabled/started unless explicitly authorized with `ENABLE_TIMERS=1` during install or explicit `systemctl enable --now ...`.
 
 ## 8. Enable timers only with explicit authorization
 
@@ -200,7 +200,7 @@ sudo systemctl disable --now signalforge-collector@12.timer
 ```bash
 cd /home/ubuntu/DM-Crypto-Quant-Signal
 bash docker/systemd/monitor-collector.sh /home/ubuntu/DM-Crypto-Quant-Signal
-journalctl -u signalforge-collector.service -n 100 --no-pager
+journalctl -u 'signalforge-collector@*.service' -n 100 --no-pager
 docker compose logs --tail=100 api
 docker compose --profile q5-collector ps -a
 ```

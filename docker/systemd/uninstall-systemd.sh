@@ -9,9 +9,13 @@ systemctl disable --now signalforge-collector@08.timer 2>/dev/null || true
 systemctl disable --now signalforge-collector@12.timer 2>/dev/null || true
 systemctl disable --now signalforge-collector@primary.timer 2>/dev/null || true
 systemctl disable --now signalforge-collector@retry.timer 2>/dev/null || true
+systemctl stop signalforge-collector@08.service 2>/dev/null || true
+systemctl stop signalforge-collector@12.service 2>/dev/null || true
 systemctl stop signalforge-collector.service 2>/dev/null || true
+systemctl disable signalforge-collector.service 2>/dev/null || true
 
 rm -f "${SYSTEMD_DIR}/signalforge-collector.service"
+rm -f "${SYSTEMD_DIR}/signalforge-collector@.service"
 rm -f "${SYSTEMD_DIR}/signalforge-collector@.timer"
 rm -f "${SYSTEMD_DIR}/signalforge-collector@08.timer"
 rm -f "${SYSTEMD_DIR}/signalforge-collector@12.timer"

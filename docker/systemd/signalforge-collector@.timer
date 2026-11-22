@@ -11,7 +11,7 @@ OnCalendar=*-*-* *:%i:00 UTC
 Persistent=false
 # No catch-up: if a scheduled run is missed, do not run it later
 AccuracySec=1s
-Unit=signalforge-collector.service
+Unit=signalforge-collector@%i.service
 
 [Install]
 WantedBy=timers.target
