@@ -21,13 +21,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
-COLLECTION_REPORT = (
-    ROOT / "docs" / "validation" / "results" / "prospective_collection_q5.json"
-)
+COLLECTION_REPORT = ROOT / "docs" / "validation" / "results" / "prospective_collection_q5.json"
 MANIFEST = ROOT / "docs" / "validation" / "PROSPECTIVE_COLLECTION_MANIFEST.json"
-QUALITY_REPORT = (
-    ROOT / "docs" / "validation" / "results" / "prospective_data_quality_q5.json"
-)
+QUALITY_REPORT = ROOT / "docs" / "validation" / "results" / "prospective_data_quality_q5.json"
 PREFLIGHT_REPORT = ROOT / "docs" / "validation" / "results" / "q6_preflight.json"
 
 MINIMUM_OBSERVATIONS_REQUIRED = 168
@@ -66,9 +62,7 @@ def main() -> int:
     freeze_id = collection_report.get("research_freeze_id")
     collection_status = quality_report.get("state", checks.get("state"))
 
-    observation_count = quality_report.get(
-        "observation_count", checks.get("observation_count", 0)
-    )
+    observation_count = quality_report.get("observation_count", checks.get("observation_count", 0))
     expected_intervals = quality_report.get(
         "expected_intervals", checks.get("expected_intervals", 0)
     )
@@ -77,26 +71,58 @@ def main() -> int:
     )
     coverage_fraction_pct = round(coverage_fraction_decimal * 100.0, 2)
 
-    duplicates_count = quality_report.get(
-        "duplicate_count", checks.get("duplicate_count", 0)
-    )
-    conflicts_count = quality_report.get(
-        "conflict_count", checks.get("conflict_count", 0)
-    )
-    rejection_count = quality_report.get(
-        "rejection_count", checks.get("rejection_count", 0)
-    )
+    duplicates_count = quality_report.get("duplicate_count", checks.get("duplicate_count", 0))
+    conflicts_count = quality_report.get("conflict_count", checks.get("conflict_count", 0))
+    rejection_count = quality_report.get("rejection_count", checks.get("rejection_count", 0))
     evaluation_blocked = bool(
         quality_report.get("evaluation_blocked", checks.get("evaluation_blocked", False))
     )
     evaluation_block_reasons = list(
-        quality_report.get(
-            "evaluation_block_reasons", checks.get("evaluation_block_reasons", [])
-        )
+        quality_report.get("evaluation_block_reasons", checks.get("evaluation_block_reasons", []))
         or []
     )
 
-    collection_started_at = parse_utc(manifest.get("collection_started_at_utc"))
+    collection_started_raw = manifest.get("collection_started_at_utc")
+    if collection_started_raw is None:
+        report = {
+            "collection_id": collection_id,
+            "freeze_id": freeze_id,
+            "collection_status": "NOT_STARTED",
+            "observation_count": observation_count,
+            "expected_intervals": expected_intervals,
+            "coverage_fraction": coverage_fraction_pct,
+            "collection_started_at_utc": None,
+            "seven_day_deadline_utc": None,
+            "current_time_utc": format_utc(datetime.now(UTC)),
+            "elapsed_duration_seconds": None,
+            "remaining_duration_seconds": None,
+            "remaining_duration_days": None,
+            "observations_needed_for_168": max(
+                0, MINIMUM_OBSERVATIONS_REQUIRED - observation_count
+            ),
+            "coverage_needed_for_95pct": max(
+                0.0, MINIMUM_COVERAGE_REQUIRED - coverage_fraction_decimal
+            ),
+            "duplicates_count": duplicates_count,
+            "conflicts_count": conflicts_count,
+            "rejection_count": rejection_count,
+            "rejection_reasons": [],
+            "evaluation_blocked": True,
+            "evaluation_block_reasons": ["No accepted observations; anchor not established."],
+            "eligibility": False,
+            "ledger_integrity": checks.get("ledger_status"),
+            "ingestion_status": checks.get("ingestion_status"),
+            "provenance_status": checks.get("provenance_status"),
+            "minimum_observations_required": MINIMUM_OBSERVATIONS_REQUIRED,
+            "minimum_coverage_required": MINIMUM_COVERAGE_REQUIRED,
+            "minimum_duration_seconds": MINIMUM_DURATION_SECONDS,
+            "max_ingestion_latency_s": MAX_INGESTION_LATENCY_S,
+            "finalization_margin_s": FINALIZATION_MARGIN_S,
+        }
+        print(json.dumps(report, indent=2))
+        return 0
+
+    collection_started_at = parse_utc(collection_started_raw)
     collection_started_at_utc = format_utc(collection_started_at)
     seven_day_deadline = collection_started_at + timedelta(days=7)
     seven_day_deadline_utc = format_utc(seven_day_deadline)
@@ -109,13 +135,9 @@ def main() -> int:
     remaining_duration_days = round(remaining_duration_seconds / 86400.0, 2)
 
     observations_needed_for_168 = max(0, MINIMUM_OBSERVATIONS_REQUIRED - observation_count)
-    coverage_needed_for_95pct = max(
-        0.0, MINIMUM_COVERAGE_REQUIRED - coverage_fraction_decimal
-    )
+    coverage_needed_for_95pct = max(0.0, MINIMUM_COVERAGE_REQUIRED - coverage_fraction_decimal)
 
-    rejections = quality_report.get("rejections", []) or collection_report.get(
-        "rejections", []
-    )
+    rejections = quality_report.get("rejections", []) or collection_report.get("rejections", [])
     rejection_reasons = []
     seen_reasons = set()
     for rejection in rejections:
@@ -169,4 +191,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-

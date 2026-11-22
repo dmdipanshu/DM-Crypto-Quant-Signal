@@ -313,12 +313,25 @@ class ProspectiveCollector:
         # Step 2: Validate or reuse collection manifest
         collection_manifest = self.validate_or_create_collection_manifest()
         collection_id = collection_manifest["collection_id"]
-        collection_started_at = collection_manifest["collection_started_at_utc"]
-        collection_start_ms = _iso_to_ms(collection_started_at)
 
-        # Step 3: Initialize storage
-        # storage_root may be None; per-symbol storage is created inside
-        # _collect_symbol_timeframe for each symbol/timeframe.
+        # Step 3: Resolve storage (needed before anchor lookup)
+        storage = self._resolve_storage(self.symbols[0], self.timeframes[0], self.storage_root)
+
+        # Step 4: Resolve immutable collection start anchor.
+        # collection_started_at_utc in manifest may be null (NOT_STARTED) until
+        # the first successfully accepted observation establishes the anchor.
+        anchor_verification = storage.verify_collection_start_anchor()
+        anchor_status = anchor_verification.get("status")
+        if anchor_status == "INVALID":
+            raise RuntimeError(
+                f"Collection start anchor invalid: {anchor_verification.get('reason')}"
+            )
+        collection_started_at = anchor_verification.get("collection_started_at_utc")
+        if collection_started_at is None:
+            # Backward compatibility: manifest may carry a legacy start timestamp.
+            manifest_start = collection_manifest.get("collection_started_at_utc")
+            if manifest_start:
+                collection_started_at = manifest_start
 
         result: dict[str, Any] = {
             "schema": "prospective-collection-result.v1",
@@ -331,7 +344,7 @@ class ProspectiveCollector:
             "symbols": self.symbols,
             "timeframes": self.timeframes,
             "collected_at_utc": _utc_now_iso(),
-            "status": CollectionStatus.HEALTHY,
+            "status": CollectionStatus.HEALTHY if collection_started_at else "NOT_STARTED",
             "observations": [],
             "gaps": [],
             "duplicates": [],
@@ -340,6 +353,10 @@ class ProspectiveCollector:
             "errors": [],
             "quality_checks": {},
         }
+
+        # No anchor means no accepted observations yet. Collect and establish
+        # anchor on first successfully accepted finalized candle.
+        collection_start_ms = _iso_to_ms(collection_started_at) if collection_started_at else None
 
         for symbol in self.symbols:
             for timeframe in self.timeframes:
@@ -357,12 +374,31 @@ class ProspectiveCollector:
                 result["conflicts"].extend(symbol_result["conflicts"])
                 result["rejections"].extend(symbol_result["rejections"])
                 result["errors"].extend(symbol_result["errors"])
+                # Anchor may have been established during collection.
+                if collection_started_at is None:
+                    sym_storage = self._resolve_storage(symbol, timeframe, self.storage_root)
+                    anchor = sym_storage.read_collection_start_anchor()
+                    if anchor and anchor.get("collection_started_at_utc"):
+                        collection_started_at = anchor["collection_started_at_utc"]
+                        collection_start_ms = _iso_to_ms(collection_started_at)
+                        result["collection_started_at_utc"] = collection_started_at
 
-        # Step 4: Compute overall quality state
+        # Step 5: Compute overall quality state
         result["quality_checks"] = self._compute_quality_state(result)
         result["status"] = result["quality_checks"]["state"]
 
         return result
+
+    def _resolve_storage(
+        self, symbol: str, timeframe: str, storage_root: Path | None
+    ) -> ProspectiveStorage:
+        if storage_root is not None:
+            return ProspectiveStorage(
+                storage_root / self.exchange / self.market_type / symbol / timeframe
+            )
+        return ProspectiveStorage(
+            Path("data/prospective") / self.exchange / self.market_type / symbol / timeframe
+        )
 
     def _collect_symbol_timeframe(
         self,
@@ -370,7 +406,7 @@ class ProspectiveCollector:
         symbol: str,
         timeframe: str,
         collection_id: str,
-        collection_start_ms: int,
+        collection_start_ms: int | None,
         freeze_id: str,
         storage_root: Path | None,
     ) -> dict[str, Any]:
@@ -378,11 +414,15 @@ class ProspectiveCollector:
         interval_ms = timeframe_to_ms(timeframe)
         now_ms = int(datetime.now(UTC).timestamp() * 1000)
 
-        # Determine the start of collection: max(collection_start, last_observed + interval)
-        # We collect forward from the collection epoch start.
-        since_ms = collection_start_ms
+        symbol_storage = self._resolve_storage(symbol, timeframe, storage_root)
 
-        # Fetch a bounded window (most recent 500 candles) to find new ones
+        # If collection has not started, anchor is established on the first
+        # successfully accepted observation. Fetch a recent bounded window.
+        if collection_start_ms is None:
+            since_ms = now_ms - (500 * interval_ms)
+        else:
+            since_ms = collection_start_ms
+
         until_ms = now_ms
         params = FetchParams(
             exchange=self.exchange,
@@ -419,16 +459,6 @@ class ProspectiveCollector:
         rejections: list[dict[str, Any]] = []
         errors: list[str] = []
 
-        # Initialize storage for manifest writing (always available after loop)
-        if storage_root is not None:
-            symbol_storage = ProspectiveStorage(
-                storage_root / self.exchange / self.market_type / symbol / timeframe
-            )
-        else:
-            symbol_storage = ProspectiveStorage(
-                Path("data/prospective") / self.exchange / self.market_type / symbol / timeframe
-            )
-
         seen_open_times: set[int] = set()
         last_close_ms: int | None = None
 
@@ -437,7 +467,7 @@ class ProspectiveCollector:
             close_time_ms_calc = open_time_ms + interval_ms
 
             # Strict forward-only: only accept candles after collection start
-            if open_time_ms < collection_start_ms:
+            if collection_start_ms is not None and open_time_ms < collection_start_ms:
                 rejections.append(
                     {
                         "symbol": symbol,
@@ -522,6 +552,28 @@ class ProspectiveCollector:
             observed_at_utc = _utc_now_iso()
             ingested_at_utc = _utc_now_iso()
 
+            # Establish immutable collection start anchor on first accepted
+            # observation. Anchor is derived from actual ingestion event time.
+            if collection_start_ms is None:
+                anchor = {
+                    "schema_version": "collection-start-anchor.v1",
+                    "collection_id": collection_id,
+                    "research_freeze_id": freeze_id,
+                    "collection_started_at_utc": ingested_at_utc,
+                    "established_at_utc": ingested_at_utc,
+                    "first_observation_open_time_utc": _ms_to_iso(open_time_ms),
+                    "first_observation_close_time_utc": _ms_to_iso(close_time_ms_calc),
+                    "first_observation_source_endpoint": f"{self.exchange}/fetchOHLCV",
+                    "source": "first_successful_accepted_observation",
+                }
+                try:
+                    written_anchor = symbol_storage.write_collection_start_anchor(anchor)
+                except Exception as exc:
+                    errors.append(f"failed to establish collection start anchor: {exc}")
+                    continue
+                collection_start_ms = _iso_to_ms(written_anchor["collection_started_at_utc"])
+                anchor["first_observation_id"] = None  # filled below once known
+
             # Store to prospective storage
             obs_record = symbol_storage.store_raw_observation(
                 exchange=self.exchange,
@@ -541,6 +593,18 @@ class ProspectiveCollector:
                 research_freeze_id=freeze_id,
                 first_seen_at_utc=observed_at_utc,  # first observation = first seen
             )
+
+            # Patch anchor with first observation id if just established.
+            current_anchor = symbol_storage.read_collection_start_anchor()
+            if (
+                current_anchor
+                and current_anchor.get("first_observation_id") is None
+                and current_anchor.get("first_observation_open_time_utc")
+                == _ms_to_iso(open_time_ms)
+            ):
+                # Anchor file is immutable; first_observation_id is recorded in
+                # dataset manifest and collection result, not by mutating anchor.
+                pass
 
             candle_record = symbol_storage.store_normalized_candle(
                 collection_id=collection_id,
@@ -593,11 +657,18 @@ class ProspectiveCollector:
             )
 
         # --- Write dataset manifest for this symbol/timeframe ---
-        # Compute deterministic hashes over the COMPLETE stored dataset
-        # (all unique normalized candles, not just this cycle's observations).
-        # Use only canonical OHLCV fields to ensure determinism regardless of
-        # metadata like event_id, recorded_at_utc, observed_at_utc, etc.
-        # Sort by open_time so insertion order does not affect the hash.
+        if collection_start_ms is None:
+            # No accepted observations and no anchor: NOT_STARTED. Do not write
+            # a dataset manifest that fabricates a start timestamp.
+            return {
+                "observations": observations,
+                "gaps": gaps,
+                "duplicates": duplicates,
+                "conflicts": conflicts,
+                "rejections": rejections,
+                "errors": errors,
+            }
+
         unique_candles = symbol_storage.read_unique_normalized_candles()
         unique_candles_sorted = sorted(unique_candles, key=lambda c: c["open_time"])
         canonical_candles = [
@@ -614,13 +685,10 @@ class ProspectiveCollector:
         ]
         dataset_hash = _sha256_json(canonical_candles)
 
-        # Hash raw_payload_hash values (already deterministic exchange-response
-        # hashes) rather than full records with volatile metadata.
         raw_observations = symbol_storage.read_raw_observations()
         canonical_raw_hashes = sorted(o["raw_payload_hash"] for o in raw_observations)
         raw_payload_hash = _sha256_json(canonical_raw_hashes)
 
-        # Canonical coverage calculation (same logic as _compute_quality_state).
         now_ms = int(datetime.now(UTC).timestamp() * 1000)
         interval_ms = timeframe_to_ms(timeframe)
         first_open_ms = ((collection_start_ms // interval_ms) + 1) * interval_ms
@@ -632,11 +700,14 @@ class ProspectiveCollector:
 
         actual_count = len(unique_candles)
         coverage = actual_count / expected_intervals if expected_intervals > 0 else 0.0
-        coverage = max(0.0, min(1.0, coverage))  # bound to [0.0, 1.0]
+        coverage = max(0.0, min(1.0, coverage))
 
         latest_open_time_utc = None
         if unique_candles:
             latest_open_time_utc = max(c.get("open_time", "") for c in unique_candles)
+
+        anchor = symbol_storage.read_collection_start_anchor()
+        anchor_hash = anchor.get("anchor_hash") if anchor else None
 
         manifest_payload = {
             "schema": "prospective-dataset.v1",
@@ -646,6 +717,7 @@ class ProspectiveCollector:
             "symbol": symbol,
             "timeframe": timeframe,
             "collection_started_at_utc": _ms_to_iso(collection_start_ms),
+            "collection_start_anchor_hash": anchor_hash,
             "collection_updated_at_utc": _utc_now_iso(),
             "observation_count": actual_count,
             "coverage_fraction": round(coverage, 4),
@@ -752,19 +824,44 @@ class ProspectiveCollector:
             provenance_status,
             ledger_status,
         ]
-        state = state_order[0]  # Start with worst
+        state = CollectionStatus.HEALTHY
         for s in all_statuses:
             if state_order.index(s) < state_order.index(state):
                 state = s
 
+        actual_count = unique_observation_count
         # Coverage calculation using unique observations
-        # Expected intervals: count of exchange-aligned candles whose open time
-        # is strictly after collection_started_at_utc and whose close time is
-        # at or before now (fully finalized).
+        collection_started_at = result.get("collection_started_at_utc")
+        if not collection_started_at:
+            # No anchor / zero accepted observations => NOT_STARTED.
+            return {
+                "state": "NOT_STARTED",
+                "collector_status": collector_status,
+                "ingestion_status": ingestion_status,
+                "dataset_quality_status": dataset_quality_status,
+                "provenance_status": provenance_status,
+                "ledger_status": ledger_status,
+                "collector_reasons": collector_reasons,
+                "ingestion_reasons": ingestion_reasons,
+                "quality_reasons": quality_reasons,
+                "provenance_reasons": provenance_reasons,
+                "ledger_reasons": ledger_reasons,
+                "observation_count": actual_count,
+                "expected_intervals": 0,
+                "coverage_fraction": 0.0,
+                "error_count": len(errors),
+                "rejection_count": len(rejections),
+                "gap_count": len(gaps),
+                "duplicate_count": len(duplicates),
+                "conflict_count": len(conflicts),
+                "evaluation_blocked": True,
+                "evaluation_block_reasons": [
+                    "Collection has no accepted observations; collection_started_at_utc is not established (NOT_STARTED)."
+                ],
+            }
+
         now_ms = int(datetime.now(UTC).timestamp() * 1000)
-        collection_start_ms = int(
-            datetime.fromisoformat(result["collection_started_at_utc"]).timestamp() * 1000
-        )
+        collection_start_ms = int(datetime.fromisoformat(collection_started_at).timestamp() * 1000)
 
         expected_intervals = 0
         for _symbol in self.symbols:
@@ -780,7 +877,6 @@ class ProspectiveCollector:
                     expected_intervals += 1
                     t += interval_ms
 
-        actual_count = unique_observation_count
         coverage = actual_count / expected_intervals if expected_intervals > 0 else 0.0
 
         # Evaluation blocked: ALL requirements must pass
@@ -830,6 +926,21 @@ class ProspectiveCollector:
                 f"(minimum {self.policy.min_elapsed_observation_period_s / 86400:.0f} days) "
                 f"without meeting evaluation requirements.",
             )
+
+        if (
+            not window_expired
+            and evaluation_blocked
+            and actual_count > 0
+            and state == CollectionStatus.HEALTHY
+        ):
+            state = "ACCUMULATING"
+        if (
+            not window_expired
+            and evaluation_blocked
+            and actual_count == 0
+            and state == CollectionStatus.HEALTHY
+        ):
+            state = "ACCUMULATING"
 
         return {
             "state": state,

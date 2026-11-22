@@ -1,280 +1,144 @@
-# SignalForge Backup and Recovery Runbook
+﻿# SignalForge Backup and Recovery Runbook (Q5.2 Epoch 3, Ubuntu 26.04)
 
 ## Purpose
 
-This runbook covers backup and recovery procedures for SignalForge runtime data on a Linux VPS. It covers:
+Covers backup/recovery for SignalForge VPS deployment at `/home/ubuntu/DM-Crypto-Quant-Signal` on AWS Ubuntu 26.04. Includes API runtime data, Epoch 3 prospective evidence, governance artifacts, compose/systemd assets, and safe rollback. Never back up secrets to git or unencrypted shared locations.
 
-- Paper trading account state (`data/paper/account.json`)
-- Logs (`data/logs/`)
-- Reports (`data/reports/`)
-- Configuration (`config/`)
-- Compose files and Dockerfiles
-- Governance and approval records (`docs/validation/approvals/`)
+## In scope
 
-## What is NOT backed up by this procedure
+- `.env` (local only, secret) — backup encrypted/off-host; never commit.
+- `data/prospective/binance/spot/BTC/USDT/1h` (Epoch 3 prospective evidence, anchor, ledger, manifests)
+- `reports/q5-epoch3`
+- `logs`
+- `docs/validation` Epoch 3 manifests/approvals/supersession and immutable Epoch 2 records
+- `compose.yaml`, `Dockerfile`, `docker/systemd/*`, `docs/operations/*`
 
-- Q5.2 prospective collection data (`data/prospective/`) — this is read-only evidence; back up separately if required by governance.
-- Docker images — rebuild from source using `docker compose build`.
-- Container instances — recreate from `docker compose up -d`.
+## Out of scope / cautions
 
----
+- Do not fabricate or rewrite prospective observations, anchors, manifests, or governance records.
+- Do not restore old data over a newer immutable anchor without investigation.
+- Docker images are rebuildable; backups focus on data/config/evidence.
 
-## Prerequisites
-
-- The SignalForge repository is deployed at `~/signalforge/` on the VPS.
-- Docker and Docker Compose are installed.
-- You have write access to `~/signalforge/backups/`.
-
----
-
-## 1. Backup procedure
-
-### 1.1 Full backup (all runtime data)
-
-Run from the VPS:
+## 1. Pre-backup safety
 
 ```bash
-cd ~/signalforge
-
-# Stop the API to ensure consistent state
-docker compose stop api
-
-# Create a timestamped backup directory
-BACKUP_DIR="backups/$(date +%Y%m%d-%H%M%S)"
-mkdir -p "$BACKUP_DIR"
-
-# Copy runtime data (paper account, logs, reports)
-cp -a data/paper "$BACKUP_DIR/"
-cp -a data/logs "$BACKUP_DIR/"
-cp -a data/reports "$BACKUP_DIR/"
-
-# Copy configuration
-cp -a config "$BACKUP_DIR/"
-
-# Copy governance/approval records
-cp -a docs/validation/approvals "$BACKUP_DIR/"
-
-# Copy compose and Docker files
-cp compose.yaml Dockerfile .dockerignore "$BACKUP_DIR/"
-
-# Record the paper account checksum for integrity verification
-python -c "import json,hashlib; d=json.load(open('data/paper/account.json')); print(d['checksum'])" > "$BACKUP_DIR/paper-checksum.txt"
-
-# Record the container image digest
-docker inspect signalforge:local --format='{{.RepoDigests}}' > "$BACKUP_DIR/image-digest.txt" 2>/dev/null || true
-
-# Create a compressed archive
-tar -czf "$BACKUP_DIR.tar.gz" -C backups "$(basename "$BACKUP_DIR")"
-rm -rf "$BACKUP_DIR"
-
-# Restart the API
-docker compose start api
-
-echo "Backup created: $BACKUP_DIR.tar.gz"
-ls -la backups/
-```
-
-### 1.2 Paper account only backup
-
-```bash
-cd ~/signalforge
-BACKUP_DIR="backups/paper-$(date +%Y%m%d-%H%M%S)"
-mkdir -p "$BACKUP_DIR"
-cp -a data/paper "$BACKUP_DIR/"
-python -c "import json,hashlib; d=json.load(open('data/paper/account.json')); print(d['checksum'])" > "$BACKUP_DIR/paper-checksum.txt"
-echo "Paper account backup: $BACKUP_DIR"
-```
-
-### 1.3 Automated backup (cron example)
-
-Add to root crontab (`sudo crontab -e`):
-
-```bash
-# Daily backup at 02:00 UTC
-0 2 * * * cd /home/user/signalforge && /home/user/signalforge/scripts/backup.sh >> /var/log/signalforge-backup.log 2>&1
-```
-
-Create `scripts/backup.sh`:
-
-```bash
-#!/usr/bin/env bash
 set -euo pipefail
-
-cd /home/user/signalforge || exit 1
-
-BACKUP_DIR="backups/auto-$(date +%Y%m%d-%H%M%S)"
-mkdir -p "$BACKUP_DIR"
-
-docker compose stop api
-cp -a data/paper "$BACKUP_DIR/"
-cp -a data/logs "$BACKUP_DIR/"
-cp -a data/reports "$BACKUP_DIR/"
-cp -a config "$BACKUP_DIR/"
-cp -a docs/validation/approvals "$BACKUP_DIR/"
-cp compose.yaml Dockerfile .dockerignore "$BACKUP_DIR/"
-python -c "import json,hashlib; d=json.load(open('data/paper/account.json')); print(d['checksum'])" > "$BACKUP_DIR/paper-checksum.txt"
-docker compose start api
-
-tar -czf "$BACKUP_DIR.tar.gz" -C backups "$(basename "$BACKUP_DIR")"
-rm -rf "$BACKUP_DIR"
-
-# Retain only the last 7 daily backups
-ls -t backups/auto-*.tar.gz | tail -n +8 | xargs -r rm -f
-
-echo "$(date -Iseconds) Backup completed: $BACKUP_DIR.tar.gz"
+cd /home/ubuntu/DM-Crypto-Quant-Signal
+# Stop timers before maintenance backup if enabled
+sudo systemctl disable --now signalforge-collector@08.timer signalforge-collector@12.timer || true
+docker compose ps
 ```
 
-Make it executable:
+## 2. Backup procedure
 
 ```bash
-chmod +x scripts/backup.sh
+set -euo pipefail
+cd /home/ubuntu/DM-Crypto-Quant-Signal
+TS=$(date -u +%Y%m%dT%H%M%SZ)
+BK=backups/signalforge-epoch3-$TS
+mkdir -p "$BK"
+
+# Preserve env separately and securely (do not include in git)
+if [ -f .env ]; then install -m 600 .env "$BK/.env.local"; fi
+
+# Runtime/evidence data
+mkdir -p "$BK/data" "$BK/reports" "$BK/logs" "$BK/docs" "$BK/docker"
+cp -a data/prospective "$BK/data/prospective"
+cp -a reports/q5-epoch3 "$BK/reports/q5-epoch3" 2>/dev/null || true
+cp -a logs "$BK/logs" 2>/dev/null || true
+
+# Governance and deployment assets
+cp -a docs/validation "$BK/docs/validation"
+cp -a docs/operations "$BK/docs/operations"
+cp -a docker/systemd "$BK/docker/systemd"
+cp -a compose.yaml Dockerfile .dockerignore "$BK/"
+
+# Checksums
+( cd "$BK" && find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS )
+
+tar -C backups -czf "backups/signalforge-epoch3-$TS.tar.gz" "signalforge-epoch3-$TS"
+sha256sum "backups/signalforge-epoch3-$TS.tar.gz" > "backups/signalforge-epoch3-$TS.tar.gz.sha256"
+rm -rf "$BK"
+ls -lh "backups/signalforge-epoch3-$TS.tar.gz"*
 ```
 
----
+Store backup off-host with restricted access. Never upload `.env` or token-bearing files to public storage.
 
-## 2. Recovery procedure
-
-### 2.1 Restore from backup
+## 3. Recovery procedure
 
 ```bash
-cd ~/signalforge
+set -euo pipefail
+cd /home/ubuntu/DM-Crypto-Quant-Signal
+sudo systemctl disable --now signalforge-collector@08.timer signalforge-collector@12.timer || true
+docker compose stop api || true
 
-# Stop the API
-docker compose stop api
+ARCHIVE=backups/signalforge-epoch3-<timestamp>.tar.gz
+sha256sum -c "$ARCHIVE.sha256"
+TMP=$(mktemp -d)
+tar -xzf "$ARCHIVE" -C "$TMP"
+RESTORE=$(find "$TMP" -maxdepth 1 -mindepth 1 -type d | head -n1)
 
-# Select the backup to restore (replace with actual backup name)
-BACKUP_FILE="backups/20260115-133000.tar.gz"
+# Restore evidence/runtime data cautiously
+mkdir -p data reports logs docs docker
+cp -a "$RESTORE/data/prospective" data/
+cp -a "$RESTORE/reports/q5-epoch3" reports/ 2>/dev/null || true
+cp -a "$RESTORE/logs" logs/ 2>/dev/null || true
+cp -a "$RESTORE/docs/validation" docs/
+cp -a "$RESTORE/docs/operations" docs/
+cp -a "$RESTORE/docker/systemd" docker/
+cp -a "$RESTORE/compose.yaml" "$RESTORE/Dockerfile" "$RESTORE/.dockerignore" ./
 
-# Extract to a temporary location
-RESTORE_TMP="/tmp/signalforge-restore"
-rm -rf "$RESTORE_TMP"
-mkdir -p "$RESTORE_TMP"
-tar -xzf "$BACKUP_FILE" -C "$RESTORE_TMP"
+# Restore .env only if missing; prefer current secret.
+if [ ! -f .env ] && [ -f "$RESTORE/.env.local" ]; then install -m 600 "$RESTORE/.env.local" .env; fi
 
-# Find the extracted backup directory
-BACKUP_DIR=$(ls -d "$RESTORE_TMP"/*/ | head -1)
-
-# Verify paper account checksum before restoring
-ORIGINAL_CHECKSUM=$(cat "$BACKUP_DIR/paper-checksum.txt")
-RESTORED_CHECKSUM=$(python -c "import json,hashlib; d=json.load(open('$BACKUP_DIR/data/paper/account.json')); print(d['checksum'])")
-if [ "$ORIGINAL_CHECKSUM" != "$RESTORED_CHECKSUM" ]; then
-    echo "ERROR: Paper account checksum mismatch!"
-    echo "  Expected: $ORIGINAL_CHECKSUM"
-    echo "  Got:      $RESTORED_CHECKSUM"
-    exit 1
-fi
-
-# Restore data directories
-rm -rf data/paper data/logs data/reports
-cp -a "$BACKUP_DIR/data/paper" data/
-cp -a "$BACKUP_DIR/data/logs" data/
-cp -a "$BACKUP_DIR/data/reports" data/
-
-# Restore configuration
-rm -rf config
-cp -a "$BACKUP_DIR/config" config/
-
-# Restore governance records
-cp -a "$BACKUP_DIR/docs/validation/approvals" docs/validation/
-
-# Clean up
-rm -rf "$RESTORE_TMP"
-
-# Start the API
-docker compose start api
-
-# Verify
-sleep 10
-curl -s -H "Authorization: Bearer $SIGNALFORGE_API_TOKEN" http://127.0.0.1:8000/health | python -m json.tool | head -20
-curl -s -H "Authorization: Bearer $SIGNALFORGE_API_TOKEN" http://127.0.0.1:8000/api/v1/paper/status
-
-echo "Recovery completed from $BACKUP_FILE"
-```
-
-### 2.2 Paper account only restore
-
-```bash
-cd ~/signalforge
-
-docker compose stop api
-
-BACKUP_DIR="backups/paper-20260115-133000"
-
-# Verify checksum
-ORIGINAL_CHECKSUM=$(cat "$BACKUP_DIR/paper-checksum.txt")
-RESTORED_CHECKSUM=$(python -c "import json,hashlib; d=json.load(open('$BACKUP_DIR/data/paper/account.json')); print(d['checksum'])")
-if [ "$ORIGINAL_CHECKSUM" != "$RESTORED_CHECKSUM" ]; then
-    echo "ERROR: Paper account checksum mismatch!"
-    exit 1
-fi
-
-rm -rf data/paper
-cp -a "$BACKUP_DIR/data/paper" data/
-
-docker compose start api
-sleep 10
-curl -s -H "Authorization: Bearer $SIGNALFORGE_API_TOKEN" http://127.0.0.1:8000/api/v1/paper/status
-
-echo "Paper account recovery completed."
-```
-
-### 2.3 Full rebuild from source (disaster recovery)
-
-If the VPS is lost entirely:
-
-```bash
-# 1. Provision a new VPS (see VPS_DEPLOYMENT_RUNBOOK.md)
-# 2. Install Docker and Docker Compose
-# 3. Copy the SignalForge repository to the VPS
-# 4. Restore runtime data from backup (section 2.1)
-# 5. Generate a new API token (do not reuse old tokens)
-openssl rand -hex 32
-# 6. Update .env.vps with the new token
-# 7. Build and start
-export SIGNALFORGE_AUTH_REQUIRED=1
-export SIGNALFORGE_API_TOKEN="<new-token>"
-docker compose build --no-cache api
+sudo chown -R 10001:10001 data/prospective logs reports || true
+docker compose build api
 docker compose up -d api
-# 8. Verify health
-curl -s -H "Authorization: Bearer $SIGNALFORGE_API_TOKEN" http://127.0.0.1:8000/health
+rm -rf "$TMP"
 ```
 
----
-
-## 3. Verification after recovery
+## 4. Post-recovery verification
 
 ```bash
-cd ~/signalforge
-
-# 1. Container is healthy
-docker inspect --format='{{.State.Health.Status}}' signalforge-api
-
-# 2. Health endpoint returns ok
-curl -s -H "Authorization: Bearer $SIGNALFORGE_API_TOKEN" http://127.0.0.1:8000/health
-
-# 3. Paper account checksum matches backup
-python -c "import json,hashlib; d=json.load(open('data/paper/account.json')); payload={k:v for k,v in d.items() if k not in ('checksum','total_equity','realized_pnl','unrealized_pnl','total_pnl','max_drawdown_pct','win_rate')}; computed=hashlib.sha256(json.dumps(payload,sort_keys=True,separators=(',',':'),default=str).encode()).hexdigest(); print('checksum_ok=', d['checksum']==computed)"
-
-# 4. Governance flags unchanged
-python -c "import json; g=json.load(open('docs/validation/approvals/q5_2_collection_continuation_approval.json')); print(g['expected_final_status'])"
-
-# 5. Read-only flags still false
-python -c "import json; g=json.load(open('docs/validation/approvals/q5_2_collection_continuation_approval.json')); e=g['expected_final_status']; print('live_trading=', e['live_trading_authorized']); print('paper_trading=', e['paper_trading_authorized']); print('strategy_eval=', e['strategy_evaluation_authorized'])"
+cd /home/ubuntu/DM-Crypto-Quant-Signal
+set -a; source .env; set +a
+curl -s -o /dev/null -w "%{http_code}\n" -H "Authorization: Bearer $SIGNALFORGE_API_TOKEN" http://127.0.0.1:8000/health
+uv run python scripts/run_q5_prospective_collection.py --collect-status \
+  --freeze-manifest docs/validation/RESEARCH_FREEZE_MANIFEST_EPOCH3.json \
+  --collection-manifest docs/validation/PROSPECTIVE_COLLECTION_MANIFEST_EPOCH3.json \
+  --storage-root data/prospective --approvals-dir docs/validation/approvals --output-dir reports/q5-epoch3
 ```
 
----
+Confirm Epoch 3 IDs unchanged, anchor hash/immutability intact, no fabricated observations, and no timers enabled unless explicitly authorized.
 
-## 4. Backup retention policy
+## 5. Disable and uninstall collector systemd
 
-- Daily automated backups: retain 7 days.
-- Manual backups: retain indefinitely (or per governance requirements).
-- Test restore procedures quarterly to verify backup integrity.
+```bash
+sudo systemctl disable --now signalforge-collector@08.timer signalforge-collector@12.timer || true
+sudo bash /home/ubuntu/DM-Crypto-Quant-Signal/docker/systemd/uninstall-systemd.sh
+systemctl list-timers --all | grep signalforge-collector || true
+```
 
----
+## 6. Safe rollback to previous commit
 
-## Notes
+```bash
+cd /home/ubuntu/DM-Crypto-Quant-Signal
+cp .env .env.backup.rollback.$(date -u +%Y%m%dT%H%M%SZ)
+git fetch origin
+git checkout main
+git log --oneline --decorate -5
+# Explicitly approved previous good commit only:
+git reset --hard <previous-good-commit>
+docker compose build api
+docker compose up -d api
+# Revalidate before any timer enablement.
+```
 
-- Never back up `.env` files or API tokens to shared/unencrypted locations.
-- Backup files contain governance evidence — protect them with appropriate access controls.
-- Q5.2 prospective data is read-only evidence; consult governance before backing up or modifying.
-- This runbook does not cover database backups (SignalForge uses file-based storage only).
+Never force-push/reset remote history. Do not enable timers after rollback until systemd validation and governance checks pass.
+
+## 7. Recovery do-not-do
+
+- Do not restore by overwriting immutable anchor with fabricated/backdated value.
+- Do not enable timers during recovery validation.
+- Do not change thresholds, IDs, or governance flags.
+- Do not start paper trading, strategy evaluation, model promotion, or live trading.

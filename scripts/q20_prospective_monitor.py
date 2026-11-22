@@ -39,9 +39,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 STORAGE_ROOT = ROOT / "data" / "prospective" / "binance" / "spot" / "BTC/USDT" / "1h"
 MANIFEST_PATH = ROOT / "docs" / "validation" / "PROSPECTIVE_COLLECTION_MANIFEST.json"
-COLLECTION_REPORT_PATH = (
-    ROOT / "docs" / "validation" / "results" / "prospective_collection_q5.json"
-)
+COLLECTION_REPORT_PATH = ROOT / "docs" / "validation" / "results" / "prospective_collection_q5.json"
 
 NO_SUCCESSFUL_INGESTION_WINDOW_S = 2 * 60 * 60  # 2 hours
 REPEATED_THRESHOLD = 2  # "multiple" means more than one
@@ -156,8 +154,48 @@ def main() -> int:
     freeze_id = manifest.get("associated_freeze_id")
     collection_started_at = parse_utc(manifest.get("collection_started_at_utc"))
     if collection_started_at is None:
-        print("error: manifest missing collection_started_at_utc", file=sys.stderr)
-        return 1
+        anchor = ProspectiveStorage(STORAGE_ROOT).verify_collection_start_anchor()
+        collection_started_at = parse_utc(anchor.get("collection_started_at_utc"))
+    if collection_started_at is None:
+        now = datetime.now(UTC)
+        report: dict[str, Any] = {
+            "schema": "q20-prospective-monitor.v1",
+            "generated_at_utc": format_utc(now),
+            "collection_id": collection_id,
+            "freeze_id": freeze_id,
+            "collection_started_at_utc": None,
+            "current_time_utc": format_utc(now),
+            "accepted_observations": 0,
+            "expected_intervals": 0,
+            "coverage_fraction": 0.0,
+            "observations_needed": DEFAULT_MIN_OBSERVATION_COUNT,
+            "coverage_needed": DEFAULT_MIN_COVERAGE_FRACTION,
+            "projected_eligibility_date": None,
+            "last_successful_candle": None,
+            "last_collection_attempt": None,
+            "current_ingestion_latency_s": None,
+            "rejected_observations": 0,
+            "rejection_reasons": [],
+            "duplicate_count": 0,
+            "conflict_count": 0,
+            "exchange_api_failures": 0,
+            "retry_exhaustion": 0,
+            "ledger_integrity": {"valid": False, "event_count": 0},
+            "provenance_status": "NOT_STARTED",
+            "collection_eligibility_state": "NOT_STARTED",
+            "seven_day_deadline_utc": None,
+            "remaining_duration_days": None,
+            "seven_day_threshold_elapsed": False,
+            "warnings": ["collection_not_started_no_anchor"],
+            "raw_observation_count": 0,
+            "normalized_candle_count": 0,
+            "unique_candle_count": 0,
+            "minimum_observations_required": DEFAULT_MIN_OBSERVATION_COUNT,
+            "minimum_coverage_required": DEFAULT_MIN_COVERAGE_FRACTION,
+            "minimum_duration_seconds": DEFAULT_MIN_ELAPSED_OBSERVATION_PERIOD_S,
+        }
+        print(json.dumps(report, indent=2))
+        return 0
 
     symbols = list(manifest.get("symbols", []))
     timeframes = list(manifest.get("timeframes", []))
@@ -170,8 +208,9 @@ def main() -> int:
 
     now = datetime.now(UTC)
     now_ms = int(now.timestamp() * 1000)
-    collection_start_ms = int(collection_started_at.timestamp() * 1000)
+    # collection_started_at resolved above with NOT_STARTED handling
 
+    collection_start_ms = int(collection_started_at.timestamp() * 1000)
     expected_intervals = expected_intervals_formula(
         now_ms, collection_start_ms, symbols, timeframes
     )
@@ -206,9 +245,7 @@ def main() -> int:
         last_successful_candle = last_candle.get("open_time")
         close_time = parse_utc(last_candle.get("close_time"))
         if close_time is not None:
-            current_ingestion_latency_s = round(
-                (now - close_time).total_seconds(), 3
-            )
+            current_ingestion_latency_s = round((now - close_time).total_seconds(), 3)
 
     last_collection_attempt: str | None = None
     if raw_records:
@@ -228,9 +265,7 @@ def main() -> int:
     exchange_api_failures = count_rejection_reasons(
         rejections, ["exchange fetch failed", "api error", "api failure", "429", "rate limit"]
     )
-    retry_exhaustion = count_rejection_reasons(
-        rejections, ["retry", "exhaust", "max retries"]
-    )
+    retry_exhaustion = count_rejection_reasons(rejections, ["retry", "exhaust", "max retries"])
 
     duplicate_count = int(summary.get("duplicate_ingestion_attempts", 0))
     conflict_count = int(summary.get("conflicting_observations", 0))
@@ -240,9 +275,7 @@ def main() -> int:
 
     # Provenance: healthy when every raw observation carries first-seen provenance.
     provenance_status = "HEALTHY"
-    if raw_records and any(
-        not r.get("first_seen_at_utc") for r in raw_records
-    ):
+    if raw_records and any(not r.get("first_seen_at_utc") for r in raw_records):
         provenance_status = "PROVENANCE_INVALID"
 
     # Collection eligibility state.
@@ -263,9 +296,7 @@ def main() -> int:
         seconds=DEFAULT_MIN_ELAPSED_OBSERVATION_PERIOD_S
     )
     seven_day_deadline_utc = format_utc(seven_day_deadline)
-    remaining_duration_days = round(
-        (seven_day_deadline - now).total_seconds() / 86400.0, 2
-    )
+    remaining_duration_days = round((seven_day_deadline - now).total_seconds() / 86400.0, 2)
     seven_day_threshold_elapsed = now >= seven_day_deadline
 
     # Warnings.
@@ -275,7 +306,10 @@ def main() -> int:
         warnings.append("no_successful_ingestion_for_more_than_two_cycles")
     else:
         last_attempt = parse_utc(last_collection_attempt)
-        if last_attempt is not None and (now - last_attempt).total_seconds() > NO_SUCCESSFUL_INGESTION_WINDOW_S:
+        if (
+            last_attempt is not None
+            and (now - last_attempt).total_seconds() > NO_SUCCESSFUL_INGESTION_WINDOW_S
+        ):
             warnings.append("no_successful_ingestion_for_more_than_two_cycles")
 
     http_429_count = count_rejection_reasons(rejections, ["429", "rate limit"])
@@ -292,17 +326,13 @@ def main() -> int:
     if not ledger_valid:
         warnings.append("invalid_ledger_hash")
 
-    if (
-        raw_records or normalized_records
-    ) and any(
+    if (raw_records or normalized_records) and any(
         str(r.get("collection_id")) != str(collection_id)
         for r in (*raw_records, *normalized_records)
     ):
         warnings.append("unexpected_collection_id_change")
 
-    if (
-        raw_records or normalized_records
-    ) and any(
+    if (raw_records or normalized_records) and any(
         str(r.get("research_freeze_id")) != str(freeze_id)
         for r in (*raw_records, *normalized_records)
     ):

@@ -24,9 +24,11 @@ DEFAULT_RAW_OBSERVATIONS_FILE = "raw_observations.jsonl"
 DEFAULT_NORMALIZED_CANDLES_FILE = "normalized_candles.jsonl"
 DEFAULT_LEDGER_FILE = "ingestion_ledger.jsonl"
 DEFAULT_MANIFEST_FILE = "dataset_manifest.json"
+DEFAULT_ANCHOR_FILE = "collection_start_anchor.json"
 
 LEDGER_SCHEMA_VERSION = "prospective-ledger.v1"
 DATASET_SCHEMA_VERSION = "prospective-dataset.v1"
+ANCHOR_SCHEMA_VERSION = "collection-start-anchor.v1"
 
 
 def _utc_now_iso() -> str:
@@ -82,6 +84,7 @@ class ProspectiveStorage:
         self.normalized_path = self.root / DEFAULT_NORMALIZED_CANDLES_FILE
         self.ledger_path = self.root / DEFAULT_LEDGER_FILE
         self.manifest_path = self.root / DEFAULT_MANIFEST_FILE
+        self.anchor_path = self.root / DEFAULT_ANCHOR_FILE
 
     # ------------------------------------------------------------------
     # Raw observation persistence
@@ -544,6 +547,159 @@ class ProspectiveStorage:
         }
 
     # ------------------------------------------------------------------
+    # Collection start anchor (immutable first-observation timestamp)
+    # ------------------------------------------------------------------
+    def write_collection_start_anchor(self, anchor: dict[str, Any]) -> dict[str, Any]:
+        """Atomically write the immutable collection start anchor.
+
+        The anchor is established only on the first successfully accepted
+        observation. It is derived from the actual ingestion event timestamp,
+        never from candle open/close or file mtime.
+
+        Write-once semantics: if an anchor already exists and matches, the
+        existing anchor is returned. If it exists with different content, a
+        RuntimeError is raised (never overwrite).
+        """
+        self.root.mkdir(parents=True, exist_ok=True)
+        existing = self.read_collection_start_anchor()
+        if existing is not None:
+            existing_hash = _sha256_json({k: v for k, v in existing.items() if k != "anchor_hash"})
+            new_hash = _sha256_json({k: v for k, v in anchor.items() if k != "anchor_hash"})
+            if existing_hash == new_hash:
+                return existing
+            raise RuntimeError(
+                "collection start anchor already exists and is immutable; refusing overwrite "
+                f"(existing_anchor_hash={existing.get('anchor_hash')}, attempted={new_hash})"
+            )
+
+        anchor_payload = dict(anchor)
+        anchor_payload.setdefault("schema_version", ANCHOR_SCHEMA_VERSION)
+        anchor_payload["anchor_hash"] = _sha256_json(
+            {k: v for k, v in anchor_payload.items() if k != "anchor_hash"}
+        )
+
+        fd, tmp_name = tempfile.mkstemp(dir=str(self.root), prefix=".tmp_anchor_", suffix=".json")
+        try:
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
+                json.dump(anchor_payload, f, indent=2, sort_keys=True, default=str)
+                f.flush()
+                os.fsync(f.fileno())
+            # Atomic create: fail if file appeared concurrently.
+            try:
+                fd2 = os.open(self.anchor_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            except FileExistsError:
+                # Another writer won the race; verify immutability.
+                with contextlib.suppress(OSError):
+                    os.unlink(tmp_name)
+                raced = self.read_collection_start_anchor()
+                if raced is None:
+                    raise RuntimeError(
+                        "collection start anchor exists but could not be read"
+                    ) from None
+                raced_hash = _sha256_json({k: v for k, v in raced.items() if k != "anchor_hash"})
+                new_hash = _sha256_json(
+                    {k: v for k, v in anchor_payload.items() if k != "anchor_hash"}
+                )
+                if raced_hash != new_hash:
+                    raise RuntimeError(
+                        "collection start anchor race detected with different content; refusing overwrite"
+                    ) from None
+                return raced
+            try:
+                with os.fdopen(fd2, "wb") as out:
+                    out.write(Path(tmp_name).read_bytes())
+                    out.flush()
+                    os.fsync(out.fileno())
+            finally:
+                with contextlib.suppress(OSError):
+                    os.unlink(tmp_name)
+            return anchor_payload
+        except BaseException:
+            with contextlib.suppress(OSError):
+                os.unlink(tmp_name)
+            raise
+
+    def read_collection_start_anchor(self) -> dict[str, Any] | None:
+        """Read the immutable collection start anchor, or None if not started."""
+        if not self.anchor_path.is_file():
+            return None
+        try:
+            data = json.loads(self.anchor_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            return None
+        if not isinstance(data, dict):
+            return None
+        return data
+
+    def verify_collection_start_anchor(self) -> dict[str, Any]:
+        """Verify anchor integrity and consistency with accepted observations."""
+        anchor = self.read_collection_start_anchor()
+        if anchor is None:
+            return {
+                "status": "NOT_STARTED",
+                "anchor_present": False,
+                "anchor_hash_valid": None,
+                "collection_started_at_utc": None,
+                "reason": "no accepted observations; anchor not established",
+            }
+
+        expected_hash = _sha256_json({k: v for k, v in anchor.items() if k != "anchor_hash"})
+        hash_valid = anchor.get("anchor_hash") == expected_hash
+        if not hash_valid:
+            return {
+                "status": "INVALID",
+                "anchor_present": True,
+                "anchor_hash_valid": False,
+                "collection_started_at_utc": anchor.get("collection_started_at_utc"),
+                "reason": "anchor hash mismatch; anchor may be corrupted",
+                "anchor": anchor,
+            }
+
+        accepted = self.read_unique_normalized_candles()
+        if not accepted:
+            return {
+                "status": "INVALID",
+                "anchor_present": True,
+                "anchor_hash_valid": True,
+                "collection_started_at_utc": anchor.get("collection_started_at_utc"),
+                "reason": "anchor exists but zero accepted observations found",
+                "anchor": anchor,
+            }
+
+        first_obs_id = anchor.get("first_observation_id")
+        if first_obs_id and not any(
+            c.get("event_id") == first_obs_id or c.get("source_observation_id") == first_obs_id
+            for c in accepted
+        ):
+            # Also check raw observations for event id match
+            raw = self.read_raw_observations()
+            raw_match = any(r.get("event_id") == first_obs_id for r in raw)
+            if not raw_match:
+                return {
+                    "status": "INVALID",
+                    "anchor_present": True,
+                    "anchor_hash_valid": True,
+                    "collection_started_at_utc": anchor.get("collection_started_at_utc"),
+                    "reason": "anchor first_observation_id not found in accepted observations",
+                    "anchor": anchor,
+                }
+
+        return {
+            "status": "VALID",
+            "anchor_present": True,
+            "anchor_hash_valid": True,
+            "collection_started_at_utc": anchor.get("collection_started_at_utc"),
+            "anchor": anchor,
+        }
+
+    def get_collection_started_at_utc(self) -> str | None:
+        """Return immutable collection start timestamp, or None if not started."""
+        verification = self.verify_collection_start_anchor()
+        if verification.get("status") == "VALID":
+            return verification.get("collection_started_at_utc")
+        return None
+
+    # ------------------------------------------------------------------
     # Dataset manifest
     # ------------------------------------------------------------------
     def write_dataset_manifest(self, manifest: dict[str, Any]) -> None:
@@ -683,7 +839,9 @@ def candle_identity_key(
 
 
 __all__ = [
+    "ANCHOR_SCHEMA_VERSION",
     "DATASET_SCHEMA_VERSION",
+    "DEFAULT_ANCHOR_FILE",
     "DEFAULT_LEDGER_FILE",
     "DEFAULT_MANIFEST_FILE",
     "DEFAULT_NORMALIZED_CANDLES_FILE",

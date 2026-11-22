@@ -86,10 +86,13 @@ def build_collection_manifest(
         except (OSError, subprocess.TimeoutExpired, FileNotFoundError):
             pass
 
+    # collection_started_at_utc must remain null until the first successfully
+    # accepted observation establishes an immutable anchor. Callers may pass an
+    # explicit timestamp for legacy manifests; default is null (NOT_STARTED).
     return {
         "schema_version": SCHEMA_VERSION,
         "collection_id": collection_id or f"collect-{uuid.uuid4().hex[:12]}",
-        "collection_started_at_utc": collection_started_at_utc or _utc_now_iso(),
+        "collection_started_at_utc": collection_started_at_utc,
         "associated_freeze_id": associated_freeze_id,
         "associated_freeze_timestamp": associated_freeze_timestamp,
         "exchange": exchange,

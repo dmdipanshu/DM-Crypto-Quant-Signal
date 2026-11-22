@@ -417,7 +417,10 @@ def check_pipeline_freshness(settings: Settings) -> tuple[HealthStatus, str, dic
             manifest = json.loads(coll_path.read_text(encoding="utf-8"))
             started = manifest.get("collection_started_at_utc")
             details["collection_started_at_utc"] = started
-            if started:
+            if not started:
+                stale_reasons.append("collection not started (no accepted observations)")
+                statuses.append(HealthStatus.DEGRADED)
+            else:
                 try:
                     coll_dt = datetime.fromisoformat(started.replace("Z", "+00:00"))
                     if coll_dt.tzinfo is None:

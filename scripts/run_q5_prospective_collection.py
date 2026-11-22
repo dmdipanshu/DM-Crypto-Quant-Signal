@@ -25,7 +25,7 @@ Epoch-specific arguments:
     --collection-manifest PATH   Collection manifest (default: docs/validation/PROSPECTIVE_COLLECTION_MANIFEST.json)
     --storage-root PATH          Prospective storage root (default: data/prospective)
     --approvals-dir PATH         Approval records dir (default: docs/validation/approvals)
-    --output-dir PATH            Output/report dir (default: docs/validation/results)
+    --output-dir PATH            Output/report dir (default: reports/q5-epoch3)
     --epoch NAME                 Epoch name for log namespace (default: default)
     --once                       Run one collection cycle and exit
     --collect-status             Show collection manifest and quality state
@@ -61,6 +61,7 @@ from crypto_engine.research.prospective.storage import (  # noqa: E402
 )
 from crypto_engine.research.q6.governance_verification import (  # noqa: E402
     check_collection_authorization,
+    check_scheduler_authorization,
 )
 
 DEFAULT_REPORTS_DIR = Path("docs/validation")
@@ -129,6 +130,17 @@ def run_once(args: argparse.Namespace) -> int:
         f"  Approval ID: {auth.approval_record.get('approval_id', 'n/a') if auth.approval_record else 'n/a'}"
     )
 
+    if getattr(args, "require_scheduler_authorization", False):
+        sched = check_scheduler_authorization(
+            collection_id=collection_id,
+            freeze_id=freeze_id,
+            approvals_root=approvals_dir,
+        )
+        if not sched.authorized:
+            print(f"SCHEDULER NOT AUTHORIZED: {sched.reason}")
+            return 3
+        print(f"Scheduler authorized: {sched.reason}")
+
     # --- Step 1: Validate research freeze ---
     collector = ProspectiveCollector(
         exchange=manifest["exchange"],
@@ -139,6 +151,16 @@ def run_once(args: argparse.Namespace) -> int:
         freeze_manifest_path=str(freeze_manifest_path),
         collection_manifest_path=str(collection_manifest_path),
     )
+
+    # Revalidate authorization immediately before execution (fail-closed).
+    auth = check_collection_authorization(
+        collection_id=collection_id,
+        freeze_id=freeze_id,
+        approvals_root=approvals_dir,
+    )
+    if not auth.authorized:
+        print(f"COLLECTION NOT AUTHORIZED (recheck): {auth.reason}")
+        return 3
 
     freeze_info = collector.validate_freeze()
     print(f"Research freeze: {freeze_info['freeze_id']} at {freeze_info['created_at_utc']}")
@@ -151,7 +173,21 @@ def run_once(args: argparse.Namespace) -> int:
     print(f"Associated Freeze ID: {integrity.get('associated_freeze_id', 'n/a')}")
 
     # Reject if the collection window has already expired (cannot restart expired collection)
-    collection_started_at = integrity.get("collection_started_at_utc")
+    # Use immutable anchor when present; null start means NOT_STARTED.
+    from crypto_engine.research.prospective.storage import ProspectiveStorage as _Storage
+
+    _storage = _Storage(
+        storage_root
+        / manifest["exchange"]
+        / manifest["market_type"]
+        / manifest["symbols"][0]
+        / manifest["timeframes"][0]
+    )
+    anchor_verification = _storage.verify_collection_start_anchor()
+    if anchor_verification.get("status") == "INVALID":
+        print(f"Collection start anchor invalid: {anchor_verification.get('reason')}")
+        return 3
+    collection_started_at = anchor_verification.get("collection_started_at_utc")
     if collection_started_at:
         try:
             start_ms = int(
@@ -162,12 +198,20 @@ def run_once(args: argparse.Namespace) -> int:
             min_elapsed_ms = collector.policy.min_elapsed_observation_period_s * 1000
             elapsed_ms = now_ms - start_ms
             if elapsed_ms >= min_elapsed_ms:
-                print(
-                    f"Collection window expired after {elapsed_ms / 86400000:.1f} days "
-                    f"(minimum {collector.policy.min_elapsed_observation_period_s / 86400:.0f} days). "
-                    "Expired collections cannot be restarted."
-                )
-                return 3
+                # Check if requirements met; if not, expired and cannot restart.
+                ds = _storage.read_dataset_manifest() or {}
+                obs = ds.get("observation_count", 0)
+                cov = ds.get("coverage_fraction", 0.0)
+                if (
+                    obs < collector.policy.min_observation_count
+                    or cov < collector.policy.min_coverage_fraction
+                ):
+                    print(
+                        f"Collection window expired after {elapsed_ms / 86400000:.1f} days "
+                        f"(minimum {collector.policy.min_elapsed_observation_period_s / 86400:.0f} days). "
+                        "Expired collections cannot be restarted."
+                    )
+                    return 3
         except (ValueError, TypeError):
             pass
 
@@ -199,10 +243,7 @@ def run_once(args: argparse.Namespace) -> int:
     _write_json(collection_json_path, result)
     _write_json(quality_json_path, quality)
 
-    # Step 6: Write collection manifest (reuse existing, never fabricate)
-    _write_json(collection_manifest_path, manifest)
-
-    # Step 7: Write reports
+    # Step 6: Write reports (manifest is read-only; never write back to it)
     _write_q5_collection_report(result, quality, freeze_info, manifest, output_dir)
     _write_q5_governance_report(result, quality, freeze_info, manifest, output_dir)
 
@@ -668,8 +709,8 @@ def main() -> int:
     )
     parser.add_argument(
         "--output-dir",
-        default="docs/validation",
-        help="Output/report directory (default: docs/validation)",
+        default="reports/q5-epoch3",
+        help="Output/report directory (default: reports/q5-epoch3)",
     )
     parser.add_argument(
         "--epoch",
@@ -700,6 +741,11 @@ def main() -> int:
         "--dry-run",
         action="store_true",
         help="Preflight checks only, no data collection.",
+    )
+    parser.add_argument(
+        "--require-scheduler-authorization",
+        action="store_true",
+        help="Require active scheduler authorization for this collection/freeze before execution.",
     )
     args = parser.parse_args()
 

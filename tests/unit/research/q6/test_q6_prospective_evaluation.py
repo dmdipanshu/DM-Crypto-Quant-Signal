@@ -1207,7 +1207,7 @@ class TestQ52ObservationStorage:
         )
         unique = storage.read_unique_normalized_candles()
         assert len(unique) == 1
-        from datetime import UTC, datetime, timedelta
+        from datetime import datetime, timedelta
 
         now_dt = datetime.now(UTC)
         collection_start = now_dt - timedelta(days=1)
@@ -1298,6 +1298,7 @@ class TestQ52ObservationStorage:
 # Q5.2 expiry lifecycle tests (controllable clock)
 # ---------------------------------------------------------------------------
 
+
 def _freeze_datetime(monkeypatch, target_utc):
     """Monkeypatch datetime.now(UTC) in crypto_engine.api.repos to a fixed time."""
     import datetime as _dt
@@ -1316,25 +1317,96 @@ def _freeze_datetime(monkeypatch, target_utc):
 
 
 def _collection_started_at(days_ago: float) -> str:
-    from datetime import UTC, datetime, timedelta
+    from datetime import datetime, timedelta
 
     return (datetime.now(UTC) - timedelta(days=days_ago)).isoformat()
 
 
-def test_q52_before_expiry_accumulating(monkeypatch, tmp_path):
-    """Collection started 1 day ago with 0 observations → ACCUMULATING, not eligible."""
+def _make_q5_status_roots(tmp_path, monkeypatch, collection_started_at: str):
+    """Build isolated roots/manifests for Q5 lifecycle tests."""
+    import json
+
     import crypto_engine.api.repos as repos
-
-    _freeze_datetime(monkeypatch, datetime.now(UTC))
-
-    # Use the real collection manifest which started 7+ days ago.
-    # Monkeypatch the clock to 1 day after collection start → before expiry.
     from crypto_engine.api.repos import RepoRoots
-    from crypto_engine.config.settings import load_settings
+    from crypto_engine.research.prospective.storage import ProspectiveStorage
 
-    load_settings()
-    # Build roots pointing to tmp_path for storage but real manifest.
-    roots = RepoRoots(
+    manifest_dir = tmp_path / "manifests"
+    manifest_dir.mkdir(parents=True, exist_ok=True)
+    freeze_path = manifest_dir / "freeze.json"
+    collection_path = manifest_dir / "collection.json"
+    freeze_path.write_text(
+        json.dumps(
+            {
+                "schema_version": "research-freeze-manifest.v1",
+                "freeze_id": "freeze-test",
+                "created_at_utc": "2026-11-13T00:00:00+00:00",
+                "git_commit_hash": "0" * 40,
+                "config_hash": "a" * 64,
+                "scope": {
+                    "exchange": "binance",
+                    "market_type": "spot",
+                    "symbols": ["BTC/USDT"],
+                    "timeframes": ["1h"],
+                },
+                "q4_overall_decision": "NO_STRATEGY_ELIGIBLE",
+                "q4_strategy_evaluation_authorized": False,
+            }
+        ),
+        encoding="utf-8",
+    )
+    collection_path.write_text(
+        json.dumps(
+            {
+                "schema_version": "prospective-collection-manifest.v1",
+                "collection_id": "collect-test",
+                "collection_started_at_utc": collection_started_at,
+                "associated_freeze_id": "freeze-test",
+                "associated_freeze_timestamp": "2026-11-13T00:00:00+00:00",
+                "exchange": "binance",
+                "market_type": "spot",
+                "symbols": ["BTC/USDT"],
+                "timeframes": ["1h"],
+                "collector_version": "q5-v1",
+                "data_schema_version": "ohlcv-v1",
+                "collection_config_hash": "b" * 64,
+                "repository_commit_sha": "0" * 40,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    from crypto_engine.research.prospective.collector import ProspectiveCollector
+
+    original_collector = ProspectiveCollector
+
+    class _Collector(original_collector):
+        def __init__(self, *args, **kwargs):
+            kwargs.setdefault("freeze_manifest_path", str(freeze_path))
+            kwargs.setdefault("collection_manifest_path", str(collection_path))
+            super().__init__(*args, **kwargs)
+
+    monkeypatch.setattr("crypto_engine.api.repos.ProspectiveCollector", _Collector, raising=False)
+    monkeypatch.setattr(
+        "crypto_engine.research.prospective.collector.ProspectiveCollector",
+        _Collector,
+        raising=False,
+    )
+
+    storage = ProspectiveStorage(tmp_path / "storage/prospective/binance/spot/BTC/USDT/1h")
+    storage.write_collection_start_anchor(
+        {
+            "schema_version": "collection-start-anchor.v1",
+            "collection_started_at_utc": collection_started_at,
+            "collection_id": "collect-test",
+            "associated_freeze_id": "freeze-test",
+            "first_accepted_observation_id": "obs-test",
+            "first_accepted_open_time": collection_started_at,
+            "first_accepted_ingested_at_utc": collection_started_at,
+            "established_at_utc": collection_started_at,
+        }
+    )
+
+    return repos, RepoRoots(
         signals_dir=tmp_path / "signals",
         registry_dir=tmp_path / "registry",
         data_storage=tmp_path / "storage",
@@ -1345,12 +1417,11 @@ def test_q52_before_expiry_accumulating(monkeypatch, tmp_path):
         scan_cap=5000,
     )
 
-    # With clock at collection_start + 1 day (< 7 days), state is ACCUMULATING.
-    # We can't easily change the manifest's collection_started_at_utc without
-    # modifying it, so instead we test the state derivation logic directly.
-    # The manifest started 2026-11-13; with clock at now (>7 days after), it's EXPIRED.
-    # To test "before expiry", we set the clock to collection_start + 1 day.
+
+def test_q52_before_expiry_accumulating(monkeypatch, tmp_path):
+    """Collection started 1 day ago with 0 observations -> ACCUMULATING, not eligible."""
     collection_start = "2026-11-13T06:15:46.915986+00:00"
+    repos, roots = _make_q5_status_roots(tmp_path, monkeypatch, collection_start)
     one_day_after = datetime.fromisoformat(collection_start) + timedelta(days=1)
     _freeze_datetime(monkeypatch, one_day_after)
 
@@ -1361,24 +1432,9 @@ def test_q52_before_expiry_accumulating(monkeypatch, tmp_path):
 
 
 def test_q52_at_expiry_expired(monkeypatch, tmp_path):
-    """Collection window exactly at 7 days → EXPIRED, not eligible."""
-    import crypto_engine.api.repos as repos
-    from crypto_engine.api.repos import RepoRoots
-    from crypto_engine.config.settings import load_settings
-
-    load_settings()
-    roots = RepoRoots(
-        signals_dir=tmp_path / "signals",
-        registry_dir=tmp_path / "registry",
-        data_storage=tmp_path / "storage",
-        backtest_dir=tmp_path / "backtests",
-        paper_path=tmp_path / "paper",
-        experiments_path=tmp_path / "experiments",
-        holdout_ledger_path=tmp_path / "holdout",
-        scan_cap=5000,
-    )
-
+    """Collection window exactly at 7 days -> EXPIRED, not eligible."""
     collection_start = "2026-11-13T06:15:46.915986+00:00"
+    repos, roots = _make_q5_status_roots(tmp_path, monkeypatch, collection_start)
     seven_days_after = datetime.fromisoformat(collection_start) + timedelta(days=7)
     _freeze_datetime(monkeypatch, seven_days_after)
 
@@ -1389,24 +1445,9 @@ def test_q52_at_expiry_expired(monkeypatch, tmp_path):
 
 
 def test_q52_after_expiry_expired(monkeypatch, tmp_path):
-    """Collection window past 7 days → EXPIRED, cannot become eligible."""
-    import crypto_engine.api.repos as repos
-    from crypto_engine.api.repos import RepoRoots
-    from crypto_engine.config.settings import load_settings
-
-    load_settings()
-    roots = RepoRoots(
-        signals_dir=tmp_path / "signals",
-        registry_dir=tmp_path / "registry",
-        data_storage=tmp_path / "storage",
-        backtest_dir=tmp_path / "backtests",
-        paper_path=tmp_path / "paper",
-        experiments_path=tmp_path / "experiments",
-        holdout_ledger_path=tmp_path / "holdout",
-        scan_cap=5000,
-    )
-
+    """Collection window past 7 days -> EXPIRED, cannot become eligible."""
     collection_start = "2026-11-13T06:15:46.915986+00:00"
+    repos, roots = _make_q5_status_roots(tmp_path, monkeypatch, collection_start)
     eight_days_after = datetime.fromisoformat(collection_start) + timedelta(days=8)
     _freeze_datetime(monkeypatch, eight_days_after)
 
@@ -1418,23 +1459,8 @@ def test_q52_after_expiry_expired(monkeypatch, tmp_path):
 
 def test_q52_expired_never_eligible(monkeypatch, tmp_path):
     """Even with unlimited time passing, expired collection stays EXPIRED."""
-    import crypto_engine.api.repos as repos
-    from crypto_engine.api.repos import RepoRoots
-    from crypto_engine.config.settings import load_settings
-
-    load_settings()
-    roots = RepoRoots(
-        signals_dir=tmp_path / "signals",
-        registry_dir=tmp_path / "registry",
-        data_storage=tmp_path / "storage",
-        backtest_dir=tmp_path / "backtests",
-        paper_path=tmp_path / "paper",
-        experiments_path=tmp_path / "experiments",
-        holdout_ledger_path=tmp_path / "holdout",
-        scan_cap=5000,
-    )
-
     collection_start = "2026-11-13T06:15:46.915986+00:00"
+    repos, roots = _make_q5_status_roots(tmp_path, monkeypatch, collection_start)
     thirty_days_after = datetime.fromisoformat(collection_start) + timedelta(days=30)
     _freeze_datetime(monkeypatch, thirty_days_after)
 
@@ -1446,23 +1472,8 @@ def test_q52_expired_never_eligible(monkeypatch, tmp_path):
 
 def test_q52_governance_not_eligible_when_expired(monkeypatch, tmp_path):
     """Governance endpoint reports eligible_for_evaluation=False when expired."""
-    import crypto_engine.api.repos as repos
-    from crypto_engine.api.repos import RepoRoots
-    from crypto_engine.config.settings import load_settings
-
-    load_settings()
-    roots = RepoRoots(
-        signals_dir=tmp_path / "signals",
-        registry_dir=tmp_path / "registry",
-        data_storage=tmp_path / "storage",
-        backtest_dir=tmp_path / "backtests",
-        paper_path=tmp_path / "paper",
-        experiments_path=tmp_path / "experiments",
-        holdout_ledger_path=tmp_path / "holdout",
-        scan_cap=5000,
-    )
-
     collection_start = "2026-11-13T06:15:46.915986+00:00"
+    repos, roots = _make_q5_status_roots(tmp_path, monkeypatch, collection_start)
     eight_days_after = datetime.fromisoformat(collection_start) + timedelta(days=8)
     _freeze_datetime(monkeypatch, eight_days_after)
 

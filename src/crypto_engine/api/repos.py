@@ -625,7 +625,11 @@ def read_ai_metrics(roots: RepoRoots) -> dict[str, Any]:
 
 
 def read_q5_collection_status(roots: RepoRoots) -> dict[str, Any]:
-    """Read-only Q5 prospective collection status (no network, no secrets)."""
+    """Read-only Q5 prospective collection status (no network, no secrets).
+
+    Reads epoch 3 freeze and collection manifests. All reads are read-only;
+    no writes, no network, no secrets.
+    """
     from crypto_engine.research.prospective.collector import ProspectiveCollector
     from crypto_engine.research.prospective.storage import ProspectiveStorage
 
@@ -634,26 +638,45 @@ def read_q5_collection_status(roots: RepoRoots) -> dict[str, Any]:
         market_type="spot",
         symbols=["BTC/USDT"],
         timeframes=["1h"],
+        freeze_manifest_path="docs/validation/RESEARCH_FREEZE_MANIFEST_EPOCH3.json",
+        collection_manifest_path="docs/validation/PROSPECTIVE_COLLECTION_MANIFEST_EPOCH3.json",
     )
 
     # Verify collection manifest integrity
     integrity = collector.verify_collection_integrity()
 
     # Read storage state
-    storage = ProspectiveStorage(Path("data/prospective/binance/spot/BTC/USDT/1h"))
+    storage = ProspectiveStorage(roots.data_storage / "prospective/binance/spot/BTC/USDT/1h")
     dataset_manifest = storage.read_dataset_manifest() or {}
     ledger = storage.verify_ledger_chain()
+    anchor_verification = storage.verify_collection_start_anchor()
+    collection_started_at = anchor_verification.get("collection_started_at_utc")
+    anchor_status = anchor_verification.get("status")
+    if (
+        anchor_status == "INVALID"
+        and anchor_verification.get("reason")
+        == "anchor exists but zero accepted observations found"
+        and anchor_verification.get("anchor_hash_valid")
+    ):
+        anchor_status = "VALID_EMPTY"
+    if not collection_started_at and anchor_status not in {"VALID", "VALID_EMPTY"}:
+        try:
+            manifest = json.loads(
+                Path(collector.collection_manifest_path).read_text(encoding="utf-8")
+            )
+            collection_started_at = manifest.get("collection_started_at_utc")
+        except Exception:
+            collection_started_at = None
+        if collection_started_at:
+            anchor_status = "MISSING_LEGACY"
 
     observation_count = dataset_manifest.get("observation_count", 0)
     coverage = dataset_manifest.get("coverage_fraction", 0.0)
     data_quality_passed = ledger.get("valid", False) and observation_count > 0
 
-    # Determine if collection window has expired (7-day minimum elapsed
-    # without meeting evaluation requirements).
-    collection_started_at = integrity.get("collection_started_at_utc")
     now_ms = int(datetime.now(UTC).timestamp() * 1000)
     window_expired = False
-    if collection_started_at:
+    if collection_started_at and anchor_status in {"VALID", "VALID_EMPTY", "MISSING_LEGACY"}:
         try:
             start_ms = int(
                 datetime.fromisoformat(collection_started_at.replace("Z", "+00:00")).timestamp()
@@ -665,13 +688,15 @@ def read_q5_collection_status(roots: RepoRoots) -> dict[str, Any]:
         except (ValueError, TypeError):
             window_expired = False
 
-    # Compute whether requirements are met
     obs_below_min = observation_count < collector.policy.min_observation_count
     cov_below_min = coverage < collector.policy.min_coverage_fraction
     requirements_met = not obs_below_min and not cov_below_min and data_quality_passed
 
-    # Derive lifecycle state
-    if not window_expired and not requirements_met:
+    if anchor_status not in {"VALID", "VALID_EMPTY", "MISSING_LEGACY"} or not collection_started_at:
+        lifecycle_state = "NOT_STARTED"
+        requirements_met = False
+        window_expired = False
+    elif not window_expired and not requirements_met:
         lifecycle_state = "ACCUMULATING"
     elif window_expired and not requirements_met:
         lifecycle_state = "EXPIRED"
@@ -683,7 +708,11 @@ def read_q5_collection_status(roots: RepoRoots) -> dict[str, Any]:
     return {
         "available": True,
         "collection_id": integrity.get("collection_id"),
-        "collection_started_at_utc": integrity.get("collection_started_at_utc"),
+        "collection_started_at_utc": collection_started_at,
+        "collection_start_anchor_status": anchor_status,
+        "collection_start_anchor_hash": (anchor_verification.get("anchor") or {}).get(
+            "anchor_hash"
+        ),
         "associated_freeze_id": integrity.get("associated_freeze_id"),
         "associated_freeze_timestamp": integrity.get("associated_freeze_timestamp"),
         "exchange": collector.exchange,
@@ -705,15 +734,17 @@ def read_q5_collection_status(roots: RepoRoots) -> dict[str, Any]:
         "coverage_fraction_min": collector.policy.min_coverage_fraction,
         "min_elapsed_period_s": collector.policy.min_elapsed_observation_period_s,
         "elapsed_seconds": (
-            now_ms
-            - int(
-                datetime.fromisoformat(collection_started_at.replace("Z", "+00:00")).timestamp()
-                * 1000
+            (
+                now_ms
+                - int(
+                    datetime.fromisoformat(collection_started_at.replace("Z", "+00:00")).timestamp()
+                    * 1000
+                )
             )
-        )
-        / 1000.0
-        if collection_started_at
-        else None,
+            / 1000.0
+            if collection_started_at and anchor_status in {"VALID", "VALID_EMPTY", "MISSING_LEGACY"}
+            else None
+        ),
         "requirements_met": requirements_met,
     }
 
@@ -732,6 +763,8 @@ def read_q5_prospective_governance(roots: RepoRoots) -> dict[str, Any]:
         market_type="spot",
         symbols=["BTC/USDT"],
         timeframes=["1h"],
+        freeze_manifest_path="docs/validation/RESEARCH_FREEZE_MANIFEST_EPOCH3.json",
+        collection_manifest_path="docs/validation/PROSPECTIVE_COLLECTION_MANIFEST_EPOCH3.json",
     )
 
     freeze_check = collector.validate_freeze()
@@ -753,53 +786,92 @@ def read_q5_prospective_governance(roots: RepoRoots) -> dict[str, Any]:
         }
 
     freeze_info = freeze_check
-    manifest = collector.validate_or_create_collection_manifest()
-
-    storage = ProspectiveStorage(Path("data/prospective/binance/spot/BTC/USDT/1h"))
+    collector.validate_or_create_collection_manifest()
+    storage = ProspectiveStorage(roots.data_storage / "prospective/binance/spot/BTC/USDT/1h")
     dataset_manifest = storage.read_dataset_manifest() or {}
     ledger = storage.verify_ledger_chain()
+    anchor_verification = storage.verify_collection_start_anchor()
+    collection_started_at = anchor_verification.get("collection_started_at_utc")
+    anchor_status = anchor_verification.get("status")
+    if (
+        anchor_status == "INVALID"
+        and anchor_verification.get("reason")
+        == "anchor exists but zero accepted observations found"
+        and anchor_verification.get("anchor_hash_valid")
+    ):
+        anchor_status = "VALID_EMPTY"
+    if not collection_started_at and anchor_status not in {"VALID", "VALID_EMPTY"}:
+        try:
+            manifest = json.loads(
+                Path(collector.collection_manifest_path).read_text(encoding="utf-8")
+            )
+            collection_started_at = manifest.get("collection_started_at_utc")
+        except Exception:
+            collection_started_at = None
+        if collection_started_at:
+            anchor_status = "MISSING_LEGACY"
 
     observation_count = dataset_manifest.get("observation_count", 0)
     coverage = dataset_manifest.get("coverage_fraction", 0.0)
     data_quality_passed = ledger.get("valid", False) and observation_count > 0
 
-    # Determine if collection window has expired (7-day minimum elapsed
-    # without meeting evaluation requirements).
-    collection_started_at = manifest["collection_started_at_utc"]
     now_ms = int(datetime.now(UTC).timestamp() * 1000)
-    try:
-        start_ms = int(
-            datetime.fromisoformat(collection_started_at.replace("Z", "+00:00")).timestamp() * 1000
-        )
-        elapsed_ms = now_ms - start_ms
-        min_elapsed_ms = collector.policy.min_elapsed_observation_period_s * 1000
-        window_expired = elapsed_ms >= min_elapsed_ms
-    except (ValueError, TypeError):
-        window_expired = False
+    window_expired = False
+    elapsed_ms = 0
+    if collection_started_at and anchor_status in {"VALID", "VALID_EMPTY", "MISSING_LEGACY"}:
+        try:
+            start_ms = int(
+                datetime.fromisoformat(collection_started_at.replace("Z", "+00:00")).timestamp()
+                * 1000
+            )
+            elapsed_ms = now_ms - start_ms
+            min_elapsed_ms = collector.policy.min_elapsed_observation_period_s * 1000
+            window_expired = elapsed_ms >= min_elapsed_ms
+        except (ValueError, TypeError):
+            window_expired = False
+            start_ms = now_ms
+    else:
+        start_ms = now_ms
 
     obs_below_min = observation_count < collector.policy.min_observation_count
     cov_below_min = coverage < collector.policy.min_coverage_fraction
     requirements_met = not obs_below_min and not cov_below_min and data_quality_passed
 
-    # If the collection window has expired and requirements are not met,
-    # the holdout is EXPIRED/INCOMPLETE, not ACCUMULATING.
-    readiness = assess_prospective_holdout_readiness(
-        freeze_timestamp=freeze_info["created_at_utc"],
-        collection_started_at=manifest["collection_started_at_utc"],
-        observation_count=observation_count,
-        min_observation_count=collector.policy.min_observation_count,
-        coverage_fraction=coverage,
-        min_coverage_fraction=collector.policy.min_coverage_fraction,
-        data_quality_passed=data_quality_passed,
-        first_seen_provenance_valid=True,
-        post_collection_start=True,
-        no_backfill=True,
-        no_development_inspection=True,
-        evaluation_requested=False,
-    )
+    if anchor_status not in {"VALID", "VALID_EMPTY", "MISSING_LEGACY"} or not collection_started_at:
+        readiness = {
+            "state": "NOT_STARTED",
+            "prospective_status": "NOT_STARTED",
+            "eligible_for_evaluation": False,
+            "evaluated": False,
+            "reasons": [
+                "No accepted observations; collection_started_at_utc anchor not established."
+            ],
+            "first_seen_provenance_valid": False,
+            "no_backfill": True,
+            "no_development_inspection": True,
+            "evaluation_requested": False,
+        }
+    else:
+        readiness = assess_prospective_holdout_readiness(
+            freeze_timestamp=freeze_info["created_at_utc"],
+            collection_started_at=collection_started_at,
+            observation_count=observation_count,
+            min_observation_count=collector.policy.min_observation_count,
+            coverage_fraction=coverage,
+            min_coverage_fraction=collector.policy.min_coverage_fraction,
+            data_quality_passed=data_quality_passed,
+            first_seen_provenance_valid=True,
+            post_collection_start=True,
+            no_backfill=True,
+            no_development_inspection=True,
+            evaluation_requested=False,
+        )
 
-    # Override to EXPIRED when window elapsed but requirements unmet.
-    if window_expired and not requirements_met:
+    if (
+        window_expired
+        and not requirements_met
+        and readiness.get("state") in {"NOT_STARTED", "ACCUMULATING"}
+    ):
         readiness["state"] = "EXPIRED"
         readiness["prospective_status"] = "EXPIRED"
         readiness["eligible_for_evaluation"] = False
@@ -834,14 +906,20 @@ def read_q5_prospective_governance(roots: RepoRoots) -> dict[str, Any]:
         "reasons": readiness.get("reasons", []),
         "research_freeze_id": freeze_info["freeze_id"],
         "research_freeze_timestamp": freeze_info["created_at_utc"],
-        "collection_started_at_utc": manifest["collection_started_at_utc"],
+        "collection_started_at_utc": collection_started_at,
+        "collection_start_anchor_status": anchor_status,
+        "collection_start_anchor_hash": (anchor_verification.get("anchor") or {}).get(
+            "anchor_hash"
+        ),
         "read_only": True,
         "lifecycle_state": "EXPIRED"
-        if (window_expired and not requirements_met)
+        if (window_expired and not requirements_met and readiness.get("state") != "NOT_STARTED")
         else readiness["state"],
         "window_expired": window_expired,
         "requirements_met": requirements_met,
-        "elapsed_seconds": (now_ms - start_ms) / 1000.0,
+        "elapsed_seconds": (elapsed_ms / 1000.0)
+        if collection_started_at and anchor_status in {"VALID", "VALID_EMPTY", "MISSING_LEGACY"}
+        else None,
     }
 
 

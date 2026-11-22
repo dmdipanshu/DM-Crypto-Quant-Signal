@@ -1,0 +1,13 @@
+{
+  "schema_version": "epoch-supersession.v1",
+  "recorded_at_utc": "2026-11-22T14:26:19Z",
+  "superseded_epoch": "epoch2",
+  "superseded_collection_id": "collect-epoch2-eca19890-be05-4929-8773-e04885966db1",
+  "superseded_freeze_id": "freeze-epoch2-f34ea12a-34f6-4e5f-b830-393402947a65",
+  "superseding_epoch": "epoch3",
+  "superseding_collection_id": "collect-epoch3-4e1b55cd-ee07-4f2a-8f4c-d0be0e848b2d",
+  "superseding_freeze_id": "freeze-epoch3-ba777bcd-df63-4cfe-9aa3-18dde1fef46f",
+  "status": "SUPERSEDED",
+  "append_only": true,
+  "notes": "Epoch 2 artifacts remain immutable evidence. Epoch 3 is the active prospective collection epoch for read-only Binance Spot BTC/USDT 1h validation; no backfill, no trading authorization, no threshold changes."
+}

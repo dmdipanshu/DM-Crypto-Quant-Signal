@@ -1,17 +1,15 @@
 [Unit]
-Description=SignalForge Q5.2 Prospective Collection Epoch 2 (%i timer)
+Description=SignalForge Q5.2 Prospective Collection Epoch 3 (%i timer)
 Documentation=https://github.com/dmdipanshu/DM-Crypto-Quant-Signal
-After=network-online.target
+After=docker.service network-online.target
 Wants=network-online.target
 
 [Timer]
 # Run once per hour at the specified minute (UTC)
-OnCalendar=*:%i:00
-Persistent=true
+OnCalendar=*-%m-%d %H:%i:00 UTC
+Persistent=false
 # No catch-up: if a scheduled run is missed, do not run it later
-# This prevents historical backfill behavior
 AccuracySec=1min
-# The oneshot service handles its own execution; timer only triggers
 Unit=signalforge-collector.service
 
 [Install]

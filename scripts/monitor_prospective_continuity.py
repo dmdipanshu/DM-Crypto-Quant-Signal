@@ -33,12 +33,8 @@ ROOT = Path(__file__).resolve().parents[1]
 
 STORAGE_ROOT = ROOT / "data" / "prospective" / "binance" / "spot" / "BTC/USDT" / "1h"
 MANIFEST_PATH = ROOT / "docs" / "validation" / "PROSPECTIVE_COLLECTION_MANIFEST.json"
-QUALITY_REPORT_PATH = (
-    ROOT / "docs" / "validation" / "results" / "prospective_data_quality_q5.json"
-)
-COLLECTION_REPORT_PATH = (
-    ROOT / "docs" / "validation" / "results" / "prospective_collection_q5.json"
-)
+QUALITY_REPORT_PATH = ROOT / "docs" / "validation" / "results" / "prospective_data_quality_q5.json"
+COLLECTION_REPORT_PATH = ROOT / "docs" / "validation" / "results" / "prospective_collection_q5.json"
 
 PERFECT_COLLECTIONS_TO_ELIGIBILITY = 1082
 
@@ -97,7 +93,40 @@ def main() -> int:
     now = datetime.now(UTC)
     now_ms = int(now.timestamp() * 1000)
 
-    collection_started_at = parse_utc(manifest["collection_started_at_utc"])
+    collection_started_at_raw = manifest.get("collection_started_at_utc")
+    if not collection_started_at_raw:
+        storage = ProspectiveStorage(STORAGE_ROOT)
+        anchor = storage.verify_collection_start_anchor()
+        collection_started_at_raw = anchor.get("collection_started_at_utc")
+    if not collection_started_at_raw:
+        report = {
+            "collection_id": manifest.get("collection_id"),
+            "collection_started_at_utc": None,
+            "current_time_utc": format_utc(now),
+            "accepted_observations": 0,
+            "expected_intervals": 0,
+            "coverage_fraction": 0.0,
+            "observations_needed": DEFAULT_MIN_OBSERVATION_COUNT,
+            "coverage_needed": DEFAULT_MIN_COVERAGE_FRACTION,
+            "projected_eligibility_date": None,
+            "last_successful_candle": None,
+            "latest_rejected_candle": None,
+            "current_ingestion_latency_s": None,
+            "ledger_integrity": {"valid": False, "event_count": 0},
+            "ingestion_status": "NOT_STARTED",
+            "provenance_status": "NOT_STARTED",
+            "seven_day_deadline_utc": None,
+            "remaining_duration_days": None,
+            "collection_status": "NOT_STARTED",
+            "evaluation_blocked": True,
+            "evaluation_block_reasons": ["No accepted observations; anchor not established."],
+            "minimum_observations_required": DEFAULT_MIN_OBSERVATION_COUNT,
+            "minimum_coverage_required": DEFAULT_MIN_COVERAGE_FRACTION,
+            "minimum_duration_seconds": DEFAULT_MIN_ELAPSED_OBSERVATION_PERIOD_S,
+        }
+        print(json.dumps(report, indent=2))
+        return 0
+    collection_started_at = parse_utc(collection_started_at_raw)
     collection_start_ms = int(collection_started_at.timestamp() * 1000)
 
     symbols = list(manifest.get("symbols", []))
@@ -130,9 +159,7 @@ def main() -> int:
         last_successful_candle = last_candle.get("open_time")
         close_time = last_candle.get("close_time")
         if close_time:
-            current_ingestion_latency_s = round(
-                (now - parse_utc(close_time)).total_seconds(), 3
-            )
+            current_ingestion_latency_s = round((now - parse_utc(close_time)).total_seconds(), 3)
 
     ledger_integrity = storage.verify_ledger_chain()
 
@@ -152,9 +179,7 @@ def main() -> int:
     seven_day_deadline = collection_started_at + timedelta(
         seconds=DEFAULT_MIN_ELAPSED_OBSERVATION_PERIOD_S
     )
-    remaining_duration_days = round(
-        (seven_day_deadline - now).total_seconds() / 86400.0, 2
-    )
+    remaining_duration_days = round((seven_day_deadline - now).total_seconds() / 86400.0, 2)
 
     collection_status = quality_report.get(
         "state", checks.get("state", collection_report.get("status"))
@@ -162,14 +187,10 @@ def main() -> int:
     ingestion_status = checks.get("ingestion_status")
     provenance_status = checks.get("provenance_status")
     evaluation_blocked = bool(
-        quality_report.get(
-            "evaluation_blocked", checks.get("evaluation_blocked", False)
-        )
+        quality_report.get("evaluation_blocked", checks.get("evaluation_blocked", False))
     )
     evaluation_block_reasons = list(
-        quality_report.get(
-            "evaluation_block_reasons", checks.get("evaluation_block_reasons", [])
-        )
+        quality_report.get("evaluation_block_reasons", checks.get("evaluation_block_reasons", []))
         or []
     )
 

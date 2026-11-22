@@ -2,103 +2,129 @@
 # install-systemd.sh - Install SignalForge Q5.2 collector systemd service and timers
 #
 # Usage:
-#   sudo bash install-systemd.sh [/opt/signalforge]
+#   sudo bash docker/systemd/install-systemd.sh [PROJECT_DIR] [SERVICE_USER]
+#
+# Defaults:
+#   PROJECT_DIR=/home/ubuntu/DM-Crypto-Quant-Signal
+#   SERVICE_USER=ubuntu
 #
 # Installs:
 #   /etc/systemd/system/signalforge-collector.service
-#   /etc/systemd/system/signalforge-collector@.timer
-#   Primary timer: signalforge-collector@primary.timer (runs at :08 UTC)
-#   Retry timer:   signalforge-collector@retry.timer   (runs at :12 UTC)
+#   /etc/systemd/system/signalforge-collector@08.timer  (primary, :08 UTC)
+#   /etc/systemd/system/signalforge-collector@12.timer  (retry, :12 UTC)
 #
-# Requirements:
-#   - Docker Compose installed
-#   - Project directory at /opt/signalforge (or custom path)
-#   - compose.yaml with collector service
-#
-# Security:
-#   - Service runs as unprivileged signalforge user
-#   - NoNewPrivileges=true, ProtectSystem=strict
-#   - Timers do NOT enable persistent catch-up (no historical backfill)
+# Safety:
+#   - Does NOT start or enable timers unless ENABLE_TIMERS=1 is explicitly set.
+#   - Persistent=false in timer units (no catch-up/backfill).
+#   - Verifies compose config and required files before install.
 #
 set -euo pipefail
 
-INSTALL_DIR="${1:-/opt/signalforge}"
-
-echo "=== SignalForge Q5.2 Collector Systemd Installer ==="
-echo "Install directory: ${INSTALL_DIR}"
-echo ""
-
-# Verify prerequisites
-if ! command -v docker &>/dev/null; then
-    echo "ERROR: docker is not installed or not in PATH"
-    exit 1
-fi
-if ! command -v docker compose &>/dev/null && ! docker compose version &>/dev/null; then
-    echo "ERROR: docker compose is not available"
-    exit 1
-fi
-
-# Create signalforge user if not exists
-if ! id "signalforge" &>/dev/null; then
-    echo "Creating system user 'signalforge'..."
-    useradd --system --create-home --shell /usr/sbin/nologin signalforge
-fi
-
-# Verify compose.yaml exists and has collector service
-COMPOSE_FILE="${INSTALL_DIR}/compose.yaml"
-if [ ! -f "${COMPOSE_FILE}" ]; then
-    echo "ERROR: ${COMPOSE_FILE} not found"
-    exit 1
-fi
-if ! grep -q "signalforge-collector:" "${COMPOSE_FILE}"; then
-    echo "ERROR: 'signalforge-collector' service not found in ${COMPOSE_FILE}"
-    exit 1
-fi
-
-# Copy unit files
+PROJECT_DIR="${1:-/home/ubuntu/DM-Crypto-Quant-Signal}"
+SERVICE_USER="${2:-ubuntu}"
 SYSTEMD_DIR="/etc/systemd/system"
-echo "Installing systemd units to ${SYSTEMD_DIR}..."
+ENABLE_TIMERS="${ENABLE_TIMERS:-0}"
 
-cp "${INSTALL_DIR}/docker/systemd/signalforge-collector.service" "${SYSTEMD_DIR}/"
-cp "${INSTALL_DIR}/docker/systemd/signalforge-collector@.timer" "${SYSTEMD_DIR}/"
+if [ "$(id -u)" -ne 0 ]; then
+  echo "ERROR: run as root (sudo)."
+  exit 1
+fi
 
-# Create timer instances
-# Primary timer: runs at minute 08 of every hour (UTC)
-ln -sf "${SYSTEMD_DIR}/signalforge-collector@.timer" "${SYSTEMD_DIR}/signalforge-collector@primary.timer"
-# Retry timer: runs at minute 12 of every hour (UTC)
-ln -sf "${SYSTEMD_DIR}/signalforge-collector@.timer" "${SYSTEMD_DIR}/signalforge-collector@retry.timer"
+if [ ! -d "${PROJECT_DIR}" ]; then
+  echo "ERROR: project directory does not exist: ${PROJECT_DIR}"
+  exit 1
+fi
+PROJECT_DIR="$(cd "${PROJECT_DIR}" && pwd)"
 
-# Reload systemd
-echo "Reloading systemd daemon..."
+if ! id "${SERVICE_USER}" >/dev/null 2>&1; then
+  echo "ERROR: service user does not exist: ${SERVICE_USER}"
+  exit 1
+fi
+
+if ! command -v docker >/dev/null 2>&1; then
+  echo "ERROR: docker is not installed or not in PATH"
+  exit 1
+fi
+if ! docker compose version >/dev/null 2>&1; then
+  echo "ERROR: docker compose is not available"
+  exit 1
+fi
+
+COMPOSE_FILE="${PROJECT_DIR}/compose.yaml"
+for required in \
+  "${COMPOSE_FILE}" \
+  "${PROJECT_DIR}/docker/systemd/signalforge-collector.service" \
+  "${PROJECT_DIR}/docker/systemd/signalforge-collector@.timer" \
+  "${PROJECT_DIR}/docs/validation/RESEARCH_FREEZE_MANIFEST_EPOCH3.json" \
+  "${PROJECT_DIR}/docs/validation/PROSPECTIVE_COLLECTION_MANIFEST_EPOCH3.json" \
+  "${PROJECT_DIR}/docs/validation/approvals/collection-epoch3-authorization.json" \
+  "${PROJECT_DIR}/docs/validation/approvals/scheduler-epoch3-authorization.json"; do
+  if [ ! -f "${required}" ]; then
+    echo "ERROR: required file missing: ${required}"
+    exit 1
+  fi
+done
+
+if ! grep -q "q5-collector" "${COMPOSE_FILE}"; then
+  echo "ERROR: collector profile q5-collector not found in ${COMPOSE_FILE}"
+  exit 1
+fi
+
+if ! docker compose -f "${COMPOSE_FILE}" config --quiet >/dev/null 2>&1; then
+  echo "ERROR: invalid compose configuration: ${COMPOSE_FILE}"
+  exit 1
+fi
+
+# Ensure service user can access Docker daemon.
+if getent group docker >/dev/null 2>&1; then
+  usermod -aG docker "${SERVICE_USER}" || true
+else
+  echo "ERROR: docker group does not exist; install Docker and ensure docker group is present."
+  exit 1
+fi
+
+# Ensure writable dirs exist and are owned by container app uid (10001).
+install -d -m 0755 "${PROJECT_DIR}/data/prospective/binance/spot/BTC/USDT/1h"
+install -d -m 0755 "${PROJECT_DIR}/logs" "${PROJECT_DIR}/reports/q5-epoch3"
+chown -R 10001:10001 "${PROJECT_DIR}/data/prospective" "${PROJECT_DIR}/logs" "${PROJECT_DIR}/reports" || true
+
+# Render service/timer with configured path/user.
+SERVICE_TMP="$(mktemp)"
+TIMER_TMP="$(mktemp)"
+sed \
+  -e "s|/home/ubuntu/DM-Crypto-Quant-Signal|${PROJECT_DIR}|g" \
+  -e "s|^User=ubuntu$|User=${SERVICE_USER}|g" \
+  "${PROJECT_DIR}/docker/systemd/signalforge-collector.service" > "${SERVICE_TMP}"
+
+sed \
+  -e "s|/home/ubuntu/DM-Crypto-Quant-Signal|${PROJECT_DIR}|g" \
+  "${PROJECT_DIR}/docker/systemd/signalforge-collector@.timer" > "${TIMER_TMP}"
+
+install -m 0644 "${SERVICE_TMP}" "${SYSTEMD_DIR}/signalforge-collector.service"
+install -m 0644 "${TIMER_TMP}" "${SYSTEMD_DIR}/signalforge-collector@.timer"
+ln -sf "${SYSTEMD_DIR}/signalforge-collector@.timer" "${SYSTEMD_DIR}/signalforge-collector@08.timer"
+ln -sf "${SYSTEMD_DIR}/signalforge-collector@.timer" "${SYSTEMD_DIR}/signalforge-collector@12.timer"
+
+rm -f "${SERVICE_TMP}" "${TIMER_TMP}"
+
 systemctl daemon-reload
 
-# Enable timers (do NOT start them; collection must be explicitly authorized)
-echo "Enabling primary timer (runs at :08 UTC)..."
-systemctl enable signalforge-collector@primary.timer
-
-echo "Enabling retry timer (runs at :12 UTC)..."
-systemctl enable signalforge-collector@retry.timer
-
+echo "Installed systemd units:"
+echo "  ${SYSTEMD_DIR}/signalforge-collector.service"
+echo "  ${SYSTEMD_DIR}/signalforge-collector@08.timer (primary, :08 UTC)"
+echo "  ${SYSTEMD_DIR}/signalforge-collector@12.timer (retry, :12 UTC)"
 echo ""
-echo "=== Installation Complete ==="
+echo "Verification commands:"
+echo "  systemctl cat signalforge-collector.service"
+echo "  systemctl list-timers --all | grep signalforge-collector"
+echo "  docker compose -f ${COMPOSE_FILE} config >/dev/null"
 echo ""
-echo "Timer schedules (all times UTC):"
-echo "  Primary:   signalforge-collector@primary.timer  -> every hour at :08"
-echo "  Retry:     signalforge-collector@retry.timer    -> every hour at :12"
-echo ""
-echo "To start collection (after authorization):"
-echo "  sudo systemctl start signalforge-collector@primary.timer"
-echo ""
-echo "To check status:"
-echo "  sudo systemctl status signalforge-collector@primary.timer"
-echo "  sudo systemctl status signalforge-collector@retry.timer"
-echo "  sudo journalctl -u signalforge-collector@primary.timer -n 50"
-echo ""
-echo "To disable timers:"
-echo "  sudo systemctl disable signalforge-collector@primary.timer"
-echo "  sudo systemctl disable signalforge-collector@retry.timer"
-echo ""
-echo "WARNING: Collection does NOT start automatically. Timers must be"
-echo "enabled and started only after appropriate authorization is in place."
-echo "No catch-up is performed for missed runs (Persistent=true with no"
-echo "RandomizedDelaySec prevents backfill on timer restart)."
+if [ "${ENABLE_TIMERS}" = "1" ]; then
+  systemctl enable --now signalforge-collector@08.timer
+  systemctl enable --now signalforge-collector@12.timer
+  echo "Timers enabled and started (ENABLE_TIMERS=1)."
+else
+  echo "Timers NOT enabled/started. To enable explicitly:"
+  echo "  sudo systemctl enable --now signalforge-collector@08.timer"
+  echo "  sudo systemctl enable --now signalforge-collector@12.timer"
+fi

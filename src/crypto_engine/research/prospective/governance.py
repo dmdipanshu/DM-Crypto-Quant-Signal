@@ -52,10 +52,33 @@ def assess_prospective_holdout_readiness(
     """
     freeze = _parse_ts(freeze_timestamp, "freeze_timestamp")
     collection_start = _parse_ts(collection_started_at, "collection_started_at")
-
-    # Historical holdout is permanently contaminated
-    # (we pass this through as a permanent fact)
     historical_contaminated = True
+
+    # Zero accepted observations means NOT_STARTED. Collection start anchor is not
+    # established and no elapsed-time requirements are evaluated.
+    if observation_count <= 0:
+        return {
+            "prospective_status": "NOT_STARTED",
+            "state": "NOT_STARTED",
+            "eligible_for_evaluation": False,
+            "evaluated": False,
+            "reasons": [
+                "No accepted observations; collection_started_at_utc is not established (NOT_STARTED)."
+            ],
+            "freeze_timestamp": freeze.isoformat() if freeze else None,
+            "collection_started_at": None,
+            "observation_count": observation_count,
+            "min_observation_count": min_observation_count,
+            "coverage_fraction": coverage_fraction,
+            "min_coverage_fraction": min_coverage_fraction,
+            "data_quality_passed": data_quality_passed,
+            "first_seen_provenance_valid": first_seen_provenance_valid,
+            "no_backfill": no_backfill,
+            "no_development_inspection": no_development_inspection,
+            "evaluation_requested": evaluation_requested,
+            "historical_holdout_contaminated": historical_contaminated,
+            "assessed_at_utc": _utc_now_iso(),
+        }
 
     # Build the state using the governance module's function
     # We evaluate based on collection-readiness criteria

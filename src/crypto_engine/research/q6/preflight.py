@@ -291,27 +291,24 @@ def run_preflight(
         )
 
     # ---- Step 10: Coverage ----
-    # Expected intervals: count of exchange-aligned candles whose open time
-    # is strictly after collection_started_at_utc and whose close time
-    # is at or before now (fully finalized).
     now_ms = int(datetime.now(UTC).timestamp() * 1000)
-    collection_start_ms = int(
-        datetime.fromisoformat(collection_started_at.replace("Z", "+00:00")).timestamp() * 1000
-    )
-
     expected_intervals = 0
-    for _symbol in [symbol]:
-        for _timeframe in [timeframe]:
-            interval_ms = timeframe_to_ms(_timeframe)
-            # First exchange-aligned candle whose open time is strictly
-            # after collection_started_at_utc
-            first_open_ms = ((collection_start_ms // interval_ms) + 1) * interval_ms
-            t = first_open_ms
-            while t + interval_ms <= now_ms:
-                expected_intervals += 1
-                t += interval_ms
-
-    coverage_fraction = observation_count / expected_intervals if expected_intervals > 0 else 0.0
+    coverage_fraction = 0.0
+    if collection_started_at:
+        collection_start_ms = int(
+            datetime.fromisoformat(collection_started_at.replace("Z", "+00:00")).timestamp() * 1000
+        )
+        for _symbol in [symbol]:
+            for _timeframe in [timeframe]:
+                interval_ms = timeframe_to_ms(_timeframe)
+                first_open_ms = ((collection_start_ms // interval_ms) + 1) * interval_ms
+                t = first_open_ms
+                while t + interval_ms <= now_ms:
+                    expected_intervals += 1
+                    t += interval_ms
+        coverage_fraction = (
+            observation_count / expected_intervals if expected_intervals > 0 else 0.0
+        )
     details["coverage_fraction"] = coverage_fraction
     if coverage_fraction < min_coverage_fraction and observation_count > 0:
         blocking_conditions.append(
@@ -360,7 +357,7 @@ def run_preflight(
 
     readiness = assess_prospective_holdout_readiness(
         freeze_timestamp=freeze_timestamp or "",
-        collection_started_at=collection_started_at or "",
+        collection_started_at=collection_started_at,
         observation_count=observation_count,
         min_observation_count=min_observation_count,
         coverage_fraction=coverage_fraction,

@@ -1,43 +1,6 @@
-  collector:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: runtime
-    image: signalforge:local
-    container_name: signalforge-collector
-    command: >
-      python scripts/run_q5_prospective_collection.py --once
-      --freeze-manifest docs/validation/RESEARCH_FREEZE_MANIFEST_EPOCH2.json
-      --collection-manifest docs/validation/PROSPECTIVE_COLLECTION_MANIFEST_EPOCH2.json
-      --storage-root data/prospective
-      --approvals-dir docs/validation/approvals
-      --output-dir docs/validation/results
-      --epoch epoch2
-    environment:
-      # Collector does NOT require API auth; it only reads public Binance data.
-      SIGNALFORGE_AUTH_REQUIRED: "0"
-    volumes:
-      # Read-only inputs
-      - ./config:/app/config:ro
-      - ./docs/validation/RESEARCH_FREEZE_MANIFEST_EPOCH2.json:/app/docs/validation/RESEARCH_FREEZE_MANIFEST_EPOCH2.json:ro
-      - ./docs/validation/PROSPECTIVE_COLLECTION_MANIFEST_EPOCH2.json:/app/docs/validation/PROSPECTIVE_COLLECTION_MANIFEST_EPOCH2.json:ro
-      - ./docs/validation/approvals:/app/docs/validation/approvals:ro
-      # Writable prospective data (epoch 2 only, isolated)
-      - ./data/prospective/binance/spot/BTC/USDT/1h:/app/data/prospective/binance/spot/BTC/USDT/1h
-      - ./logs:/app/logs
-      - ./reports:/app/reports
-    tmpfs:
-      - /tmp
-    read_only: true
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-    user: "10001:10001"
-    restart: "no"
-    networks:
-      - signalforge-net
+name: signalforge
 
+services:
   api:
     build:
       context: .
@@ -56,7 +19,11 @@
       # Read-only inputs
       - ./config:/app/config:ro
       - ./docs/validation/RESEARCH_FREEZE_MANIFEST.json:/app/docs/validation/RESEARCH_FREEZE_MANIFEST.json:ro
+      - ./docs/validation/RESEARCH_FREEZE_MANIFEST_EPOCH2.json:/app/docs/validation/RESEARCH_FREEZE_MANIFEST_EPOCH2.json:ro
+      - ./docs/validation/RESEARCH_FREEZE_MANIFEST_EPOCH3.json:/app/docs/validation/RESEARCH_FREEZE_MANIFEST_EPOCH3.json:ro
       - ./docs/validation/PROSPECTIVE_COLLECTION_MANIFEST.json:/app/docs/validation/PROSPECTIVE_COLLECTION_MANIFEST.json:ro
+      - ./docs/validation/PROSPECTIVE_COLLECTION_MANIFEST_EPOCH2.json:/app/docs/validation/PROSPECTIVE_COLLECTION_MANIFEST_EPOCH2.json:ro
+      - ./docs/validation/PROSPECTIVE_COLLECTION_MANIFEST_EPOCH3.json:/app/docs/validation/PROSPECTIVE_COLLECTION_MANIFEST_EPOCH3.json:ro
       - ./docs/validation/approvals:/app/docs/validation/approvals:ro
       # Read-only prospective data (collector owns writes; API reads only)
       - ./data/prospective/binance/spot/BTC/USDT/1h:/app/data/prospective/binance/spot/BTC/USDT/1h:ro
@@ -79,6 +46,48 @@
       timeout: 5s
       start_period: 20s
       retries: 3
+
+  collector:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: signalforge:local
+    container_name: signalforge-collector
+    command: >
+      python scripts/run_q5_prospective_collection.py --once
+      --freeze-manifest docs/validation/RESEARCH_FREEZE_MANIFEST_EPOCH3.json
+      --collection-manifest docs/validation/PROSPECTIVE_COLLECTION_MANIFEST_EPOCH3.json
+      --storage-root data/prospective
+      --approvals-dir docs/validation/approvals
+      --output-dir reports/q5-epoch3
+      --epoch epoch3
+    environment:
+      # Collector does NOT require API auth; it only reads public Binance data.
+      SIGNALFORGE_AUTH_REQUIRED: "0"
+    profiles:
+      - q5-collector
+    volumes:
+      # Read-only inputs
+      - ./config:/app/config:ro
+      - ./docs/validation/RESEARCH_FREEZE_MANIFEST_EPOCH3.json:/app/docs/validation/RESEARCH_FREEZE_MANIFEST_EPOCH3.json:ro
+      - ./docs/validation/PROSPECTIVE_COLLECTION_MANIFEST_EPOCH3.json:/app/docs/validation/PROSPECTIVE_COLLECTION_MANIFEST_EPOCH3.json:ro
+      - ./docs/validation/approvals:/app/docs/validation/approvals:ro
+      # Writable prospective data (epoch 3 only, isolated)
+      - ./data/prospective/binance/spot/BTC/USDT/1h:/app/data/prospective/binance/spot/BTC/USDT/1h
+      - ./logs:/app/logs
+      - ./reports:/app/reports
+    tmpfs:
+      - /tmp
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    user: "10001:10001"
+    restart: "no"
+    networks:
+      - signalforge-net
 
   test:
     build:
@@ -132,4 +141,3 @@
 networks:
   signalforge-net:
     driver: bridge
-

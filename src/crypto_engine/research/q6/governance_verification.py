@@ -422,81 +422,93 @@ def check_collection_authorization(
     approvals_root: Path | str | None = None,
 ) -> CollectionAuthorizationResult:
     """Check if collection is authorized by an active, non-revoked approval record.
-    
+
     Authorization requires an approval record that:
     - Exists in docs/validation/approvals/
     - Has status == "active"
     - Matches the exact collection_id and freeze_id
     - Is not revoked (revoked_at_utc is null)
     - Is valid (valid_from_utc <= now, expires_at_utc is null or > now)
-    
+
     Revocation (status != "active" or revoked_at_utc set) immediately prevents
     future collection execution.
     """
     root = Path(approvals_root) if approvals_root is not None else APPROVALS_ROOT
     now = datetime.now(UTC)
-    
+
     records = _load_approval_records(root)
-    
+
+    last_failure: CollectionAuthorizationResult | None = None
     for record in records:
         if record.get("collection_id") != collection_id:
             continue
         if record.get("freeze_id") != freeze_id:
             continue
-        
+
         status = record.get("status")
         revoked_at = record.get("revoked_at_utc")
         valid_from = record.get("valid_from_utc")
         expires_at = record.get("expires_at_utc")
-        
-        # Revocation check: status must be "active" and not revoked
+
         if status != "active":
-            return CollectionAuthorizationResult(
+            last_failure = CollectionAuthorizationResult(
                 authorized=False,
                 collection_id=collection_id,
                 freeze_id=freeze_id,
                 reason=f"approval record status is '{status}', not 'active'",
                 approval_record=record,
             )
+            continue
         if revoked_at is not None:
-            return CollectionAuthorizationResult(
+            last_failure = CollectionAuthorizationResult(
                 authorized=False,
                 collection_id=collection_id,
                 freeze_id=freeze_id,
                 reason=f"approval record revoked at {revoked_at}",
                 approval_record=record,
             )
-        
-        # Validity window check
+            continue
+
         if valid_from is not None:
             try:
                 valid_from_dt = datetime.fromisoformat(valid_from)
                 if now < valid_from_dt:
-                    return CollectionAuthorizationResult(
+                    last_failure = CollectionAuthorizationResult(
                         authorized=False,
                         collection_id=collection_id,
                         freeze_id=freeze_id,
                         reason=f"approval record not yet valid (valid_from={valid_from})",
                         approval_record=record,
                     )
+                    continue
             except (ValueError, TypeError):
                 pass
-        
+
         if expires_at is not None:
             try:
                 expires_at_dt = datetime.fromisoformat(expires_at)
                 if now >= expires_at_dt:
-                    return CollectionAuthorizationResult(
+                    last_failure = CollectionAuthorizationResult(
                         authorized=False,
                         collection_id=collection_id,
                         freeze_id=freeze_id,
                         reason=f"approval record expired at {expires_at}",
                         approval_record=record,
                     )
+                    continue
             except (ValueError, TypeError):
                 pass
-        
-        # All checks passed
+
+        if not record.get("collection_authorized", False):
+            last_failure = CollectionAuthorizationResult(
+                authorized=False,
+                collection_id=collection_id,
+                freeze_id=freeze_id,
+                reason="collection_authorized is not True in approval record",
+                approval_record=record,
+            )
+            continue
+
         return CollectionAuthorizationResult(
             authorized=True,
             collection_id=collection_id,
@@ -504,13 +516,124 @@ def check_collection_authorization(
             reason="collection authorized by active, non-revoked approval record",
             approval_record=record,
         )
-    
-    # No matching approval record found
+
+    if last_failure is not None:
+        return last_failure
+
     return CollectionAuthorizationResult(
         authorized=False,
         collection_id=collection_id,
         freeze_id=freeze_id,
-        reason="no active approval record found for this collection and freeze",
+        reason="no active collection approval record found for this collection and freeze",
+        approval_record=None,
+    )
+
+
+def check_scheduler_authorization(
+    collection_id: str,
+    freeze_id: str,
+    approvals_root: Path | str | None = None,
+) -> CollectionAuthorizationResult:
+    """Check if scheduler execution is authorized for the given collection/freeze.
+
+    Scheduler authorization is independent of collection authorization. It requires:
+    - An active, non-revoked approval record
+    - Exact match on collection_id AND freeze_id
+    - scheduler_authorized == True
+    - Validity window check (valid_from <= now, expires_at is null or > now)
+
+    Do not treat collection authorization as scheduler authorization.
+    """
+    root = Path(approvals_root) if approvals_root is not None else APPROVALS_ROOT
+    now = datetime.now(UTC)
+
+    records = _load_approval_records(root)
+
+    last_failure: CollectionAuthorizationResult | None = None
+    for record in records:
+        if record.get("collection_id") != collection_id:
+            continue
+        if record.get("freeze_id") != freeze_id:
+            continue
+
+        status = record.get("status")
+        revoked_at = record.get("revoked_at_utc")
+        valid_from = record.get("valid_from_utc")
+        expires_at = record.get("expires_at_utc")
+
+        if status != "active":
+            last_failure = CollectionAuthorizationResult(
+                authorized=False,
+                collection_id=collection_id,
+                freeze_id=freeze_id,
+                reason=f"scheduler approval status is '{status}', not 'active'",
+                approval_record=record,
+            )
+            continue
+        if revoked_at is not None:
+            last_failure = CollectionAuthorizationResult(
+                authorized=False,
+                collection_id=collection_id,
+                freeze_id=freeze_id,
+                reason=f"scheduler approval revoked at {revoked_at}",
+                approval_record=record,
+            )
+            continue
+        if valid_from is not None:
+            try:
+                valid_from_dt = datetime.fromisoformat(valid_from)
+                if now < valid_from_dt:
+                    last_failure = CollectionAuthorizationResult(
+                        authorized=False,
+                        collection_id=collection_id,
+                        freeze_id=freeze_id,
+                        reason=f"scheduler approval not yet valid (valid_from={valid_from})",
+                        approval_record=record,
+                    )
+                    continue
+            except (ValueError, TypeError):
+                pass
+        if expires_at is not None:
+            try:
+                expires_at_dt = datetime.fromisoformat(expires_at)
+                if now >= expires_at_dt:
+                    last_failure = CollectionAuthorizationResult(
+                        authorized=False,
+                        collection_id=collection_id,
+                        freeze_id=freeze_id,
+                        reason=f"scheduler approval expired at {expires_at}",
+                        approval_record=record,
+                    )
+                    continue
+            except (ValueError, TypeError):
+                pass
+
+        if not record.get("scheduler_authorized", False):
+            last_failure = CollectionAuthorizationResult(
+                authorized=False,
+                collection_id=collection_id,
+                freeze_id=freeze_id,
+                reason="scheduler_authorized is not True in approval record",
+                approval_record=record,
+            )
+            continue
+
+        return CollectionAuthorizationResult(
+            authorized=True,
+            collection_id=collection_id,
+            freeze_id=freeze_id,
+            reason="scheduler authorized by active, non-revoked approval record",
+            approval_record=record,
+        )
+
+    if last_failure is not None:
+        return last_failure
+
+    return CollectionAuthorizationResult(
+        authorized=False,
+        collection_id=collection_id,
+        freeze_id=freeze_id,
+        reason="no active scheduler approval record found for this collection and freeze",
         approval_record=None,
     )
 
@@ -537,7 +660,6 @@ def write_governance_report(
     return path
 
 
-
 __all__ = [
     "APPROVALS_ROOT",
     "GOVERNANCE_SCHEMA_VERSION",
@@ -561,6 +683,7 @@ __all__ = [
     "_verify_dataset_manifest",
     "_verify_ledger_integrity",
     "check_collection_authorization",
+    "check_scheduler_authorization",
     "run_governance_verification",
     "write_governance_report",
 ]
