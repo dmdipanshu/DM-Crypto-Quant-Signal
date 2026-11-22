@@ -143,18 +143,36 @@ def check_config(settings: Settings) -> tuple[HealthStatus, str, dict[str, Any]]
         return HealthStatus.UNHEALTHY, f"config load failed: {exc}", details
 
 
-def check_storage(settings: Settings) -> tuple[HealthStatus, str, dict[str, Any]]:
-    """Data storage directory exists and is writable."""
+def check_storage(
+    settings: Settings, *, require_writable: bool = True
+) -> tuple[HealthStatus, str, dict[str, Any]]:
+    """Data storage directory exists; writable only when required.
+
+    In read-only API mode, required storage paths must be readable but are not
+    required to be writable. Genuine access failures remain unhealthy.
+    """
     path = Path(settings.data.storage_path)
-    details: dict[str, Any] = {"storage_path": str(path)}
+    details: dict[str, Any] = {"storage_path": str(path), "require_writable": require_writable}
     try:
-        details["exists"] = path.is_dir()
-        if not details["exists"]:
+        exists = path.is_dir()
+        details["exists"] = exists
+        if not exists:
             return HealthStatus.UNHEALTHY, "storage directory missing", details
+        details["readable"] = os.access(path, os.R_OK | os.X_OK)
         details["writable"] = os.access(path, os.W_OK)
-        if not details["writable"]:
-            return HealthStatus.UNHEALTHY, "storage directory not writable", details
-        return HealthStatus.HEALTHY, "storage directory exists and is writable", details
+        if not details["readable"]:
+            return HealthStatus.UNHEALTHY, "storage directory not readable", details
+        if require_writable:
+            if not details["writable"]:
+                return HealthStatus.UNHEALTHY, "storage directory not writable", details
+            return HealthStatus.HEALTHY, "storage directory exists and is writable", details
+        if details["writable"]:
+            return HealthStatus.HEALTHY, "storage directory readable (writable)", details
+        return (
+            HealthStatus.HEALTHY,
+            "storage directory readable (write not required in read-only mode)",
+            details,
+        )
     except Exception as exc:
         return HealthStatus.UNHEALTHY, f"storage check failed: {exc}", details
 
@@ -203,18 +221,41 @@ def _resolve_paper_account_path(settings: Settings) -> Path:
 
 
 def check_paper_account(settings: Settings) -> tuple[HealthStatus, str, dict[str, Any]]:
-    """Paper account checksum verifies (canonical configured account file)."""
+    """Paper account checksum verifies (canonical configured account file).
+
+    When paper trading is disabled/unauthorized and no account exists, report as
+    not applicable rather than failing API operational health. Missing accounts
+    remain failures in authorized paper-enabled environments.
+    """
     from crypto_engine.paper_trading.state import load_account
 
     path = _resolve_paper_account_path(settings)
-    details: dict[str, Any] = {"path": str(path)}
+    details: dict[str, Any] = {
+        "path": str(path),
+        "paper_trading_enabled": bool(getattr(settings.paper, "enabled", False)),
+        "trading_authorized": bool(getattr(settings.deployment, "trading_authorized", False)),
+        "live_orders_enabled": bool(getattr(settings.deployment, "live_orders_enabled", False)),
+    }
     try:
         if not path.is_file():
+            paper_enabled = bool(getattr(settings.paper, "enabled", False))
+            trading_authorized = bool(getattr(settings.deployment, "trading_authorized", False))
+            live_orders_enabled = bool(getattr(settings.deployment, "live_orders_enabled", False))
+            if not paper_enabled and not trading_authorized and not live_orders_enabled:
+                details["applicable"] = False
+                return (
+                    HealthStatus.HEALTHY,
+                    "paper account not applicable (paper trading disabled)",
+                    details,
+                )
+            details["applicable"] = True
             return HealthStatus.UNHEALTHY, "paper account file missing", details
         load_account(path)
         details["verified"] = True
+        details["applicable"] = True
         return HealthStatus.HEALTHY, "paper account checksum verifies", details
     except Exception as exc:
+        details["applicable"] = True
         return HealthStatus.UNHEALTHY, f"paper account check failed: {exc}", details
 
 
@@ -346,13 +387,29 @@ def check_prospective_collection() -> tuple[HealthStatus, str, dict[str, Any]]:
         return HealthStatus.UNHEALTHY, f"prospective collection check failed: {exc}", details
 
 
-def check_pipeline_freshness(settings: Settings) -> tuple[HealthStatus, str, dict[str, Any]]:
-    """Report pipeline freshness from last-successful-execution timestamps.
+def _get_prospective_lifecycle_state() -> dict[str, Any]:
+    """Resolve prospective lifecycle from repo logic when available."""
+    try:
+        from crypto_engine.api.repos import RepoRoots, read_q5_collection_status
 
-    Reads signal history, Q5 collection dataset manifest, and paper account
-    updated_at to determine whether pipeline activity is current or stale.
+        roots = RepoRoots()
+        q5 = read_q5_collection_status(roots)
+        return {
+            "lifecycle_state": str(q5.get("lifecycle_state") or "UNKNOWN"),
+            "observation_count": int(q5.get("observation_count") or 0),
+            "collection_started_at_utc": q5.get("collection_started_at_utc"),
+            "collection_start_anchor_status": q5.get("collection_start_anchor_status"),
+        }
+    except Exception as exc:
+        return {"lifecycle_state": "UNKNOWN", "error": str(exc)}
+
+
+def check_pipeline_freshness(settings: Settings) -> tuple[HealthStatus, str, dict[str, Any]]:
+    """Report pipeline freshness/readiness by lifecycle-aware semantics.
 
     Read-only: no writes, no network, no credential access.
+    Before first accepted observation (NOT_STARTED), missing signal/manifest
+    evidence is reported as not-started/degraded readiness, not API failure.
     """
     from crypto_engine.signals.history import SignalHistory
 
@@ -360,6 +417,18 @@ def check_pipeline_freshness(settings: Settings) -> tuple[HealthStatus, str, dic
     now = datetime.now(UTC)
     stale_reasons: list[str] = []
     statuses: list[HealthStatus] = []
+
+    lifecycle = _get_prospective_lifecycle_state()
+    lifecycle_state = str(lifecycle.get("lifecycle_state") or "UNKNOWN")
+    observation_count = int(lifecycle.get("observation_count") or 0)
+    details["collection_lifecycle_state"] = lifecycle_state
+    details["observation_count"] = observation_count
+    details["collection_started_at_utc"] = lifecycle.get("collection_started_at_utc")
+    details["collection_start_anchor_status"] = lifecycle.get("collection_start_anchor_status")
+    if lifecycle.get("error"):
+        details["lifecycle_error"] = lifecycle["error"]
+
+    collection_not_started = lifecycle_state == "NOT_STARTED" and observation_count == 0
 
     # --- Signal freshness ---
     signal_path = Path(settings.signal.history_path)
@@ -385,7 +454,7 @@ def check_pipeline_freshness(settings: Settings) -> tuple[HealthStatus, str, dic
                         sig_dt = sig_dt.replace(tzinfo=UTC)
                     age_s = (now - sig_dt).total_seconds()
                     details["signal_age_seconds"] = age_s
-                    if age_s > 86400:  # 24 hours
+                    if age_s > 86400:
                         stale_reasons.append(f"no new signals for {age_s / 3600:.1f} hours")
                         statuses.append(HealthStatus.DEGRADED)
                     else:
@@ -395,18 +464,26 @@ def check_pipeline_freshness(settings: Settings) -> tuple[HealthStatus, str, dic
                     stale_reasons.append("signal timestamp unparseable")
             else:
                 details["last_signal_generated_at"] = None
-                stale_reasons.append("no signal records found")
-                statuses.append(HealthStatus.DEGRADED)
+                if collection_not_started:
+                    stale_reasons.append("no signal records yet (collection not started)")
+                    statuses.append(HealthStatus.HEALTHY)
+                else:
+                    stale_reasons.append("no signal records found")
+                    statuses.append(HealthStatus.DEGRADED)
         except Exception as exc:
             details["signal_history_error"] = str(exc)
             stale_reasons.append(f"signal history check failed: {exc}")
             statuses.append(HealthStatus.UNHEALTHY)
     else:
         details["last_signal_generated_at"] = None
-        stale_reasons.append("signal history directory missing")
-        statuses.append(HealthStatus.UNHEALTHY)
+        if collection_not_started:
+            stale_reasons.append("signal history not started")
+            statuses.append(HealthStatus.HEALTHY)
+        else:
+            stale_reasons.append("signal history directory missing")
+            statuses.append(HealthStatus.UNHEALTHY)
 
-    # --- Collection freshness ---
+    # --- Collection freshness / readiness ---
     coll_path = Path("data/prospective/binance/spot/BTC/USDT/1h/dataset_manifest.json")
     details["collection_manifest_path"] = str(coll_path)
     last_coll_ts: str | None = None
@@ -415,26 +492,28 @@ def check_pipeline_freshness(settings: Settings) -> tuple[HealthStatus, str, dic
             import json
 
             manifest = json.loads(coll_path.read_text(encoding="utf-8"))
-            started = manifest.get("collection_started_at_utc")
+            started = manifest.get("collection_started_at_utc") or lifecycle.get(
+                "collection_started_at_utc"
+            )
             details["collection_started_at_utc"] = started
-            if not started:
+            if not started or observation_count == 0:
                 stale_reasons.append("collection not started (no accepted observations)")
-                statuses.append(HealthStatus.DEGRADED)
+                statuses.append(HealthStatus.HEALTHY if collection_not_started else HealthStatus.DEGRADED)
             else:
                 try:
-                    coll_dt = datetime.fromisoformat(started.replace("Z", "+00:00"))
+                    coll_dt = datetime.fromisoformat(str(started).replace("Z", "+00:00"))
                     if coll_dt.tzinfo is None:
                         coll_dt = coll_dt.replace(tzinfo=UTC)
                     age_s = (now - coll_dt).total_seconds()
                     details["collection_age_seconds"] = age_s
-                    if age_s > 604800:  # 7 days
+                    if age_s > 604800:
                         stale_reasons.append(
                             f"collection window expired {age_s / 86400:.1f} days ago"
                         )
                         statuses.append(HealthStatus.DEGRADED)
                     else:
                         statuses.append(HealthStatus.HEALTHY)
-                    last_coll_ts = started
+                    last_coll_ts = str(started)
                 except (ValueError, TypeError):
                     statuses.append(HealthStatus.DEGRADED)
                     stale_reasons.append("collection timestamp unparseable")
@@ -443,10 +522,38 @@ def check_pipeline_freshness(settings: Settings) -> tuple[HealthStatus, str, dic
             stale_reasons.append(f"collection manifest check failed: {exc}")
             statuses.append(HealthStatus.UNHEALTHY)
     else:
-        stale_reasons.append("collection dataset manifest missing")
-        statuses.append(HealthStatus.DEGRADED)
+        if collection_not_started:
+            stale_reasons.append("collection dataset manifest not started")
+            statuses.append(HealthStatus.HEALTHY)
+        else:
+            stale_reasons.append("collection dataset manifest missing")
+            statuses.append(HealthStatus.DEGRADED)
 
     # --- Aggregate ---
+    details["stale_reasons"] = stale_reasons
+    details["last_signal_ts"] = last_signal_ts
+    details["last_collection_ts"] = last_coll_ts
+    details["stale_after_signal_s"] = 86400
+    details["stale_after_collection_s"] = 604800
+    details["research_ready"] = (
+        observation_count > 0
+        and lifecycle_state in {"ACCUMULATING", "ELIGIBLE_FOR_EVALUATION"}
+        and HealthStatus.UNHEALTHY not in statuses
+        and not any(
+            reason.startswith("collection dataset manifest missing")
+            or reason.startswith("signal history directory missing")
+            or reason.startswith("no signal records found")
+            for reason in stale_reasons
+        )
+    )
+    details["api_operational_ready"] = HealthStatus.UNHEALTHY not in statuses
+
+    if collection_not_started and HealthStatus.UNHEALTHY not in statuses:
+        return (
+            HealthStatus.HEALTHY,
+            "pipeline not started (no accepted prospective observations yet); research readiness pending",
+            details,
+        )
     if HealthStatus.UNHEALTHY in statuses:
         overall = HealthStatus.UNHEALTHY
         message = "pipeline stale: " + "; ".join(stale_reasons)
@@ -457,19 +564,24 @@ def check_pipeline_freshness(settings: Settings) -> tuple[HealthStatus, str, dic
         overall = HealthStatus.HEALTHY
         message = "pipeline activity current"
 
-    details["stale_reasons"] = stale_reasons
-    details["last_signal_ts"] = last_signal_ts
-    details["last_collection_ts"] = last_coll_ts
-    details["stale_after_signal_s"] = 86400
-    details["stale_after_collection_s"] = 604800
-
     return overall, message, details
+
+
+def _is_read_only_api_mode(settings: Settings) -> bool:
+    return bool(os.environ.get("SIGNALFORGE_READ_ONLY_API", "").strip() == "1") or not bool(
+        getattr(settings.deployment, "trading_authorized", False)
+    )
 
 
 health_checker = HealthChecker()
 
 health_checker.register_check("config", lambda: check_config(load_settings()))
-health_checker.register_check("storage", lambda: check_storage(load_settings()))
+health_checker.register_check(
+    "storage",
+    lambda: check_storage(
+        load_settings(), require_writable=not _is_read_only_api_mode(load_settings())
+    ),
+)
 health_checker.register_check("signal_ledger", lambda: check_signal_ledger(load_settings()))
 health_checker.register_check("paper_account", lambda: check_paper_account(load_settings()))
 health_checker.register_check("event_ledger", lambda: check_event_ledger(load_settings()))

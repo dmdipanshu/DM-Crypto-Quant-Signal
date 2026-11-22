@@ -39,20 +39,28 @@ def test_check_paper_account_existing_valid_account_dir_config(tmp_path: Path) -
     assert Path(details["path"]) == RepoRoots(paper_path=account_file).paper_path
 
 
-def test_check_paper_account_genuinely_missing_account(tmp_path: Path) -> None:
+def test_check_paper_account_disabled_missing_account_is_not_applicable(tmp_path: Path) -> None:
     paper_dir = tmp_path / "paper"
-    paper_dir.mkdir()
-
     settings = _settings_for_account_path(paper_dir)
+
+    status, message, details = check_paper_account(settings)
+
+    assert status is HealthStatus.HEALTHY
+    assert "not applicable" in message
+    assert details["applicable"] is False
+    assert Path(details["path"]) == paper_dir / ACCOUNT_FILENAME
+
+
+def test_check_paper_account_enabled_missing_account_is_unhealthy(tmp_path: Path) -> None:
+    paper_dir = tmp_path / "paper"
+    settings = Settings(
+        paper=PaperConfig(account_path=str(paper_dir), enabled=True),
+    )
     status, message, details = check_paper_account(settings)
 
     assert status is HealthStatus.UNHEALTHY
     assert message == "paper account file missing"
-    assert Path(details["path"]) == paper_dir / ACCOUNT_FILENAME
-
-    repo_payload = read_paper(RepoRoots(paper_path=paper_dir / ACCOUNT_FILENAME))
-    assert repo_payload.get("available") is False
-    assert repo_payload.get("reason") == "not_initialized"
+    assert details["applicable"] is True
 
 
 def test_paper_path_resolution_consistent_between_health_and_repo(tmp_path: Path) -> None:

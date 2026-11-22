@@ -228,6 +228,7 @@ class PaperConfig(BaseModel):
     anywhere -- paper state is advisory only.
     """
 
+    enabled: bool = False
     account_path: str = "data/paper"
     poll_bars: int = Field(default=1, ge=1)
     max_pending_signals: int = Field(default=100, ge=1)

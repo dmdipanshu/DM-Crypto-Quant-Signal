@@ -73,6 +73,23 @@ def register(router: Any, roots: Any, settings: Any) -> None:
             overall = checker.overall_status()
             overall_value = overall.value
             uptime_seconds = checker.uptime_seconds
+        components = {
+            name: {
+                "status": ch.status.value,
+                "message": ch.message,
+                "last_check_utc": ch.last_check_utc,
+                "check_duration_ms": ch.check_duration_ms,
+                "details": ch.details,
+            }
+            for name, ch in results.items()
+        }
+        storage_status = components.get("storage", {}).get("status", "unknown")
+        paper_status = components.get("paper_account", {}).get("status", "unknown")
+        paper_details = components.get("paper_account", {}).get("details", {})
+        pipeline = components.get("pipeline_freshness", {}).get("details", {})
+        lifecycle_state = pipeline.get("collection_lifecycle_state", "UNKNOWN")
+        obs_count = int(pipeline.get("observation_count", 0) or 0)
+        research_ready = bool(pipeline.get("research_ready", False))
         return ok(
             {
                 "status": overall_value,
@@ -82,16 +99,19 @@ def register(router: Any, roots: Any, settings: Any) -> None:
                 "checks": {
                     "status": overall_value,
                     "uptime_seconds": uptime_seconds,
-                    "components": {
-                        name: {
-                            "status": ch.status.value,
-                            "message": ch.message,
-                            "last_check_utc": ch.last_check_utc,
-                            "check_duration_ms": ch.check_duration_ms,
-                            "details": ch.details,
-                        }
-                        for name, ch in results.items()
-                    },
+                    "components": components,
+                },
+                "operational_health": {
+                    "api": overall_value,
+                    "storage_accessible": storage_status in {"healthy", "degraded"},
+                },
+                "readiness": {
+                    "research_ready": research_ready,
+                    "paper_trading_ready": paper_status == "healthy" and bool(
+                        paper_details.get("applicable", True)
+                    ),
+                    "collection_lifecycle_state": lifecycle_state,
+                    "observation_count": obs_count,
                 },
             }
         )
@@ -123,6 +143,13 @@ def register(router: Any, roots: Any, settings: Any) -> None:
             checks["status"] = "ok"
             checks["uptime_seconds"] = 0.0
             checks["components"] = {}
+            checks["operational_health"] = {"api": "ok", "storage_accessible": None}
+            checks["readiness"] = {
+                "research_ready": False,
+                "paper_trading_ready": False,
+                "collection_lifecycle_state": "UNKNOWN",
+                "observation_count": 0,
+            }
         else:
             results = checker.run_checks()
             overall = checker.overall_status()
@@ -137,6 +164,22 @@ def register(router: Any, roots: Any, settings: Any) -> None:
                     "details": ch.details,
                 }
                 for name, ch in results.items()
+            }
+            components = checks["components"]
+            storage_status = components.get("storage", {}).get("status", "unknown")
+            paper_status = components.get("paper_account", {}).get("status", "unknown")
+            paper_details = components.get("paper_account", {}).get("details", {})
+            pipeline = components.get("pipeline_freshness", {}).get("details", {})
+            checks["operational_health"] = {
+                "api": overall.value,
+                "storage_accessible": storage_status in {"healthy", "degraded"},
+            }
+            checks["readiness"] = {
+                "research_ready": bool(pipeline.get("research_ready", False)),
+                "paper_trading_ready": paper_status == "healthy"
+                and bool(paper_details.get("applicable", True)),
+                "collection_lifecycle_state": pipeline.get("collection_lifecycle_state", "UNKNOWN"),
+                "observation_count": int(pipeline.get("observation_count", 0) or 0),
             }
         return ok(checks)
     @router.get(f"{V1}/metrics")
