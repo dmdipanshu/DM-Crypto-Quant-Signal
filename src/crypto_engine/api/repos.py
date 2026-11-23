@@ -623,6 +623,175 @@ def read_ai_metrics(roots: RepoRoots) -> dict[str, Any]:
 
 # -- Q5 prospective collection (read-only) ----------------------------------
 
+_EPOCH3_COLLECTION_MANIFEST = "docs/validation/PROSPECTIVE_COLLECTION_MANIFEST_EPOCH3.json"
+_EPOCH3_FREEZE_MANIFEST = "docs/validation/RESEARCH_FREEZE_MANIFEST_EPOCH3.json"
+_EPOCH3_APPROVALS_ROOT = Path("docs/validation/approvals")
+_EPOCH3_LATEST_STATUS = Path("reports/q5-epoch3/latest_status.json")
+_EPOCH3_SCHEDULE = {
+    "primary_minute_utc": 8,
+    "retry_minute_utc": 12,
+    "cadence": "hourly",
+    "persistent": False,
+    "timezone": "UTC",
+    "source": "epoch3_systemd_template",
+}
+
+
+def _project_root(roots: RepoRoots) -> Path:
+    return roots.data_storage.parent
+
+
+def _resolve_repo_path(roots: RepoRoots, path: str | Path) -> Path:
+    candidate = Path(path)
+    if candidate.is_absolute():
+        return candidate
+    return _project_root(roots) / candidate
+
+
+def _read_q5_last_execution(roots: RepoRoots) -> dict[str, Any]:
+    path = _resolve_repo_path(roots, _EPOCH3_LATEST_STATUS)
+    if not path.is_file():
+        return {"available": False, "reason": "not_found"}
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except OSError as exc:
+        return {"available": False, "reason": f"unreadable:{type(exc).__name__}"}
+    except (json.JSONDecodeError, ValueError) as exc:
+        return {"available": False, "reason": f"invalid_json:{type(exc).__name__}"}
+    if not isinstance(raw, dict):
+        return {"available": False, "reason": "invalid_schema:not_object"}
+    schema = raw.get("schema")
+    if schema and schema != "q5-latest-status.v1":
+        return {"available": False, "reason": f"unsupported_schema:{schema}"}
+    return {
+        "available": True,
+        "schema": raw.get("schema"),
+        "completed_at_utc": raw.get("completed_at_utc"),
+        "slot_utc": raw.get("slot_utc"),
+        "scheduled_minute": raw.get("scheduled_minute"),
+        "status": raw.get("status"),
+        "exit_code": raw.get("exit_code"),
+        "run_observation_count": raw.get("run_observation_count"),
+        "cumulative_observation_count": raw.get("cumulative_observation_count"),
+        "accepted_observation_for_slot": raw.get("accepted_observation_for_slot"),
+        "retry_skipped": raw.get("retry_skipped"),
+        "observation_count": raw.get("observation_count"),
+        "collection_id": raw.get("collection_id"),
+        "freeze_id": raw.get("freeze_id"),
+        "retry_skip_reason": raw.get("retry_skip_reason"),
+        "checked_at_utc": raw.get("checked_at_utc"),
+        "reason": raw.get("reason"),
+    }
+
+
+def _approval_detail_from_result(
+    result: Any,
+    *,
+    expected_collection_id: str | None,
+    expected_freeze_id: str | None,
+) -> dict[str, Any]:
+    record = result.approval_record if isinstance(getattr(result, "approval_record", None), dict) else None
+    approval_id = record.get("approval_id") if record else None
+    active = bool(record.get("status") == "active") if record else False
+    revoked = bool(record.get("revoked_at_utc") is not None) if record else False
+    collection_id_match = (
+        record.get("collection_id") == expected_collection_id if record and expected_collection_id else None
+    )
+    freeze_id_match = record.get("freeze_id") == expected_freeze_id if record and expected_freeze_id else None
+    return {
+        "authorized": bool(getattr(result, "authorized", False)),
+        "active": active,
+        "revoked": revoked,
+        "reason": str(getattr(result, "reason", "unknown")),
+        "approval_id": approval_id,
+        "collection_id_match": collection_id_match,
+        "freeze_id_match": freeze_id_match,
+    }
+
+
+def _q5_authorization_details(
+    roots: RepoRoots,
+    *,
+    collection_id: str | None,
+    freeze_id: str | None,
+) -> dict[str, Any]:
+    from crypto_engine.research.q6.governance_verification import (
+        check_collection_authorization,
+        check_scheduler_authorization,
+    )
+
+    approvals_root = _resolve_repo_path(roots, _EPOCH3_APPROVALS_ROOT)
+    unavailable = {
+        "collection_authorized": False,
+        "scheduler_authorized": False,
+        "collection_authorization": {
+            "authorized": False,
+            "active": False,
+            "revoked": False,
+            "reason": "collection_or_freeze_id_missing",
+            "approval_id": None,
+            "collection_id_match": None,
+            "freeze_id_match": None,
+        },
+        "scheduler_authorization_detail": {
+            "authorized": False,
+            "active": False,
+            "revoked": False,
+            "reason": "collection_or_freeze_id_missing",
+            "approval_id": None,
+            "collection_id_match": None,
+            "freeze_id_match": None,
+        },
+    }
+    if not collection_id or not freeze_id:
+        return unavailable
+
+    try:
+        collection_result = check_collection_authorization(
+            str(collection_id), str(freeze_id), approvals_root=approvals_root
+        )
+    except Exception as exc:  # read-only endpoint must fail closed, not crash
+        collection_result = type(
+            "_AuthFail",
+            (),
+            {
+                "authorized": False,
+                "reason": f"authorization_check_error:{type(exc).__name__}",
+                "approval_record": None,
+            },
+        )()
+    try:
+        scheduler_result = check_scheduler_authorization(
+            str(collection_id), str(freeze_id), approvals_root=approvals_root
+        )
+    except Exception as exc:
+        scheduler_result = type(
+            "_AuthFail",
+            (),
+            {
+                "authorized": False,
+                "reason": f"authorization_check_error:{type(exc).__name__}",
+                "approval_record": None,
+            },
+        )()
+
+    collection_detail = _approval_detail_from_result(
+        collection_result,
+        expected_collection_id=str(collection_id),
+        expected_freeze_id=str(freeze_id),
+    )
+    scheduler_detail = _approval_detail_from_result(
+        scheduler_result,
+        expected_collection_id=str(collection_id),
+        expected_freeze_id=str(freeze_id),
+    )
+    return {
+        "collection_authorized": bool(collection_detail["authorized"]),
+        "scheduler_authorized": bool(scheduler_detail["authorized"]),
+        "collection_authorization": collection_detail,
+        "scheduler_authorization_detail": scheduler_detail,
+    }
+
 
 def read_q5_collection_status(roots: RepoRoots) -> dict[str, Any]:
     """Read-only Q5 prospective collection status (no network, no secrets).
@@ -638,8 +807,8 @@ def read_q5_collection_status(roots: RepoRoots) -> dict[str, Any]:
         market_type="spot",
         symbols=["BTC/USDT"],
         timeframes=["1h"],
-        freeze_manifest_path="docs/validation/RESEARCH_FREEZE_MANIFEST_EPOCH3.json",
-        collection_manifest_path="docs/validation/PROSPECTIVE_COLLECTION_MANIFEST_EPOCH3.json",
+        freeze_manifest_path=_EPOCH3_FREEZE_MANIFEST,
+        collection_manifest_path=_EPOCH3_COLLECTION_MANIFEST,
     )
 
     # Verify collection manifest integrity
@@ -705,6 +874,10 @@ def read_q5_collection_status(roots: RepoRoots) -> dict[str, Any]:
     else:
         lifecycle_state = "ACCUMULATING"
 
+    latest_observation_utc = dataset_manifest.get("latest_open_time_utc")
+    last_execution = _read_q5_last_execution(roots)
+    collection_evidence_state = "PRESENT" if observation_count > 0 else "NOT_STARTED"
+
     return {
         "available": True,
         "collection_id": integrity.get("collection_id"),
@@ -746,6 +919,17 @@ def read_q5_collection_status(roots: RepoRoots) -> dict[str, Any]:
             else None
         ),
         "requirements_met": requirements_met,
+        "latest_observation_utc": latest_observation_utc,
+        "latest_observation": latest_observation_utc,
+        "schedule": dict(_EPOCH3_SCHEDULE),
+        "timer_runtime_state": "UNKNOWN",
+        "next_scheduled_run_utc": None,
+        "next_collection_window": "UNKNOWN",
+        "next_collection_window_reason": "runtime_timer_state_unavailable",
+        "last_execution": last_execution if last_execution.get("available") else None,
+        "last_execution_reason": None if last_execution.get("available") else last_execution.get("reason"),
+        "collection_evidence_state": collection_evidence_state,
+        "collector_process_state": "UNKNOWN",
     }
 
 
@@ -763,14 +947,19 @@ def read_q5_prospective_governance(roots: RepoRoots) -> dict[str, Any]:
         market_type="spot",
         symbols=["BTC/USDT"],
         timeframes=["1h"],
-        freeze_manifest_path="docs/validation/RESEARCH_FREEZE_MANIFEST_EPOCH3.json",
-        collection_manifest_path="docs/validation/PROSPECTIVE_COLLECTION_MANIFEST_EPOCH3.json",
+        freeze_manifest_path=_EPOCH3_FREEZE_MANIFEST,
+        collection_manifest_path=_EPOCH3_COLLECTION_MANIFEST,
     )
 
     freeze_check = collector.validate_freeze()
     if freeze_check.get("status") != "VALID":
         status = str(freeze_check.get("status") or "MISSING")
         reason = str(freeze_check.get("reason") or "freeze_not_valid")
+        auth = _q5_authorization_details(
+            roots,
+            collection_id=collector.collection_id if hasattr(collector, "collection_id") else None,
+            freeze_id=freeze_check.get("freeze_id"),
+        )
         return {
             "available": False,
             "blocked": True,
@@ -783,6 +972,7 @@ def read_q5_prospective_governance(roots: RepoRoots) -> dict[str, Any]:
             "eligible_for_evaluation": False,
             "evaluated": False,
             "read_only": True,
+            **auth,
         }
 
     freeze_info = freeze_check
@@ -884,6 +1074,8 @@ def read_q5_prospective_governance(roots: RepoRoots) -> dict[str, Any]:
         ]
 
     historical = historical_holdout_is_contaminated()
+    collection_id = collector.collection_id if hasattr(collector, "collection_id") else dataset_manifest.get("collection_id")
+    auth = _q5_authorization_details(roots, collection_id=collection_id, freeze_id=freeze_info.get("freeze_id"))
 
     return {
         "available": True,
@@ -920,6 +1112,7 @@ def read_q5_prospective_governance(roots: RepoRoots) -> dict[str, Any]:
         "elapsed_seconds": (elapsed_ms / 1000.0)
         if collection_started_at and anchor_status in {"VALID", "VALID_EMPTY", "MISSING_LEGACY"}
         else None,
+        **auth,
     }
 
 

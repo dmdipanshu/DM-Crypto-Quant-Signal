@@ -544,15 +544,21 @@ function renderQ52() {
   const freezeId = (governance && governance.research_freeze_id) || (collection && (collection.associated_freeze_id || collection.freeze_id));
   setMetric("q52-freeze-id", freezeId ? text(freezeId) : (govFailed ? resultValue(state.q5Governance) : "N/A"));
 
+  const collAuth = governance && governance.collection_authorization && typeof governance.collection_authorization === "object" ? governance.collection_authorization : null;
+  const schedAuth = governance && (governance.scheduler_authorization_detail || governance.scheduler_authorization) && typeof (governance.scheduler_authorization_detail || governance.scheduler_authorization) === "object" ? (governance.scheduler_authorization_detail || governance.scheduler_authorization) : null;
+  const collAuthorized = governance ? (governance.collection_authorized === true || (collAuth && collAuth.authorized === true)) : false;
+  const schedAuthorized = governance ? (governance.scheduler_authorized === true || (schedAuth && schedAuth.authorized === true)) : false;
+
   if (govFailed) {
     setMetric("q52-authorization", "UNAVAILABLE", "UNAVAILABLE");
     setMetric("q52-scheduler", "UNAVAILABLE", "UNAVAILABLE");
   } else if (govBlocked) {
-    setMetric("q52-authorization", "BLOCKED", "UNAVAILABLE");
-    setMetric("q52-scheduler", "N/A", "NOT_VERIFIED");
+    const reason = govReason ? " (" + govReason + ")" : "";
+    setMetric("q52-authorization", collAuthorized ? "AUTHORIZED" : "BLOCKED" + reason, collAuthorized ? "ACTIVE" : "UNAVAILABLE");
+    setMetric("q52-scheduler", schedAuthorized ? "AUTHORIZED" : "DISABLED" + reason, schedAuthorized ? "ACTIVE" : "INERT");
   } else if (governance) {
-    setMetric("q52-authorization", governance.authorized === true ? "AUTHORIZED" : "N/A", governance.authorized === true ? "ACTIVE" : "NOT_VERIFIED");
-    setMetric("q52-scheduler", governance.scheduler_authorized === true ? "AUTHORIZED" : "DISABLED", governance.scheduler_authorized === true ? "ACTIVE" : "INERT");
+    setMetric("q52-authorization", collAuthorized ? "AUTHORIZED" : "DISABLED", collAuthorized ? "ACTIVE" : "INERT");
+    setMetric("q52-scheduler", schedAuthorized ? "AUTHORIZED" : "DISABLED", schedAuthorized ? "ACTIVE" : "INERT");
   } else {
     setMetric("q52-authorization", "N/A", "NOT_VERIFIED");
     setMetric("q52-scheduler", "N/A", "NOT_VERIFIED");
@@ -586,18 +592,61 @@ function renderQ52() {
     setMetric("q52-collection-started", "N/A");
     setMetric("q52-collection-expires", "N/A");
   }
-  setMetric("q52-latest-observation", collection ? text(collection.latest_observation || collection.dataset_manifest_updated_at || "N/A") : "N/A");
-  setMetric("q52-next-window", collection ? text(collection.next_collection_window || (governance && governance.scheduler_authorized === false ? "Not scheduled — authorization disabled." : "N/A")) : "N/A");
+  const latestObs = collection ? (collection.latest_observation_utc || collection.latest_observation || "N/A") : "N/A";
+  setMetric("q52-latest-observation", text(latestObs));
+
+  let nextWindow = "N/A";
+  if (collection) {
+    const runtimeState = collection.timer_runtime_state || collection.runtime_timer_state || "UNKNOWN";
+    const nextRun = collection.next_scheduled_run_utc;
+    const sched = collection.schedule && typeof collection.schedule === "object" ? collection.schedule : null;
+    if (runtimeState !== "KNOWN" || !nextRun) {
+      if (sched) {
+        nextWindow = "UNKNOWN (runtime unavailable; configured :08/:12 UTC hourly, Persistent=false)";
+      } else {
+        nextWindow = "UNKNOWN";
+      }
+    } else {
+      nextWindow = fmtIst(nextRun);
+    }
+    if (collection.next_collection_window && String(collection.next_collection_window).toUpperCase() === "UNKNOWN") {
+      nextWindow = "UNKNOWN";
+      if (sched) nextWindow = "UNKNOWN (runtime unavailable; configured :08/:12 UTC hourly, Persistent=false)";
+    }
+  } else if (state.q5Collection && state.q5Collection.kind !== "ok") {
+    nextWindow = resultValue(state.q5Collection);
+  }
+  setMetric("q52-next-window", text(nextWindow));
 
   if (govFailed) {
     setMetric("q52-last-result", "UNAVAILABLE: " + govReason, "UNAVAILABLE");
+  } else if (collection) {
+    const lastExec = collection.last_execution && typeof collection.last_execution === "object" ? collection.last_execution : null;
+    if (lastExec) {
+      const status = String(lastExec.status || "UNKNOWN");
+      const when = lastExec.completed_at_utc ? fmtIst(lastExec.completed_at_utc) : "unknown time";
+      const obs = lastExec.run_observation_count;
+      const slot = lastExec.slot_utc ? " slot=" + String(lastExec.slot_utc) : "";
+      const exitCode = (lastExec.exit_code !== null && lastExec.exit_code !== undefined) ? " exit=" + String(lastExec.exit_code) : "";
+      const obsText = (obs !== null && obs !== undefined) ? " obs=" + String(obs) : "";
+      const detail = status + " @ " + when + slot + exitCode + obsText;
+      const bad = status === "DATA_INVALID" || status === "FAILED" || (lastExec.exit_code !== 0 && lastExec.exit_code !== null && lastExec.exit_code !== undefined);
+      setMetric("q52-last-result", detail, bad ? "UNAVAILABLE" : "ACTIVE");
+    } else if (collection.last_execution_reason) {
+      setMetric("q52-last-result", "UNAVAILABLE: last_execution " + String(collection.last_execution_reason), "UNAVAILABLE");
+    } else if (govBlocked) {
+      const stateLabel = governance.prospective_state ? String(governance.prospective_state) : "BLOCKED";
+      setMetric("q52-last-result", stateLabel + (govReason ? ": " + govReason : ""), "UNAVAILABLE");
+    } else if (governance && governance.lifecycle_state === "EXPIRED") {
+      setMetric("q52-last-result", "EXPIRED: " + (govReason || "collection window expired without meeting evaluation requirements"), "UNAVAILABLE");
+    } else {
+      setMetric("q52-last-result", text(collection.manifest_status || "N/A"), collection.ledger_valid === false ? "UNAVAILABLE" : "NOT_VERIFIED");
+    }
   } else if (govBlocked) {
     const stateLabel = governance.prospective_state ? String(governance.prospective_state) : "BLOCKED";
     setMetric("q52-last-result", stateLabel + (govReason ? ": " + govReason : ""), "UNAVAILABLE");
   } else if (governance && governance.lifecycle_state === "EXPIRED") {
     setMetric("q52-last-result", "EXPIRED: " + (govReason || "collection window expired without meeting evaluation requirements"), "UNAVAILABLE");
-  } else if (collection) {
-    setMetric("q52-last-result", text(collection.ingestion_status || collection.manifest_status || "N/A"), collection.ledger_valid === false ? "UNAVAILABLE" : "NOT_VERIFIED");
   } else if (state.q5Collection && state.q5Collection.kind !== "ok") {
     setMetric("q52-last-result", resultValue(state.q5Collection) + ": " + resultReason(state.q5Collection), "UNAVAILABLE");
   } else {
@@ -852,11 +901,40 @@ function renderHealth() {
   const storage = components.storage || components.database || components.data_storage || null;
   setStatus("health-database", storage && storage.status ? String(storage.status).toUpperCase() : "N/A", storage && storage.status ? String(storage.status).toUpperCase() : "NOT_VERIFIED");
 
-  if (state.q5Governance && state.q5Governance.kind !== "ok") setStatus("health-scheduler", "UNAVAILABLE", "UNAVAILABLE");
-  else setStatus("health-scheduler", governance && governance.scheduler_authorized === true ? "ACTIVE" : "DISABLED", governance && governance.scheduler_authorized === true ? "ACTIVE" : "INERT");
+  if (state.q5Governance && state.q5Governance.kind !== "ok") {
+    setStatus("health-scheduler", "UNAVAILABLE", "UNAVAILABLE");
+  } else if (collection) {
+    const runtime = String(collection.timer_runtime_state || collection.runtime_timer_state || "UNKNOWN").toUpperCase();
+    const auth = governance ? (governance.scheduler_authorized === true || (governance.scheduler_authorization_detail && governance.scheduler_authorization_detail.authorized === true)) : false;
+    if (runtime === "ENABLED" || runtime === "ACTIVE") {
+      setStatus("health-scheduler", "ACTIVE", "ACTIVE");
+    } else if (runtime === "DISABLED" || runtime === "INACTIVE") {
+      setStatus("health-scheduler", "DISABLED", "INERT");
+    } else {
+      const label = auth ? "AUTHORIZED / RUNTIME UNKNOWN" : "UNKNOWN";
+      setStatus("health-scheduler", label, "NOT_VERIFIED");
+    }
+  } else {
+    setStatus("health-scheduler", "N/A", "NOT_VERIFIED");
+  }
 
-  if (state.q5Collection && state.q5Collection.kind !== "ok") setStatus("health-collector", "UNAVAILABLE", "UNAVAILABLE");
-  else setStatus("health-collector", collection && Number(collection.observation_count || 0) > 0 ? "ACTIVE" : "N/A", collection && Number(collection.observation_count || 0) > 0 ? "ACTIVE" : "NOT_VERIFIED");
+  if (state.q5Collection && state.q5Collection.kind !== "ok") {
+    setStatus("health-collector", "UNAVAILABLE", "UNAVAILABLE");
+  } else if (collection) {
+    const proc = String(collection.collector_process_state || "UNKNOWN").toUpperCase();
+    if (proc === "RUNNING" || proc === "ACTIVE") {
+      setStatus("health-collector", "ACTIVE", "ACTIVE");
+    } else if (proc === "STOPPED" || proc === "INACTIVE") {
+      setStatus("health-collector", "INACTIVE", "INERT");
+    } else {
+      const evidence = String(collection.collection_evidence_state || "").toUpperCase();
+      const obs = Number(collection.observation_count || 0);
+      const label = evidence === "PRESENT" || obs > 0 ? "EVIDENCE PRESENT / PROCESS UNKNOWN" : "UNKNOWN";
+      setStatus("health-collector", label, "NOT_VERIFIED");
+    }
+  } else {
+    setStatus("health-collector", "N/A", "NOT_VERIFIED");
+  }
 
   if (state.signalsLatest && state.signalsLatest.kind !== "ok") setStatus("health-signal-engine", "UNAVAILABLE", "UNAVAILABLE");
   else setStatus("health-signal-engine", latest && latest.signal ? "ACTIVE" : "N/A", latest && latest.signal ? "ACTIVE" : "NOT_VERIFIED");
