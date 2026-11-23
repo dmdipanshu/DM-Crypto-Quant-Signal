@@ -1,4 +1,4 @@
-"""Mode-aware health semantics regression tests (Q9 hardening)."""
+﻿"""Mode-aware health semantics regression tests (Q9 hardening)."""
 
 from __future__ import annotations
 
@@ -198,6 +198,65 @@ def test_pipeline_accumulating_one_observation_missing_signal_history_degraded(
     assert details["api_operational_ready"] is True
     assert details["collection_lifecycle_state"] == "ACCUMULATING"
     assert details["observation_count"] == 1
+
+def test_health_route_operational_api_healthy_when_only_readiness_degraded(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Readiness-only pipeline degradation must not mark operational_health.api unhealthy."""
+    pytest.importorskip("httpx")
+    from fastapi.testclient import TestClient
+
+    from crypto_engine.api.app import create_app
+
+    settings = _settings(tmp_path)
+    monkeypatch.setattr(
+        health_mod,
+        "_get_prospective_lifecycle_state",
+        lambda: {
+            "lifecycle_state": "ACCUMULATING",
+            "observation_count": 1,
+            "collection_started_at_utc": "2026-11-22T20:08:04.533609+00:00",
+            "collection_start_anchor_status": "VALID",
+        },
+    )
+    (tmp_path / "data" / "prospective" / "binance" / "spot" / "BTC" / "USDT" / "1h").mkdir(
+        parents=True, exist_ok=True
+    )
+    (
+        tmp_path
+        / "data"
+        / "prospective"
+        / "binance"
+        / "spot"
+        / "BTC"
+        / "USDT"
+        / "1h"
+        / "dataset_manifest.json"
+    ).write_text(
+        '{"collection_started_at_utc":"2026-11-22T20:08:04.533609+00:00","observation_count":1}',
+        encoding="utf-8",
+    )
+    monkeypatch.chdir(tmp_path)
+
+    checker = health_mod.HealthChecker()
+    checker.register_check("storage", lambda: check_storage(settings, require_writable=False))
+    checker.register_check("paper_account", lambda: check_paper_account(settings))
+    checker.register_check("pipeline_freshness", lambda: check_pipeline_freshness(settings))
+
+    monkeypatch.setattr("crypto_engine.api.routes.health_checker", checker)
+    client = TestClient(create_app())
+    resp = client.get("/health")
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert data["status"] == "degraded"
+    assert data["operational_health"]["api"] == "healthy"
+    assert data["operational_health"]["storage_accessible"] is True
+    assert data["readiness"]["research_ready"] is False
+    pf = data["checks"]["components"]["pipeline_freshness"]
+    assert pf["status"] == "degraded"
+    assert pf["details"]["api_operational_ready"] is True
+
+
 
 def test_aggregate_health_read_only_not_started_is_healthy(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch

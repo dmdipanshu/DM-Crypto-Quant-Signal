@@ -90,6 +90,21 @@ def register(router: Any, roots: Any, settings: Any) -> None:
         lifecycle_state = pipeline.get("collection_lifecycle_state", "UNKNOWN")
         obs_count = int(pipeline.get("observation_count", 0) or 0)
         research_ready = bool(pipeline.get("research_ready", False))
+        operational_api_status = "healthy"
+        for name, ch in results.items():
+            if name == "pipeline_freshness":
+                api_op_ready = ch.details.get("api_operational_ready", ch.status.value != "unhealthy")
+                if not api_op_ready and ch.status.value == "unhealthy":
+                    operational_api_status = "unhealthy"
+                    break
+                if not api_op_ready and ch.status.value == "degraded":
+                    operational_api_status = "degraded"
+                continue
+            if ch.status.value == "unhealthy":
+                operational_api_status = "unhealthy"
+                break
+            if ch.status.value == "degraded" and operational_api_status != "unhealthy":
+                operational_api_status = "degraded"
         return ok(
             {
                 "status": overall_value,
@@ -102,7 +117,7 @@ def register(router: Any, roots: Any, settings: Any) -> None:
                     "components": components,
                 },
                 "operational_health": {
-                    "api": overall_value,
+                    "api": operational_api_status,
                     "storage_accessible": storage_status in {"healthy", "degraded"},
                 },
                 "readiness": {
