@@ -1,4 +1,4 @@
-"""Binance prospective market-data collector (Q5).
+﻿"""Binance prospective market-data collector (Q5).
 
 Collects only fully closed candles from public Binance Spot endpoints.
 Preserves first-seen provenance, validates OHLCV and timestamps, detects
@@ -9,6 +9,7 @@ No trading credentials, no private endpoints, no order placement.
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import json
 import logging
@@ -301,11 +302,12 @@ class ProspectiveCollector:
     # ------------------------------------------------------------------
     # Main collection
     # ------------------------------------------------------------------
-    def collect_once(self) -> dict[str, Any]:
+    def collect_once(self, scheduled_slot_utc: str | None = None) -> dict[str, Any]:
         """Run one collection cycle for all symbols/timeframes.
 
-        Returns a collection result dict with status, observations, gaps,
-        and quality information.
+        ``scheduled_slot_utc`` identifies the exact hourly slot this run targets.
+        It is used only for per-slot acceptance reporting/idempotency and must not
+        alter cumulative dataset evidence.
         """
         # Step 1: Validate research freeze
         freeze_info = self.validate_freeze()
@@ -344,6 +346,7 @@ class ProspectiveCollector:
             "symbols": self.symbols,
             "timeframes": self.timeframes,
             "collected_at_utc": _utc_now_iso(),
+            "scheduled_slot_utc": scheduled_slot_utc,
             "status": CollectionStatus.HEALTHY if collection_started_at else "NOT_STARTED",
             "observations": [],
             "gaps": [],
@@ -358,6 +361,14 @@ class ProspectiveCollector:
         # anchor on first successfully accepted finalized candle.
         collection_start_ms = _iso_to_ms(collection_started_at) if collection_started_at else None
 
+        cumulative_observation_count = 0
+        try:
+            cumulative_observation_count = int(
+                storage.get_observation_summary().get("accepted_unique_observations", 0) or 0
+            )
+        except Exception:
+            cumulative_observation_count = 0
+
         for symbol in self.symbols:
             for timeframe in self.timeframes:
                 symbol_result = self._collect_symbol_timeframe(
@@ -367,6 +378,7 @@ class ProspectiveCollector:
                     collection_start_ms=collection_start_ms,
                     freeze_id=freeze_info["freeze_id"],
                     storage_root=self.storage_root,
+                    scheduled_slot_utc=scheduled_slot_utc,
                 )
                 result["observations"].extend(symbol_result["observations"])
                 result["gaps"].extend(symbol_result["gaps"])
@@ -374,6 +386,8 @@ class ProspectiveCollector:
                 result["conflicts"].extend(symbol_result["conflicts"])
                 result["rejections"].extend(symbol_result["rejections"])
                 result["errors"].extend(symbol_result["errors"])
+                if symbol_result.get("slot_already_accepted"):
+                    result["slot_already_accepted"] = True
                 # Anchor may have been established during collection.
                 if collection_started_at is None:
                     sym_storage = self._resolve_storage(symbol, timeframe, self.storage_root)
@@ -382,6 +396,43 @@ class ProspectiveCollector:
                         collection_started_at = anchor["collection_started_at_utc"]
                         collection_start_ms = _iso_to_ms(collection_started_at)
                         result["collection_started_at_utc"] = collection_started_at
+
+        with contextlib.suppress(Exception):
+            cumulative_observation_count = int(
+                storage.get_observation_summary().get("accepted_unique_observations", 0) or 0
+            )
+        result["cumulative_observation_count"] = cumulative_observation_count
+        result["run_observation_count"] = len(result["observations"])
+        slot_open_ms = _iso_to_ms(scheduled_slot_utc) if scheduled_slot_utc else None
+        slot_accepted = False
+        slot_already_accepted = False
+        if slot_open_ms is not None:
+            slot_accepted = any(
+                int(_iso_to_ms(o.get("open_time"))) == slot_open_ms
+                for o in result["observations"]
+                if o.get("open_time")
+            )
+            # Also check per-symbol results for idempotent already-accepted slots.
+            # We need to inspect symbol results; easier to recompute from storage.
+            if not slot_accepted:
+                slot_open_iso = _ms_to_iso(slot_open_ms)
+                for symbol in self.symbols:
+                    for timeframe in self.timeframes:
+                        sym_storage = self._resolve_storage(symbol, timeframe, self.storage_root)
+                        if sym_storage.has_normalized_candle(
+                            exchange=self.exchange,
+                            market_type=self.market_type,
+                            symbol=symbol,
+                            interval=timeframe,
+                            open_time=slot_open_iso,
+                        ):
+                            slot_already_accepted = True
+                            slot_accepted = True
+                            break
+                    if slot_already_accepted:
+                        break
+        result["slot_already_accepted"] = slot_already_accepted
+        result["accepted_observation_for_slot"] = slot_accepted
 
         # Step 5: Compute overall quality state
         result["quality_checks"] = self._compute_quality_state(result)
@@ -409,12 +460,33 @@ class ProspectiveCollector:
         collection_start_ms: int | None,
         freeze_id: str,
         storage_root: Path | None,
+        scheduled_slot_utc: str | None = None,
     ) -> dict[str, Any]:
         """Collect candles for one symbol/timeframe."""
         interval_ms = timeframe_to_ms(timeframe)
         now_ms = int(datetime.now(UTC).timestamp() * 1000)
 
         symbol_storage = self._resolve_storage(symbol, timeframe, storage_root)
+        scheduled_slot_ms = _iso_to_ms(scheduled_slot_utc) if scheduled_slot_utc else None
+
+        if scheduled_slot_ms is not None:
+            slot_open_iso = _ms_to_iso(scheduled_slot_ms)
+            if symbol_storage.has_normalized_candle(
+                exchange=self.exchange,
+                market_type=self.market_type,
+                symbol=symbol,
+                interval=timeframe,
+                open_time=slot_open_iso,
+            ):
+                return {
+                    "observations": [],
+                    "gaps": [],
+                    "duplicates": [],
+                    "conflicts": [],
+                    "rejections": [],
+                    "errors": [],
+                    "slot_already_accepted": True,
+                }
 
         # If collection has not started, anchor is established on the first
         # successfully accepted observation. Fetch a recent bounded window.
@@ -424,6 +496,12 @@ class ProspectiveCollector:
             since_ms = collection_start_ms
 
         until_ms = now_ms
+        # For scheduled slot runs, fetch a narrow window around the exact slot to
+        # avoid selecting a different unfinalized candle from the same response.
+        if scheduled_slot_ms is not None:
+            since_ms = scheduled_slot_ms
+            until_ms = scheduled_slot_ms + (2 * interval_ms)
+
         params = FetchParams(
             exchange=self.exchange,
             symbol=symbol,
@@ -465,6 +543,11 @@ class ProspectiveCollector:
         for _i, candle in enumerate(result.candles):
             open_time_ms = int(candle.timestamp.timestamp() * 1000)
             close_time_ms_calc = open_time_ms + interval_ms
+
+            # Scheduled slot runs target only the exact slot candle. Other candles
+            # in the response are out of scope for this run's acceptance decision.
+            if scheduled_slot_ms is not None and open_time_ms != scheduled_slot_ms:
+                continue
 
             # Strict forward-only: only accept candles after collection start
             if collection_start_ms is not None and open_time_ms < collection_start_ms:
@@ -778,10 +861,20 @@ class ProspectiveCollector:
             collector_status = CollectionStatus.EXCHANGE_UNAVAILABLE
             collector_reasons.append(f"{len(errors)} exchange fetch error(s)")
 
-        # Ingestion status: rejections and missing data
+        # Ingestion status: rejections and missing data.
+        # If this run accepted nothing but the cumulative dataset already has
+        # accepted observations, this is a run-level non-acceptance (e.g. not yet
+        # finalized candle) and must not invalidate existing cumulative evidence.
+        cumulative_observation_count = int(result.get("cumulative_observation_count") or 0)
         if rejections and not observations:
-            ingestion_status = CollectionStatus.DATA_INVALID
-            ingestion_reasons.append("all observations rejected")
+            if cumulative_observation_count > 0:
+                ingestion_status = CollectionStatus.DEGRADED
+                ingestion_reasons.append(
+                    "no new observation accepted in this run; existing cumulative observations preserved"
+                )
+            else:
+                ingestion_status = CollectionStatus.DATA_INVALID
+                ingestion_reasons.append("all observations rejected")
 
         # Dataset quality: gaps and conflicts
         if gaps:
@@ -829,7 +922,7 @@ class ProspectiveCollector:
             if state_order.index(s) < state_order.index(state):
                 state = s
 
-        actual_count = unique_observation_count
+        actual_count = cumulative_observation_count if cumulative_observation_count > 0 else unique_observation_count
         # Coverage calculation using unique observations
         collection_started_at = result.get("collection_started_at_utc")
         if not collection_started_at:

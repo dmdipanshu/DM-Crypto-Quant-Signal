@@ -99,11 +99,24 @@ def _write_latest_status(path: Path, data: dict[str, Any]) -> None:
 
 
 def _scheduled_candle_accepted(result: dict[str, Any], quality: dict[str, Any]) -> bool:
+    """Whether this run accepted the exact scheduled slot candle.
+
+    Cumulative accepted observations MUST NOT make a new slot appear accepted.
+    """
     obs = result.get("observations") or []
     if isinstance(obs, list) and len(obs) > 0:
         return True
-    count = quality.get("observation_count")
-    return isinstance(count, int) and count > 0 and str(result.get("status")) == CollectionStatus.HEALTHY
+    if bool(result.get("slot_already_accepted")):
+        return True
+    status = str(result.get("status") or quality.get("state") or "")
+    hard_invalid = {
+        CollectionStatus.DATA_INVALID,
+        CollectionStatus.EXCHANGE_UNAVAILABLE,
+        CollectionStatus.PROVENANCE_INVALID,
+    }
+    if status in hard_invalid:
+        return False
+    return False
 
 
 def run_once(args: argparse.Namespace) -> int:
@@ -122,12 +135,14 @@ def run_once(args: argparse.Namespace) -> int:
     scheduled_minute = getattr(args, "scheduled_minute", None)
     latest_status_path = output_dir / "latest_status.json"
     now_utc = datetime.now(UTC)
+    scheduled_slot_utc: str | None = None
 
     if scheduled_minute is not None:
         if scheduled_minute not in (8, 12):
             print(f"Invalid scheduled minute: {scheduled_minute}; expected 08 or 12.")
             return 3
-        slot_utc = _scheduled_slot_utc(now_utc, int(scheduled_minute))
+        scheduled_slot_utc = _scheduled_slot_utc(now_utc, int(scheduled_minute))
+        slot_utc = scheduled_slot_utc
         latest = _load_latest_status(latest_status_path) or {}
         if (
             scheduled_minute == 12
@@ -275,7 +290,12 @@ def run_once(args: argparse.Namespace) -> int:
             pass
 
     # --- Step 3: Collect ---
-    result = collector.collect_once()
+    try:
+        result = collector.collect_once(scheduled_slot_utc=scheduled_slot_utc)
+    except TypeError as exc:
+        if "scheduled_slot_utc" not in str(exc):
+            raise
+        result = collector.collect_once()
 
     # Step 4: Quality report
     quality = compute_quality_report(collection_result=result)
@@ -317,10 +337,20 @@ def run_once(args: argparse.Namespace) -> int:
             "collection_id": collection_id,
             "freeze_id": freeze_id,
             "accepted_observation_for_slot": accepted,
-            "retry_skipped": False,
+            "retry_skipped": bool(result.get("slot_already_accepted")),
             "exit_code": exit_code,
             "status": result.get("status"),
             "observation_count": quality.get("observation_count"),
+            "run_observation_count": int(
+                result.get("run_observation_count", len(result.get("observations") or [])) or 0
+            ),
+            "cumulative_observation_count": int(
+                result.get(
+                    "cumulative_observation_count",
+                    quality.get("cumulative_observation_count", quality.get("observation_count", 0)),
+                )
+                or 0
+            ),
             "completed_at_utc": _utc_now_iso(),
         }
         _write_latest_status(output_dir / "latest_status.json", status)

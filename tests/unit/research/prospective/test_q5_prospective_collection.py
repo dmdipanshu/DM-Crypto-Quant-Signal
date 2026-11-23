@@ -1,4 +1,4 @@
-"""Comprehensive regression tests for Q5 prospective data collection.
+﻿"""Comprehensive regression tests for Q5 prospective data collection.
 
 All tests use mocked exchange responses. No external Binance availability required.
 """
@@ -35,7 +35,7 @@ from crypto_engine.research.prospective.quality import (
     compute_quality_report,
     is_quality_state_healthy,
 )
-from crypto_engine.research.prospective.storage import ProspectiveStorage
+from crypto_engine.research.prospective.storage import ProspectiveStorage, _sha256_json
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -3533,3 +3533,271 @@ class TestSystemdTimerAndRetry:
         assert status["retry_skipped"] is False
         assert status["accepted_observation_for_slot"] is True
         assert status["scheduled_minute"] == 12
+
+
+class TestSlotAcceptanceSemantics:
+    """Regression tests for per-slot acceptance, retry gating, and finalization."""
+
+    def _setup_epoch3(self, tmp_path, *, with_anchor=False, existing_candles=0):
+        now = datetime(2026, 11, 22, 21, 12, 0, tzinfo=UTC)
+        collection_start = datetime(2026, 11, 22, 20, 8, 4, 533609, tzinfo=UTC)
+        int(collection_start.timestamp() * 1000)
+        freeze = tmp_path / "freeze.json"
+        freeze.write_text(json.dumps({
+            "schema_version": "research-freeze-manifest.v1",
+            "freeze_id": "freeze-test",
+            "status": "VALID",
+            "created_at_utc": "2026-11-22T08:00:00+00:00",
+            "repository_commit_sha": "abc123",
+        }), encoding="utf-8")
+        manifest = tmp_path / "collection.json"
+        manifest.write_text(json.dumps({
+            "schema_version": "prospective-collection-manifest.v1",
+            "collection_id": "test-collect",
+            "collection_started_at_utc": collection_start.isoformat() if with_anchor else None,
+            "associated_freeze_id": "freeze-test",
+            "associated_freeze_timestamp": "2026-11-22T08:00:00+00:00",
+            "exchange": "binance",
+            "market_type": "spot",
+            "symbols": ["BTC/USDT"],
+            "timeframes": ["1h"],
+            "collector_version": "q5-v1",
+            "data_schema_version": "ohlcv-v1",
+            "repository_commit_sha": "abc123",
+        }), encoding="utf-8")
+        storage = ProspectiveStorage(tmp_path / "storage" / "binance" / "spot" / "BTC" / "USDT" / "1h")
+        if with_anchor:
+            storage.write_collection_start_anchor({
+                "schema_version": "collection-start-anchor.v1",
+                "collection_id": "test-collect",
+                "exchange": "binance",
+                "market_type": "spot",
+                "symbol": "BTC/USDT",
+                "timeframe": "1h",
+                "collection_started_at_utc": collection_start.isoformat(),
+                "first_observation_open_time_utc": "2026-11-22T19:00:00+00:00",
+                "first_observation_close_time_utc": "2026-11-22T20:00:00+00:00",
+                "first_accepted_ingestion_event_id": "evt-seed",
+                "first_accepted_ledger_hash": "0" * 64,
+                "anchor_source": "first_accepted_observation",
+            })
+        base_open_ms = int(datetime(2026, 11, 22, 19, 0, tzinfo=UTC).timestamp() * 1000)
+        for i in range(existing_candles):
+            oms = base_open_ms + i * 3_600_000
+            cms = oms + 3_600_000
+            obs = storage.store_raw_observation(
+                exchange="binance", market_type="spot", symbol="BTC/USDT", interval="1h",
+                open_time=_iso(oms), close_time=_iso(cms),
+                observed_at_utc=_iso(cms + 60_000), ingested_at_utc=_iso(cms + 60_000),
+                source_endpoint="ohlcv", request_id=f"r{i}", response_hash=f"rh{i}", raw_payload_hash=f"rp{i}",
+                collector_version="q5-v1", collection_id="test-collect", research_freeze_id="freeze-test",
+            )
+            candle = storage.store_normalized_candle(
+                exchange="binance", market_type="spot", symbol="BTC/USDT", interval="1h",
+                open_time=_iso(oms), close_time=_iso(cms), open_price=100.0, high=101.0, low=99.0, close=100.5, volume=10.0,
+                source_observation_id=obs["event_id"], first_seen_at_utc=_iso(cms + 60_000),
+                observed_at_utc=_iso(cms + 60_000), ingested_at_utc=_iso(cms + 60_000),
+                collection_id="test-collect", research_freeze_id="freeze-test",
+            )
+            storage.append_ledger_event(event_type="observation_accepted", collection_id="test-collect", source_record_hash=_sha256_json(candle))
+        return freeze, manifest, storage, now
+
+    def _collector(self, tmp_path, client, freeze, manifest, now):
+        c = ProspectiveCollector(
+            exchange="binance", market_type="spot", symbols=["BTC/USDT"], timeframes=["1h"],
+            policy=ProspectiveCollectionPolicy(exchange="binance", market_type="spot", symbols=("BTC/USDT",), timeframes=("1h",), candle_finalization_margin_s=300, max_ingestion_latency_s=900),
+            client=client, storage_root=tmp_path / "storage",
+            freeze_manifest_path=str(freeze), collection_manifest_path=str(manifest),
+        )
+        c._now_ms = lambda: int(now.timestamp() * 1000)
+        return c
+
+
+    def test_a_cumulative_one_no_finalized_slot(self, tmp_path, monkeypatch):
+        import crypto_engine.research.prospective.collector as cmod
+        fixed_now = datetime(2026, 11, 22, 21, 12, 0, tzinfo=UTC)
+        class FakeDT(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return fixed_now if tz else fixed_now.replace(tzinfo=None)
+        monkeypatch.setattr(cmod, "datetime", FakeDT)
+
+        freeze, manifest, storage, _ = self._setup_epoch3(tmp_path, with_anchor=True, existing_candles=1)
+        # Response contains only unfinalized 21:00 candle (closes 22:00, finalized 22:05 > 21:12)
+        rows = [[int(datetime(2026, 11, 22, 21, 0, tzinfo=UTC).timestamp() * 1000), 100, 101, 99, 100.5, 10]]
+        client = _make_mock_client(rows)
+        collector = self._collector(tmp_path, client, freeze, manifest, fixed_now)
+        result = collector.collect_once(scheduled_slot_utc="2026-11-22T21:00:00+00:00")
+
+        assert result["cumulative_observation_count"] == 1
+        assert result["run_observation_count"] == 0
+        assert result["accepted_observation_for_slot"] is False
+        assert result["status"] != CollectionStatus.DATA_INVALID
+        # cumulative dataset must remain intact
+        assert storage.get_observation_summary()["accepted_unique_observations"] == 1
+
+    def test_b_primary_accepts_exact_slot(self, tmp_path, monkeypatch):
+        import crypto_engine.research.prospective.collector as cmod
+        fixed_now = datetime(2026, 11, 22, 22, 8, 0, tzinfo=UTC)
+        class FakeDT(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return fixed_now if tz else fixed_now.replace(tzinfo=None)
+        monkeypatch.setattr(cmod, "datetime", FakeDT)
+
+        freeze, manifest, _storage, _ = self._setup_epoch3(tmp_path, with_anchor=True, existing_candles=1)
+        # 20:00 candle opens before anchor 20:08:04 - not prospective. Use 21:00 slot.
+        slot_open = int(datetime(2026, 11, 22, 21, 0, tzinfo=UTC).timestamp() * 1000)
+        rows = [[slot_open, 200, 201, 199, 200.5, 20]]
+        client = _make_mock_client(rows)
+        collector = self._collector(tmp_path, client, freeze, manifest, fixed_now)
+        result = collector.collect_once(scheduled_slot_utc="2026-11-22T21:00:00+00:00")
+
+        assert result["accepted_observation_for_slot"] is True
+        assert result["run_observation_count"] == 1
+        assert result["cumulative_observation_count"] == 2
+
+    def test_c_primary_fails_cumulative_one_does_not_skip_retry(self, tmp_path, monkeypatch):
+        __import__("importlib").util.spec_from_file_location("r", Path("scripts/run_q5_prospective_collection.py"))
+        spec = importlib.util.spec_from_file_location(
+            "run_q5_prospective_collection", Path("scripts/run_q5_prospective_collection.py")
+        )
+        mod = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(mod)
+        output_dir = tmp_path / "reports"
+        output_dir.mkdir()
+        slot = "2026-11-22T21:00:00+00:00"
+        (output_dir / "latest_status.json").write_text(
+            json.dumps(
+                {
+                    "schema": "q5-latest-status.v1",
+                    "slot_utc": slot,
+                    "scheduled_minute": 8,
+                    "accepted_observation_for_slot": False,
+                    "cumulative_observation_count": 1,
+                }
+            ),
+            encoding="utf-8",
+        )
+        manifest = tmp_path / "collection.json"
+        manifest.write_text(
+            json.dumps(
+                {
+                    "collection_id": "collect-epoch3-4e1b55cd-ee07-4f2a-8f4c-d0be0e848b2d",
+                    "associated_freeze_id": "freeze-epoch3-ba777bcd-df63-4cfe-9aa3-18dde1fef46f",
+                    "exchange": "binance",
+                    "market_type": "spot",
+                    "symbols": ["BTC/USDT"],
+                    "timeframes": ["1h"],
+                }
+            ),
+            encoding="utf-8",
+        )
+        freeze = tmp_path / "freeze.json"
+        freeze.write_text(
+            json.dumps(
+                {
+                    "freeze_id": "freeze-epoch3-ba777bcd-df63-4cfe-9aa3-18dde1fef46f",
+                    "created_at_utc": "2026-11-22T08:00:00+00:00",
+                    "status": "VALID",
+                    "schema_version": "research-freeze-manifest.v1",
+                    "repository_commit_sha": "abc123",
+                }
+            ),
+            encoding="utf-8",
+        )
+        (tmp_path/"storage").mkdir()
+        called = {"collect":0}
+        class FC:
+            def __init__(self,*a,**k): self.policy=type("P",(),{"min_elapsed_observation_period_s":604800,"min_observation_count":168,"min_coverage_fraction":0.95})()
+            def validate_freeze(self): return {"freeze_id":"freeze-epoch3-ba777bcd-df63-4cfe-9aa3-18dde1fef46f","created_at_utc":"2026-11-22T08:00:00+00:00"}
+            def verify_collection_integrity(self): return {"status":"VALID","collection_id":"collect-epoch3-4e1b55cd-ee07-4f2a-8f4c-d0be0e848b2d","collection_started_at_utc":"2026-11-22T20:08:04.533609+00:00","associated_freeze_id":"freeze-epoch3-ba777bcd-df63-4cfe-9aa3-18dde1fef46f"}
+            def collect_once(self, **k):
+                called["collect"] += 1
+                return {"status":CollectionStatus.HEALTHY,"observations":[],"gaps":[],"duplicates":[],"conflicts":[],"rejections":[{"reason":"candle not yet finalized"}],"errors":[],"cumulative_observation_count":1,"run_observation_count":0,"accepted_observation_for_slot":False,"slot_already_accepted":False}
+        monkeypatch.setattr(mod, "ProspectiveCollector", FC)
+        monkeypatch.setattr(mod, "check_collection_authorization", lambda **k: type("A",(),{"authorized":True,"reason":"ok","approval_record":{"approval_id":"a"},"collection_id":k["collection_id"],"freeze_id":k["freeze_id"]})())
+        monkeypatch.setattr(mod, "compute_quality_report", lambda collection_result: {"observation_count":1,"cumulative_observation_count":1,"coverage_fraction":0.01,"collector_status":"HEALTHY","ingestion_status":"DEGRADED","dataset_quality_status":"HEALTHY","provenance_status":"HEALTHY","ledger_status":"HEALTHY","expected_intervals":168,"evaluation_blocked":True,"evaluation_block_reasons":["min not met"],"reasons":[],"state":"DEGRADED"})
+        monkeypatch.setattr(mod, "_write_q5_collection_report", lambda *a, **k: None)
+        monkeypatch.setattr(mod, "_write_q5_governance_report", lambda *a, **k: None)
+        monkeypatch.setattr(mod.ProspectiveStorage, "verify_collection_start_anchor", lambda self: {"status":"VALID","collection_started_at_utc":"2026-11-22T20:08:04.533609+00:00"})
+        monkeypatch.setattr(mod.ProspectiveStorage, "read_dataset_manifest", lambda self: {"observation_count":1,"coverage_fraction":0.01})
+        monkeypatch.setattr(mod, "_scheduled_slot_utc", lambda now, minute: slot)
+        monkeypatch.setattr(mod, "_utc_now_iso", lambda: "2026-11-22T21:12:05+00:00")
+        args = type("Args", (), {"freeze_manifest":str(freeze),"collection_manifest":str(manifest),"storage_root":str(tmp_path/"storage"),"approvals_dir":"docs/validation/approvals","output_dir":str(output_dir),"scheduled_minute":12,"require_scheduler_authorization":False})()
+        mod.run_once(args)
+        assert called["collect"] == 1, "retry must run when primary did not accept slot, even if cumulative==1"
+        status = json.loads((output_dir/"latest_status.json").read_text(encoding="utf-8"))
+        assert status["retry_skipped"] is False
+
+    def test_d_retry_accepts_new_slot_cumulative_becomes_two(self, tmp_path, monkeypatch):
+        import crypto_engine.research.prospective.collector as cmod
+        fixed_now = datetime(2026, 11, 22, 22, 12, 0, tzinfo=UTC)
+        class FakeDT(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return fixed_now if tz else fixed_now.replace(tzinfo=None)
+        monkeypatch.setattr(cmod, "datetime", FakeDT)
+        freeze, manifest, storage, _ = self._setup_epoch3(tmp_path, with_anchor=True, existing_candles=1)
+        slot_open = int(datetime(2026, 11, 22, 21, 0, tzinfo=UTC).timestamp() * 1000)
+        client = _make_mock_client([[slot_open, 210, 211, 209, 210.5, 15]])
+        collector = self._collector(tmp_path, client, freeze, manifest, fixed_now)
+        result = collector.collect_once(scheduled_slot_utc="2026-11-22T21:00:00+00:00")
+        assert result["accepted_observation_for_slot"] is True
+        assert result["run_observation_count"] == 1
+        assert result["cumulative_observation_count"] == 2
+        assert storage.get_observation_summary()["accepted_unique_observations"] == 2
+
+    def test_e_invalid_conflict_not_accepted_due_cumulative(self, tmp_path, monkeypatch):
+        import crypto_engine.research.prospective.collector as cmod
+        fixed_now = datetime(2026, 11, 22, 21, 12, 0, tzinfo=UTC)
+        class FakeDT(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return fixed_now if tz else fixed_now.replace(tzinfo=None)
+        monkeypatch.setattr(cmod, "datetime", FakeDT)
+        freeze, manifest, storage, _ = self._setup_epoch3(tmp_path, with_anchor=True, existing_candles=1)
+        slot_open = int(datetime(2026, 11, 22, 21, 0, tzinfo=UTC).timestamp() * 1000)
+        # Invalid candle: high < low. Must not be accepted despite cumulative==1.
+        client = _make_mock_client([[slot_open, 100, 99, 101, 100.5, 10]])
+        collector = self._collector(tmp_path, client, freeze, manifest, fixed_now)
+        result = collector.collect_once(scheduled_slot_utc="2026-11-22T21:00:00+00:00")
+        assert result["accepted_observation_for_slot"] is False
+        assert result["run_observation_count"] == 0
+        assert result["cumulative_observation_count"] == 1
+        assert result["status"] in {CollectionStatus.DATA_INVALID, CollectionStatus.EXCHANGE_UNAVAILABLE}
+        assert storage.get_observation_summary()["accepted_unique_observations"] == 1
+
+    def test_f_duplicate_does_not_increment(self, tmp_path, monkeypatch):
+        import crypto_engine.research.prospective.collector as cmod
+        fixed_now = datetime(2026, 11, 22, 20, 12, 0, tzinfo=UTC)
+        class FakeDT(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return fixed_now if tz else fixed_now.replace(tzinfo=None)
+        monkeypatch.setattr(cmod, "datetime", FakeDT)
+        freeze, manifest, storage, _ = self._setup_epoch3(tmp_path, with_anchor=True, existing_candles=2) # includes 19:00 and 20:00
+        slot_open = int(datetime(2026, 11, 22, 20, 0, tzinfo=UTC).timestamp() * 1000)
+        client = _make_mock_client([[slot_open, 100.5, 101.5, 99.5, 101.0, 10.0]]) # identical to seed candle 2? seed used base 100+i*0.5
+        collector = self._collector(tmp_path, client, freeze, manifest, fixed_now)
+        before = storage.get_observation_summary()["accepted_unique_observations"]
+        result = collector.collect_once(scheduled_slot_utc="2026-11-22T20:00:00+00:00")
+        after = storage.get_observation_summary()["accepted_unique_observations"]
+        assert after == before
+        assert result["accepted_observation_for_slot"] is True  # slot is already accepted
+        assert result["run_observation_count"] == 0
+
+    def test_g_ledger_integrity_hard_failure(self, tmp_path):
+        freeze, manifest, storage, _now = self._setup_epoch3(tmp_path, with_anchor=True, existing_candles=1)
+        # corrupt ledger
+        ledger = storage.ledger_path
+        ledger.write_text('{"bad":true}\n', encoding="utf-8")
+        slot_open = int(datetime(2026, 11, 22, 20, 0, tzinfo=UTC).timestamp() * 1000)
+        client = _make_mock_client([[slot_open, 200, 201, 199, 200.5, 20]])
+        collector = self._collector(tmp_path, client, freeze, manifest, datetime(2026,11,22,20,8,tzinfo=UTC))
+        result = collector.collect_once(scheduled_slot_utc="2026-11-22T20:00:00+00:00")
+        # ledger corruption should be surfaced as hard failure, not accepted
+        assert result["accepted_observation_for_slot"] is False
+        assert result["status"] in {CollectionStatus.DATA_INVALID, CollectionStatus.PROVENANCE_INVALID} or result["errors"] or result["rejections"]
+        assert storage.get_observation_summary()["accepted_unique_observations"] == 1

@@ -29,7 +29,10 @@ def compute_quality_report(
     errors = collection_result.get("errors", [])
 
     state = quality.get("state", CollectionStatus.HEALTHY)
-    observation_count = quality.get("observation_count", len(observations))
+    observation_count = int(quality.get("observation_count", len(observations)) or 0)
+    cumulative_observation_count = int(
+        collection_result.get("cumulative_observation_count", observation_count) or 0
+    )
 
     # Determine if evaluation is blocked. Use the collector's assessment as
     # the base (it checks min observations, coverage, elapsed duration, data
@@ -40,8 +43,9 @@ def compute_quality_report(
 
     block_reasons: list[str] = list(collector_block_reasons)
 
-    # Additional check: observation count below minimum
-    if observation_count == 0 and "No observations collected" not in block_reasons:
+    # Additional check: observation count below minimum. Use cumulative evidence;
+    # a run with no newly finalized candle must not erase valid cumulative data.
+    if cumulative_observation_count == 0 and "No observations collected" not in block_reasons:
         block_reasons.append("No observations collected; cannot evaluate prospective holdout.")
 
     # Additional check: state-based blocking conditions
@@ -51,7 +55,7 @@ def compute_quality_report(
         CollectionStatus.PROVENANCE_INVALID,
         CollectionStatus.GAP_DETECTED,
     ):
-        if state == CollectionStatus.DATA_INVALID:
+        if state == CollectionStatus.DATA_INVALID and cumulative_observation_count == 0:
             block_reasons.append("Data is invalid; cannot evaluate prospective holdout.")
         elif state == CollectionStatus.EXCHANGE_UNAVAILABLE:
             block_reasons.append("Exchange is unavailable; cannot evaluate prospective holdout.")

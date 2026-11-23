@@ -264,6 +264,27 @@ class ProspectiveStorage:
                     return record
         return None
 
+    def has_normalized_candle(
+        self,
+        *,
+        exchange: str,
+        market_type: str,
+        symbol: str,
+        interval: str,
+        open_time: str,
+    ) -> bool:
+        """Return True if a unique normalized candle exists for the identity key."""
+        return (
+            self._find_existing_candle(
+                exchange=exchange,
+                market_type=market_type,
+                symbol=symbol,
+                interval=interval,
+                open_time=open_time,
+            )
+            is not None
+        )
+
     # ------------------------------------------------------------------
     # Canonical unique reader
     # ------------------------------------------------------------------
