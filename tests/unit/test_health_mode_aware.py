@@ -157,6 +157,48 @@ def test_pipeline_active_missing_evidence_unhealthy(tmp_path: Path, monkeypatch:
     assert details["collection_lifecycle_state"] == "ACCUMULATING"
 
 
+def test_pipeline_accumulating_one_observation_missing_signal_history_degraded(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """ACCUMULATING with accepted evidence but no signal history is a readiness gap, not API failure."""
+    settings = _settings(tmp_path)
+    monkeypatch.setattr(
+        health_mod,
+        "_get_prospective_lifecycle_state",
+        lambda: {
+            "lifecycle_state": "ACCUMULATING",
+            "observation_count": 1,
+            "collection_started_at_utc": "2026-11-22T20:08:04.533609+00:00",
+            "collection_start_anchor_status": "VALID",
+        },
+    )
+    (tmp_path / "data" / "prospective" / "binance" / "spot" / "BTC" / "USDT" / "1h").mkdir(
+        parents=True, exist_ok=True
+    )
+    manifest = (
+        tmp_path
+        / "data"
+        / "prospective"
+        / "binance"
+        / "spot"
+        / "BTC"
+        / "USDT"
+        / "1h"
+        / "dataset_manifest.json"
+    )
+    manifest.write_text(
+        '{"collection_started_at_utc":"2026-11-22T20:08:04.533609+00:00","observation_count":1}',
+        encoding="utf-8",
+    )
+    monkeypatch.chdir(tmp_path)
+    status, message, details = check_pipeline_freshness(settings)
+    assert status is HealthStatus.DEGRADED
+    assert "research readiness pending" in message.lower()
+    assert details["research_ready"] is False
+    assert details["api_operational_ready"] is True
+    assert details["collection_lifecycle_state"] == "ACCUMULATING"
+    assert details["observation_count"] == 1
+
 def test_aggregate_health_read_only_not_started_is_healthy(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

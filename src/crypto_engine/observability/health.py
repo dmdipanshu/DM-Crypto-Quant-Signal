@@ -479,6 +479,14 @@ def check_pipeline_freshness(settings: Settings) -> tuple[HealthStatus, str, dic
         if collection_not_started:
             stale_reasons.append("signal history not started")
             statuses.append(HealthStatus.HEALTHY)
+        elif observation_count > 0 and lifecycle_state in {"ACCUMULATING", "ELIGIBLE_FOR_EVALUATION"}:
+            # Prospective collection is active but no signal history exists yet.
+            # This is an expected readiness gap before signal generation/authorization,
+            # not an API operational failure; genuine data corruption remains UNHEALTHY.
+            stale_reasons.append(
+                "signal history not generated yet (collection accumulating; research readiness pending)"
+            )
+            statuses.append(HealthStatus.DEGRADED)
         else:
             stale_reasons.append("signal history directory missing")
             statuses.append(HealthStatus.UNHEALTHY)
@@ -540,8 +548,8 @@ def check_pipeline_freshness(settings: Settings) -> tuple[HealthStatus, str, dic
         and lifecycle_state in {"ACCUMULATING", "ELIGIBLE_FOR_EVALUATION"}
         and HealthStatus.UNHEALTHY not in statuses
         and not any(
-            reason.startswith("collection dataset manifest missing")
-            or reason.startswith("signal history directory missing")
+            "signal history" in reason.lower()
+            or reason.startswith("collection dataset manifest missing")
             or reason.startswith("no signal records found")
             for reason in stale_reasons
         )

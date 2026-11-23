@@ -1,4 +1,4 @@
-﻿"""Binance prospective market-data collector (Q5).
+"""Binance prospective market-data collector (Q5).
 
 Collects only fully closed candles from public Binance Spot endpoints.
 Preserves first-seen provenance, validates OHLCV and timestamps, detects

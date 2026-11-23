@@ -1,4 +1,4 @@
-﻿"""Comprehensive regression tests for Q5 prospective data collection.
+"""Comprehensive regression tests for Q5 prospective data collection.
 
 All tests use mocked exchange responses. No external Binance availability required.
 """
