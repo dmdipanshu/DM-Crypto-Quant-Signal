@@ -1,7 +1,7 @@
 [project]
 name = "dm-crypto-quant-signal"
 version = "0.1.0"
-description = "SignalForge — standalone crypto quant signal engine (Phase 1 foundation)"
+description = "SignalForge â€” standalone crypto quant signal engine (Phase 1 foundation)"
 readme = "README.md"
 requires-python = ">=3.12,<3.14"
 license = { text = "MIT" }
@@ -29,11 +29,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# NOT required for Phase 1. Placeholders for later phases — do not install yet.
+# NOT required for Phase 1. Placeholders for later phases â€” do not install yet.
 ml = ["lightgbm>=4.0"]
 api = ["fastapi>=0.104", "uvicorn>=0.24"]
-dev = ["pytest>=8.0", "ruff>=0.4"]
-# Phase 4: NO registry-based ai-* extras — the sandbox has no package network,
+dev = ["pytest>=8.0", "ruff>=0.4", "httpx>=0.28"]
+# Phase 4: NO registry-based ai-* extras â€” the sandbox has no package network,
 # so any new requirement would invalidate uv.lock. Provider SDKs are
 # bring-your-own (see docs/AI_PROVIDERS.md): adapters use stdlib urllib by
 # default and import SDKs lazily only if the user installed them.
@@ -68,4 +68,5 @@ branch = true
 
 [tool.coverage.report]
 show_missing = true
+
 

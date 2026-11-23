@@ -243,8 +243,11 @@ def test_health_route_operational_api_healthy_when_only_readiness_degraded(
     checker.register_check("paper_account", lambda: check_paper_account(settings))
     checker.register_check("pipeline_freshness", lambda: check_pipeline_freshness(settings))
 
-    monkeypatch.setattr("crypto_engine.api.routes.health_checker", checker)
-    client = TestClient(create_app())
+    from crypto_engine.api.repos import RepoRoots
+
+    real_roots = RepoRoots()
+    monkeypatch.setattr(real_roots, "health_checker", checker)
+    client = TestClient(create_app(roots=real_roots, settings=settings))
     resp = client.get("/health")
     assert resp.status_code == 200
     data = resp.json()["data"]
@@ -277,3 +280,7 @@ def test_aggregate_health_read_only_not_started_is_healthy(
     checker.register_check("paper_account", lambda: check_paper_account(settings))
     checker.register_check("pipeline_freshness", lambda: check_pipeline_freshness(settings))
     assert checker.overall_status() is HealthStatus.HEALTHY
+
+
+
+
