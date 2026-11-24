@@ -403,7 +403,9 @@ class ProspectiveCollector:
             )
         result["cumulative_observation_count"] = cumulative_observation_count
         result["run_observation_count"] = len(result["observations"])
-        slot_open_ms = _iso_to_ms(scheduled_slot_utc) if scheduled_slot_utc else None
+        interval_ms = timeframe_to_ms(self.timeframes[0])
+        scheduled_slot_ms = _iso_to_ms(scheduled_slot_utc) if scheduled_slot_utc else None
+        slot_open_ms = scheduled_slot_ms - interval_ms if scheduled_slot_ms is not None else None
         slot_accepted = False
         slot_already_accepted = False
         if slot_open_ms is not None:
@@ -470,7 +472,8 @@ class ProspectiveCollector:
         scheduled_slot_ms = _iso_to_ms(scheduled_slot_utc) if scheduled_slot_utc else None
 
         if scheduled_slot_ms is not None:
-            slot_open_iso = _ms_to_iso(scheduled_slot_ms)
+            # Boundary S = candle close time; target candle opens at S - interval.
+            slot_open_iso = _ms_to_iso(scheduled_slot_ms - interval_ms)
             if symbol_storage.has_normalized_candle(
                 exchange=self.exchange,
                 market_type=self.market_type,
@@ -488,6 +491,27 @@ class ProspectiveCollector:
                     "slot_already_accepted": True,
                 }
 
+        # Ledger integrity is a hard failure: never accept into a corrupt hash chain.
+        if scheduled_slot_ms is not None and not symbol_storage.verify_ledger_chain().get(
+            "valid", False
+        ):
+            return {
+                "observations": [],
+                "gaps": [],
+                "duplicates": [],
+                "conflicts": [],
+                "rejections": [
+                    {
+                        "symbol": symbol,
+                        "timeframe": timeframe,
+                        "reason": "ledger integrity check failed: corrupt hash chain",
+                        "at_utc": _utc_now_iso(),
+                    }
+                ],
+                "errors": ["ledger integrity check failed: corrupt hash chain"],
+                "slot_already_accepted": False,
+            }
+
         # If collection has not started, anchor is established on the first
         # successfully accepted observation. Fetch a recent bounded window.
         if collection_start_ms is None:
@@ -499,8 +523,9 @@ class ProspectiveCollector:
         # For scheduled slot runs, fetch a narrow window around the exact slot to
         # avoid selecting a different unfinalized candle from the same response.
         if scheduled_slot_ms is not None:
-            since_ms = scheduled_slot_ms
-            until_ms = scheduled_slot_ms + (2 * interval_ms)
+            # Boundary S = candle close time; target candle opens at S - interval.
+            since_ms = scheduled_slot_ms - (2 * interval_ms)
+            until_ms = scheduled_slot_ms + interval_ms
 
         params = FetchParams(
             exchange=self.exchange,
@@ -544,9 +569,39 @@ class ProspectiveCollector:
             open_time_ms = int(candle.timestamp.timestamp() * 1000)
             close_time_ms_calc = open_time_ms + interval_ms
 
-            # Scheduled slot runs target only the exact slot candle. Other candles
-            # in the response are out of scope for this run's acceptance decision.
-            if scheduled_slot_ms is not None and open_time_ms != scheduled_slot_ms:
+            # Boundary S = candle close time; accept only the candle closing at S
+            # (open == S - interval). Never accept the forming next-hour candle.
+            if scheduled_slot_ms is not None and close_time_ms_calc != scheduled_slot_ms:
+                continue
+
+            # Validate OHLCV row before processing (defense-in-depth;
+            # normalize_candles already validates upstream in the adapter,
+            # but this ensures the collector never accepts malformed data even
+            # if the adapter contract changes).
+            validated_row = self._validate_ohlcv_row(
+                [
+                    open_time_ms,
+                    candle.open,
+                    candle.high,
+                    candle.low,
+                    candle.close,
+                    candle.volume,
+                ],
+                symbol,
+                timeframe,
+                _i,
+            )
+            if validated_row is None:
+                rejections.append(
+                    {
+                        "symbol": symbol,
+                        "timeframe": timeframe,
+                        "open_time": _ms_to_iso(open_time_ms),
+                        "close_time": _ms_to_iso(close_time_ms_calc),
+                        "reason": "invalid OHLCV row",
+                        "at_utc": _utc_now_iso(),
+                    }
+                )
                 continue
 
             # Strict forward-only: only accept candles after collection start
@@ -922,7 +977,11 @@ class ProspectiveCollector:
             if state_order.index(s) < state_order.index(state):
                 state = s
 
-        actual_count = cumulative_observation_count if cumulative_observation_count > 0 else unique_observation_count
+        actual_count = (
+            cumulative_observation_count
+            if cumulative_observation_count > 0
+            else unique_observation_count
+        )
         # Coverage calculation using unique observations
         collection_started_at = result.get("collection_started_at_utc")
         if not collection_started_at:
