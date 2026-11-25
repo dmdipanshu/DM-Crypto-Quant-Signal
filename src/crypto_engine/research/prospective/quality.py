@@ -33,6 +33,7 @@ def compute_quality_report(
     cumulative_observation_count = int(
         collection_result.get("cumulative_observation_count", observation_count) or 0
     )
+    prospective_eligible_count = observation_count
 
     # Determine if evaluation is blocked. Use the collector's assessment as
     # the base (it checks min observations, coverage, elapsed duration, data
@@ -43,9 +44,10 @@ def compute_quality_report(
 
     block_reasons: list[str] = list(collector_block_reasons)
 
-    # Additional check: observation count below minimum. Use cumulative evidence;
-    # a run with no newly finalized candle must not erase valid cumulative data.
-    if cumulative_observation_count == 0 and "No observations collected" not in block_reasons:
+    # Additional check: observation count below minimum. Use prospective
+    # eligible evidence; a run with no newly finalized candle must not erase
+    # valid cumulative data.
+    if prospective_eligible_count == 0 and "No observations collected" not in block_reasons:
         block_reasons.append("No observations collected; cannot evaluate prospective holdout.")
 
     # Additional check: state-based blocking conditions
@@ -55,7 +57,7 @@ def compute_quality_report(
         CollectionStatus.PROVENANCE_INVALID,
         CollectionStatus.GAP_DETECTED,
     ):
-        if state == CollectionStatus.DATA_INVALID and cumulative_observation_count == 0:
+        if state == CollectionStatus.DATA_INVALID and prospective_eligible_count == 0:
             block_reasons.append("Data is invalid; cannot evaluate prospective holdout.")
         elif state == CollectionStatus.EXCHANGE_UNAVAILABLE:
             block_reasons.append("Exchange is unavailable; cannot evaluate prospective holdout.")
@@ -77,7 +79,9 @@ def compute_quality_report(
         "reasons": quality.get("reasons", []),
         "evaluation_blocked": evaluation_blocked,
         "evaluation_block_reasons": block_reasons,
-        "observation_count": observation_count,
+        "total_stored_observation_count": cumulative_observation_count,
+        "prospective_eligible_observation_count": prospective_eligible_count,
+        "observation_count": prospective_eligible_count,
         "expected_intervals": quality.get("expected_intervals", 0),
         "coverage_fraction": quality.get("coverage_fraction", 0.0),
         "error_count": quality.get("error_count", len(errors)),

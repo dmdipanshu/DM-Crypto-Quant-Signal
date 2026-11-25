@@ -394,9 +394,13 @@ def _get_prospective_lifecycle_state() -> dict[str, Any]:
 
         roots = RepoRoots()
         q5 = read_q5_collection_status(roots)
+        prospective_count = q5.get("prospective_eligible_observation_count")
         return {
             "lifecycle_state": str(q5.get("lifecycle_state") or "UNKNOWN"),
-            "observation_count": int(q5.get("observation_count") or 0),
+            "observation_count": int(prospective_count or 0),
+            "prospective_eligible_observation_count": (
+                int(prospective_count) if prospective_count is not None else None
+            ),
             "collection_started_at_utc": q5.get("collection_started_at_utc"),
             "collection_start_anchor_status": q5.get("collection_start_anchor_status"),
         }
@@ -423,6 +427,9 @@ def check_pipeline_freshness(settings: Settings) -> tuple[HealthStatus, str, dic
     observation_count = int(lifecycle.get("observation_count") or 0)
     details["collection_lifecycle_state"] = lifecycle_state
     details["observation_count"] = observation_count
+    details["prospective_eligible_observation_count"] = lifecycle.get(
+        "prospective_eligible_observation_count"
+    )
     details["collection_started_at_utc"] = lifecycle.get("collection_started_at_utc")
     details["collection_start_anchor_status"] = lifecycle.get("collection_start_anchor_status")
     if lifecycle.get("error"):
@@ -479,7 +486,10 @@ def check_pipeline_freshness(settings: Settings) -> tuple[HealthStatus, str, dic
         if collection_not_started:
             stale_reasons.append("signal history not started")
             statuses.append(HealthStatus.HEALTHY)
-        elif observation_count > 0 and lifecycle_state in {"ACCUMULATING", "ELIGIBLE_FOR_EVALUATION"}:
+        elif observation_count > 0 and lifecycle_state in {
+            "ACCUMULATING",
+            "ELIGIBLE_FOR_EVALUATION",
+        }:
             # Prospective collection is active but no signal history exists yet.
             # This is an expected readiness gap before signal generation/authorization,
             # not an API operational failure; genuine data corruption remains UNHEALTHY.
@@ -506,7 +516,9 @@ def check_pipeline_freshness(settings: Settings) -> tuple[HealthStatus, str, dic
             details["collection_started_at_utc"] = started
             if not started or observation_count == 0:
                 stale_reasons.append("collection not started (no accepted observations)")
-                statuses.append(HealthStatus.HEALTHY if collection_not_started else HealthStatus.DEGRADED)
+                statuses.append(
+                    HealthStatus.HEALTHY if collection_not_started else HealthStatus.DEGRADED
+                )
             else:
                 try:
                     coll_dt = datetime.fromisoformat(str(started).replace("Z", "+00:00"))

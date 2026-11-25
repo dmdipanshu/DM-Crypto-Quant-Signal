@@ -85,6 +85,7 @@ class CollectionStatus:
     DATA_INVALID = "DATA_INVALID"
     EXCHANGE_UNAVAILABLE = "EXCHANGE_UNAVAILABLE"
     PROVENANCE_INVALID = "PROVENANCE_INVALID"
+    ACCUMULATING = "ACCUMULATING"
     EXPIRED = "EXPIRED"
 
 
@@ -404,6 +405,20 @@ class ProspectiveCollector:
         result["cumulative_observation_count"] = cumulative_observation_count
         result["run_observation_count"] = len(result["observations"])
         interval_ms = timeframe_to_ms(self.timeframes[0])
+        now_ms = int(datetime.now(UTC).timestamp() * 1000)
+
+        # Compute prospective eligible observation count
+        # Excludes observations whose open time is before the first eligible
+        # hourly boundary (e.g., bootstrap observations collected before the
+        # collection anchor was established).
+        if collection_start_ms is not None:
+            first_open_ms = ((collection_start_ms // interval_ms) + 1) * interval_ms
+            prospective_eligible_count = storage.get_prospective_observation_count(
+                first_open_ms, now_ms
+            )
+        else:
+            prospective_eligible_count = 0
+        result["prospective_eligible_count"] = prospective_eligible_count
         scheduled_slot_ms = _iso_to_ms(scheduled_slot_utc) if scheduled_slot_utc else None
         slot_open_ms = scheduled_slot_ms - interval_ms if scheduled_slot_ms is not None else None
         slot_accepted = False
@@ -840,6 +855,14 @@ class ProspectiveCollector:
         coverage = actual_count / expected_intervals if expected_intervals > 0 else 0.0
         coverage = max(0.0, min(1.0, coverage))
 
+        prospective_eligible_count = symbol_storage.get_prospective_observation_count(
+            first_open_ms, now_ms
+        )
+        prospective_coverage = (
+            prospective_eligible_count / expected_intervals if expected_intervals > 0 else 0.0
+        )
+        prospective_coverage = max(0.0, min(1.0, prospective_coverage))
+
         latest_open_time_utc = None
         if unique_candles:
             latest_open_time_utc = max(c.get("open_time", "") for c in unique_candles)
@@ -859,6 +882,10 @@ class ProspectiveCollector:
             "collection_updated_at_utc": _utc_now_iso(),
             "observation_count": actual_count,
             "coverage_fraction": round(coverage, 4),
+            "total_stored_observation_count": actual_count,
+            "prospective_eligible_observation_count": prospective_eligible_count,
+            "expected_prospective_intervals": expected_intervals,
+            "prospective_coverage_fraction": round(prospective_coverage, 4),
             "dataset_hash": dataset_hash,
             "raw_payload_hash": raw_payload_hash,
             "latest_open_time_utc": latest_open_time_utc,
@@ -895,8 +922,9 @@ class ProspectiveCollector:
         conflicts = result["conflicts"]
         observations = result["observations"]
 
-        # Use unique observation count (deduplicated by candle identity key)
-        unique_observation_count = len(observations)
+        # Use prospective eligible observation count (excludes bootstrap/pre-start
+        # observations whose open time is before the first eligible hourly boundary).
+        prospective_eligible_count = int(result.get("prospective_eligible_count", 0) or 0)
 
         # Individual status fields
         collector_status = CollectionStatus.HEALTHY
@@ -977,12 +1005,7 @@ class ProspectiveCollector:
             if state_order.index(s) < state_order.index(state):
                 state = s
 
-        actual_count = (
-            cumulative_observation_count
-            if cumulative_observation_count > 0
-            else unique_observation_count
-        )
-        # Coverage calculation using unique observations
+        # Coverage calculation using prospective eligible observations
         collection_started_at = result.get("collection_started_at_utc")
         if not collection_started_at:
             # No anchor / zero accepted observations => NOT_STARTED.
@@ -998,7 +1021,7 @@ class ProspectiveCollector:
                 "quality_reasons": quality_reasons,
                 "provenance_reasons": provenance_reasons,
                 "ledger_reasons": ledger_reasons,
-                "observation_count": actual_count,
+                "observation_count": prospective_eligible_count,
                 "expected_intervals": 0,
                 "coverage_fraction": 0.0,
                 "error_count": len(errors),
@@ -1029,15 +1052,17 @@ class ProspectiveCollector:
                     expected_intervals += 1
                     t += interval_ms
 
-        coverage = actual_count / expected_intervals if expected_intervals > 0 else 0.0
+        coverage = (
+            prospective_eligible_count / expected_intervals if expected_intervals > 0 else 0.0
+        )
 
         # Evaluation blocked: ALL requirements must pass
         block_reasons: list[str] = []
 
-        # Minimum observations
-        if actual_count < self.policy.min_observation_count:
+        # Minimum observations (prospective eligible only, excludes bootstrap)
+        if prospective_eligible_count < self.policy.min_observation_count:
             block_reasons.append(
-                f"Observation count {actual_count} is below minimum "
+                f"Observation count {prospective_eligible_count} is below minimum "
                 f"{self.policy.min_observation_count}"
             )
 
@@ -1082,17 +1107,17 @@ class ProspectiveCollector:
         if (
             not window_expired
             and evaluation_blocked
-            and actual_count > 0
+            and prospective_eligible_count > 0
             and state == CollectionStatus.HEALTHY
         ):
-            state = "ACCUMULATING"
+            state = CollectionStatus.ACCUMULATING
         if (
             not window_expired
             and evaluation_blocked
-            and actual_count == 0
+            and prospective_eligible_count == 0
             and state == CollectionStatus.HEALTHY
         ):
-            state = "ACCUMULATING"
+            state = CollectionStatus.ACCUMULATING
 
         return {
             "state": state,
@@ -1106,7 +1131,7 @@ class ProspectiveCollector:
             "quality_reasons": quality_reasons,
             "provenance_reasons": provenance_reasons,
             "ledger_reasons": ledger_reasons,
-            "observation_count": actual_count,
+            "observation_count": prospective_eligible_count,
             "expected_intervals": expected_intervals,
             "coverage_fraction": round(coverage, 4),
             "error_count": len(errors),

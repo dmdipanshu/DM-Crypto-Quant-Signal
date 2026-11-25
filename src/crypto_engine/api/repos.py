@@ -690,14 +690,22 @@ def _approval_detail_from_result(
     expected_collection_id: str | None,
     expected_freeze_id: str | None,
 ) -> dict[str, Any]:
-    record = result.approval_record if isinstance(getattr(result, "approval_record", None), dict) else None
+    record = (
+        result.approval_record
+        if isinstance(getattr(result, "approval_record", None), dict)
+        else None
+    )
     approval_id = record.get("approval_id") if record else None
     active = bool(record.get("status") == "active") if record else False
     revoked = bool(record.get("revoked_at_utc") is not None) if record else False
     collection_id_match = (
-        record.get("collection_id") == expected_collection_id if record and expected_collection_id else None
+        record.get("collection_id") == expected_collection_id
+        if record and expected_collection_id
+        else None
     )
-    freeze_id_match = record.get("freeze_id") == expected_freeze_id if record and expected_freeze_id else None
+    freeze_id_match = (
+        record.get("freeze_id") == expected_freeze_id if record and expected_freeze_id else None
+    )
     return {
         "authorized": bool(getattr(result, "authorized", False)),
         "active": active,
@@ -840,8 +848,18 @@ def read_q5_collection_status(roots: RepoRoots) -> dict[str, Any]:
             anchor_status = "MISSING_LEGACY"
 
     observation_count = dataset_manifest.get("observation_count", 0)
+    total_stored_observation_count = dataset_manifest.get("total_stored_observation_count")
+    if total_stored_observation_count is None:
+        total_stored_observation_count = observation_count
     coverage = dataset_manifest.get("coverage_fraction", 0.0)
-    data_quality_passed = ledger.get("valid", False) and observation_count > 0
+    prospective_eligible_observation_count = dataset_manifest.get(
+        "prospective_eligible_observation_count"
+    )
+    expected_prospective_intervals = dataset_manifest.get("expected_prospective_intervals")
+    prospective_coverage_fraction = dataset_manifest.get("prospective_coverage_fraction")
+    data_quality_passed = (
+        ledger.get("valid", False) and (prospective_eligible_observation_count or 0) > 0
+    )
 
     now_ms = int(datetime.now(UTC).timestamp() * 1000)
     window_expired = False
@@ -898,6 +916,10 @@ def read_q5_collection_status(roots: RepoRoots) -> dict[str, Any]:
         "raw_payload_hash": dataset_manifest.get("raw_payload_hash"),
         "observation_count": observation_count,
         "coverage_fraction": coverage,
+        "total_stored_observation_count": total_stored_observation_count,
+        "prospective_eligible_observation_count": prospective_eligible_observation_count,
+        "expected_prospective_intervals": expected_prospective_intervals,
+        "prospective_coverage_fraction": prospective_coverage_fraction,
         "ledger_events": ledger.get("event_count", 0),
         "ledger_valid": ledger.get("valid", False),
         "read_only": True,
@@ -927,7 +949,9 @@ def read_q5_collection_status(roots: RepoRoots) -> dict[str, Any]:
         "next_collection_window": "UNKNOWN",
         "next_collection_window_reason": "runtime_timer_state_unavailable",
         "last_execution": last_execution if last_execution.get("available") else None,
-        "last_execution_reason": None if last_execution.get("available") else last_execution.get("reason"),
+        "last_execution_reason": None
+        if last_execution.get("available")
+        else last_execution.get("reason"),
         "collection_evidence_state": collection_evidence_state,
         "collector_process_state": "UNKNOWN",
     }
@@ -1002,8 +1026,18 @@ def read_q5_prospective_governance(roots: RepoRoots) -> dict[str, Any]:
             anchor_status = "MISSING_LEGACY"
 
     observation_count = dataset_manifest.get("observation_count", 0)
+    total_stored_observation_count = dataset_manifest.get("total_stored_observation_count")
+    if total_stored_observation_count is None:
+        total_stored_observation_count = observation_count
     coverage = dataset_manifest.get("coverage_fraction", 0.0)
-    data_quality_passed = ledger.get("valid", False) and observation_count > 0
+    prospective_eligible_observation_count = dataset_manifest.get(
+        "prospective_eligible_observation_count"
+    )
+    expected_prospective_intervals = dataset_manifest.get("expected_prospective_intervals")
+    prospective_coverage_fraction = dataset_manifest.get("prospective_coverage_fraction")
+    data_quality_passed = (
+        ledger.get("valid", False) and (prospective_eligible_observation_count or 0) > 0
+    )
 
     now_ms = int(datetime.now(UTC).timestamp() * 1000)
     window_expired = False
@@ -1045,9 +1079,11 @@ def read_q5_prospective_governance(roots: RepoRoots) -> dict[str, Any]:
         readiness = assess_prospective_holdout_readiness(
             freeze_timestamp=freeze_info["created_at_utc"],
             collection_started_at=collection_started_at,
-            observation_count=observation_count,
+            observation_count=prospective_eligible_observation_count or 0,
             min_observation_count=collector.policy.min_observation_count,
-            coverage_fraction=coverage,
+            coverage_fraction=prospective_coverage_fraction
+            if prospective_coverage_fraction is not None
+            else coverage,
             min_coverage_fraction=collector.policy.min_coverage_fraction,
             data_quality_passed=data_quality_passed,
             first_seen_provenance_valid=True,
@@ -1074,8 +1110,14 @@ def read_q5_prospective_governance(roots: RepoRoots) -> dict[str, Any]:
         ]
 
     historical = historical_holdout_is_contaminated()
-    collection_id = collector.collection_id if hasattr(collector, "collection_id") else dataset_manifest.get("collection_id")
-    auth = _q5_authorization_details(roots, collection_id=collection_id, freeze_id=freeze_info.get("freeze_id"))
+    collection_id = (
+        collector.collection_id
+        if hasattr(collector, "collection_id")
+        else dataset_manifest.get("collection_id")
+    )
+    auth = _q5_authorization_details(
+        roots, collection_id=collection_id, freeze_id=freeze_info.get("freeze_id")
+    )
 
     return {
         "available": True,
@@ -1090,6 +1132,10 @@ def read_q5_prospective_governance(roots: RepoRoots) -> dict[str, Any]:
         "min_observation_count": collector.policy.min_observation_count,
         "coverage_fraction": coverage,
         "min_coverage_fraction": collector.policy.min_coverage_fraction,
+        "total_stored_observation_count": total_stored_observation_count,
+        "prospective_eligible_observation_count": prospective_eligible_observation_count,
+        "expected_prospective_intervals": expected_prospective_intervals,
+        "prospective_coverage_fraction": prospective_coverage_fraction,
         "data_quality_passed": data_quality_passed,
         "first_seen_provenance_valid": readiness.get("first_seen_provenance_valid", False),
         "no_backfill": readiness.get("no_backfill", True),

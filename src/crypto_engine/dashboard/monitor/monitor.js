@@ -569,6 +569,25 @@ function renderQ52() {
   const coverage = collection && Number.isFinite(Number(collection.coverage_fraction)) ? Number(collection.coverage_fraction) * 100 : null;
   setMetric("q52-coverage", coverage !== null ? `${coverage.toFixed(2)}% / ${Q5_REQUIRED_COVERAGE}%` : "N/A");
 
+  const totalStored = collection && Number.isFinite(Number(collection.total_stored_observation_count)) ? Number(collection.total_stored_observation_count) : null;
+  setMetric("q52-total-stored", totalStored !== null ? `${totalStored} stored` : "N/A");
+
+  const prospectiveEligible = collection && Number.isFinite(Number(collection.prospective_eligible_observation_count)) ? Number(collection.prospective_eligible_observation_count) : null;
+  setMetric("q52-prospective-eligible", prospectiveEligible !== null ? `${prospectiveEligible} / ${Q5_REQUIRED_OBSERVATIONS}` : "N/A");
+
+  const prospectiveCoverage = collection && Number.isFinite(Number(collection.prospective_coverage_fraction)) ? Number(collection.prospective_coverage_fraction) * 100 : null;
+  setMetric("q52-prospective-coverage", prospectiveCoverage !== null ? `${prospectiveCoverage.toFixed(2)}% / ${Q5_REQUIRED_COVERAGE}%` : "N/A");
+
+  let researchReady = "N/A";
+  if (collection) {
+    const gov = dataOrNull(state.q5Governance);
+    const ready = governance && governance.eligible_for_evaluation === true;
+    researchReady = ready ? "READY" : "NOT READY";
+  } else if (state.q5Collection && state.q5Collection.kind !== "ok") {
+    researchReady = resultValue(state.q5Collection);
+  }
+  setMetric("q52-research-readiness", researchReady);
+
   let duration = "N/A";
   if (collection && collection.collection_started_at_utc) {
     const started = new Date(collection.collection_started_at_utc);

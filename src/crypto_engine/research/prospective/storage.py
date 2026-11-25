@@ -427,6 +427,106 @@ class ProspectiveStorage:
             "unique_keys": len(unique_keys),
         }
 
+    def get_prospective_observation_count(self, first_open_ms: int, evaluation_ms: int) -> int:
+        """Count prospectively eligible observations.
+
+        An observation is prospectively eligible only if the full pipeline
+        succeeded: raw observation stored, normalized candle stored, and
+        ledger event appended.  The ledger chain must be valid for any
+        observation to count.
+
+        Criteria:
+        - Raw observation record exists
+        - Corresponding normalized candle exists (matching identity key)
+        - Corresponding ledger event exists (matching source_record_hash)
+        - Ledger chain is valid
+        - open_time >= first_open_ms (within prospective window)
+        - close_time <= evaluation_ms (candle finalized by evaluation time)
+        - Not a duplicate (unique by identity key)
+
+        Args:
+            first_open_ms: First eligible hourly boundary (ms since epoch).
+            evaluation_ms: Evaluation timestamp (ms since epoch) used as the
+                upper bound for candle close time.
+
+        Returns:
+            Count of prospectively eligible observations.
+        """
+        # Ledger integrity is a hard prerequisite for any prospective evidence.
+        if not self.verify_ledger_chain().get("valid", False):
+            return 0
+
+        raw_observations = self.read_raw_observations()
+        normalized_candles = self.read_normalized_candles()
+        ledger_events = self.read_ledger_events()
+
+        # Build lookup: normalized candles by identity key.
+        normalized_by_key: dict[str, dict[str, Any]] = {}
+        for c in normalized_candles:
+            key = candle_identity_key(
+                exchange=c.get("exchange", ""),
+                market_type=c.get("market_type", ""),
+                symbol=c.get("symbol", ""),
+                interval=c.get("interval", ""),
+                open_time=c.get("open_time", ""),
+            )
+            normalized_by_key[key] = c
+
+        # Build lookup: ledger events by source_record_hash.
+        ledger_by_source_hash: dict[str, dict[str, Any]] = {}
+        for event in ledger_events:
+            source_hash = event.get("source_record_hash", "")
+            ledger_by_source_hash[source_hash] = event
+
+        count = 0
+        seen_keys: set[str] = set()
+
+        for obs in raw_observations:
+            key = candle_identity_key(
+                exchange=obs.get("exchange", ""),
+                market_type=obs.get("market_type", ""),
+                symbol=obs.get("symbol", ""),
+                interval=obs.get("interval", ""),
+                open_time=obs.get("open_time", ""),
+            )
+
+            # Skip duplicates: count each unique candle identity once.
+            if key in seen_keys:
+                continue
+            seen_keys.add(key)
+
+            # Check normalized candle exists for this observation.
+            normalized = normalized_by_key.get(key)
+            if normalized is None:
+                continue
+
+            # Check ledger event exists for this observation.
+            source_hash = obs.get("raw_payload_hash", "")
+            if source_hash not in ledger_by_source_hash:
+                continue
+
+            # Check open_time >= first_open_ms (within prospective window).
+            open_time_str = obs.get("open_time", "")
+            try:
+                open_time_ms = int(datetime.fromisoformat(open_time_str).timestamp() * 1000)
+            except (ValueError, TypeError):
+                continue
+            if open_time_ms < first_open_ms:
+                continue
+
+            # Check close_time <= evaluation_ms (candle finalized by eval time).
+            close_time_str = normalized.get("close_time", "")
+            try:
+                close_time_ms = int(datetime.fromisoformat(close_time_str).timestamp() * 1000)
+            except (ValueError, TypeError):
+                continue
+            if close_time_ms > evaluation_ms:
+                continue
+
+            count += 1
+
+        return count
+
     # ------------------------------------------------------------------
     # Read helpers
     # ------------------------------------------------------------------
